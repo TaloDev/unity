@@ -1,0 +1,7 @@
+﻿namespace TaloGameServices {
+    [System.Serializable]
+    public class PlayerAlias {
+        public int id;
+        public string service, identifier, playerId;
+    }
+}

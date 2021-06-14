@@ -1,0 +1,14 @@
+{
+  "name": "com.trytalo.talo",
+  "version": "0.0.1",
+  "displayName": "Talo Game Services",
+  "description": "Track events and players using Talo (https://trytalo.com).",
+  "unity": "2019.1",
+  "keywords": [],
+  "author": {
+    "name": "Try Talo Limited",
+    "email": "help@trytalo.com",
+    "url": "https://trytalo.com"
+  },
+  "type": "library"
+}
