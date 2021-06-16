@@ -8,10 +8,11 @@ using System.Threading.Tasks;
 namespace TaloGameServices {
     public class EventsAPI : BaseAPI {
         private List<Event> queue = new List<Event>();
+        private readonly int minQueueSize = 10;
 
         public EventsAPI(TaloSettings settings, HttpClient client) : base(settings, client, "events") { }
 
-        public async void Track(string name, Prop[] props) {
+        public void Track(string name, Prop[] props) {
             Talo.IdentityCheck();
 
             var ev = new Event();
@@ -21,10 +22,8 @@ namespace TaloGameServices {
             ev.timestamp = DateTimeOffset.Now.ToUnixTimeMilliseconds();
             queue.Add(ev);
 
-            Debug.Log(queue.Count);
-
-            if (queue.Count >= settings.eventQueueSize) {
-                await Task.Run(Flush);
+            if (queue.Count >= minQueueSize) {
+                Flush();
             }
         }
 

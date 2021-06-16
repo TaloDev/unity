@@ -289,7 +289,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 41042928}
         m_TargetAssemblyTypeName: IdentifyPlayer, Assembly-CSharp
-        m_MethodName: Identify
+        m_MethodName: OnButtonClick
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -518,7 +518,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 324014314}
         m_TargetAssemblyTypeName: TrackEvent, Assembly-CSharp
-        m_MethodName: Track
+        m_MethodName: OnButtonClick
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -669,7 +669,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 496913038}
         m_TargetAssemblyTypeName: TrackEvent, Assembly-CSharp
-        m_MethodName: Track
+        m_MethodName: OnButtonClick
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}

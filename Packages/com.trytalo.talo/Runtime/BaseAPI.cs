@@ -17,7 +17,7 @@ namespace TaloGameServices {
 
         protected async Task<string> Call(HttpRequestMessage req) {
             try {
-                req.Headers.Add("Authorization", $"Bearer {settings.apiKey}");
+                req.Headers.Add("Authorization", $"Bearer {settings.accessKey}");
                 var res = await client.SendAsync(req);
                 string body = await res.Content.ReadAsStringAsync();
 

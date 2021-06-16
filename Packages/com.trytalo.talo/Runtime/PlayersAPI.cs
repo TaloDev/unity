@@ -1,6 +1,7 @@
 using System;
 using System.Net.Http;
 using System.Text;
+using System.Threading.Tasks;
 using UnityEngine;
 
 namespace TaloGameServices {
@@ -19,7 +20,7 @@ namespace TaloGameServices {
             Talo.CurrentPlayer = res.alias;
         }
 
-        public async void Identify(string service, string identifier) {
+        public async Task Identify(string service, string identifier) {
             var req = new HttpRequestMessage();
             req.Method = HttpMethod.Get;
             req.RequestUri = new Uri(baseUrl + $"/identify?service={service}&identifier={identifier}");

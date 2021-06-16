@@ -8,7 +8,11 @@ public class TrackEvent : MonoBehaviour {
     public Prop[] props;
     public bool flushImmediately;
 
-    public void Track() {
+    public void OnButtonClick() {
+        Track();
+    }
+
+    private void Track() {
         try {
             Talo.Events.Track(eventName, props);
             ResponseMessage.SetText($"{eventName} tracked");

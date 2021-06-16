@@ -6,9 +6,13 @@ using TaloGameServices;
 public class IdentifyPlayer : MonoBehaviour {
     public string service, identifier;
 
-    public void Identify() {
+    public void OnButtonClick() {
+        Identify();
+    }
+
+    private async void Identify() {
         try {
-            Talo.Players.Identify(service, identifier);
+            await Talo.Players.Identify(service, identifier);
             ResponseMessage.SetText("Identified!");
 
             GameObject.Find("Panel").GetComponent<Image>().color = new Color(135 / 255f, 1f, 135 / 255f);
