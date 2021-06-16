@@ -3,6 +3,7 @@ using UnityEngine;
 using System.Net.Http;
 using System;
 using System.Text;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace TaloGameServices {
@@ -12,22 +13,30 @@ namespace TaloGameServices {
 
         public EventsAPI(TaloSettings settings, HttpClient client) : base(settings, client, "events") { }
 
-        public void Track(string name, Prop[] props) {
+        public void Track(string name) {
+            Track(name, null);
+        }
+
+        public void Track(string name, params (string, string)[] props) {
             Talo.IdentityCheck();
 
             var ev = new Event();
             ev.aliasId = Talo.CurrentPlayer.id;
             ev.name = name;
-            ev.props = props;
+
+            if (props != null) {
+                ev.props = props.Select((propTuple) => new Prop(propTuple)).ToArray();
+            }
+
             ev.timestamp = DateTimeOffset.Now.ToUnixTimeMilliseconds();
             queue.Add(ev);
 
             if (queue.Count >= minQueueSize) {
-                Flush();
+                _ = Flush();
             }
         }
 
-        public async void Flush() {
+        public async Task Flush() {
             Talo.IdentityCheck();
 
             var eventsToSend = queue.ToArray();

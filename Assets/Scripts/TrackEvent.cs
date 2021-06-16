@@ -1,8 +1,8 @@
 using System;
 using UnityEngine;
 using TaloGameServices;
+using System.Linq;
 
-[System.Serializable]
 public class TrackEvent : MonoBehaviour {
     public string eventName;
     public Prop[] props;
@@ -14,7 +14,8 @@ public class TrackEvent : MonoBehaviour {
 
     private void Track() {
         try {
-            Talo.Events.Track(eventName, props);
+            Talo.Events.Track(eventName, props.Select((prop) => (prop.key, prop.value)).ToArray());
+
             ResponseMessage.SetText($"{eventName} tracked");
 
             if (flushImmediately) {
