@@ -10,5 +10,12 @@
     "email": "help@trytalo.com",
     "url": "https://trytalo.com"
   },
-  "type": "library"
+  "type": "library",
+  "samples": [
+    {
+      "displayName": "Playground",
+      "description": "A simple UI playground, letting you test identifying and events",
+      "path": "Samples~/Playground"
+    }
+  ]
 }
