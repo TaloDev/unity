@@ -10,7 +10,7 @@ public class FlushEvents : MonoBehaviour {
 
     private async void Flush() {
         try {
-            await Task.Run(Talo.Events.Flush);
+            await Talo.Events.Flush();
 
             ResponseMessage.SetText("Flushed events");
         } catch (Exception err) {
