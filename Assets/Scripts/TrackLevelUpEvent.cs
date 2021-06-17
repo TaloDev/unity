@@ -15,12 +15,12 @@ public class TrackLevelUpEvent : MonoBehaviour {
 
         try {
             Talo.Events.Track(
-                "Levelled up",
-                ("newLevel", level.ToString()),
-                ("timeTaken", timeTaken.ToString())
+                "Level up",
+                ("newLevel", $"{level}"),
+                ("timeTaken", $"{timeTaken}")
             );
 
-            ResponseMessage.SetText("Levelled up tracked");
+            ResponseMessage.SetText($"Level up tracked, newLevel = {level}, timeTaken = {timeTaken}");
         } catch (Exception err) {
             ResponseMessage.SetText(err.Message);
         }
