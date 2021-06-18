@@ -19,7 +19,7 @@ jobs:
         run: |
           mkdir -p Release/Samples~
           cp -a Packages/com.trytalo.talo/. Release
-          mv Assets Release/Samples~/Playground
+          cp -a Assets/. Release/Samples~/Playground
           cd Release
           npm pack
           
