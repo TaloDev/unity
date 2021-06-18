@@ -11,16 +11,20 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+
       - name: Create release
         run: |
           mkdir -p Release/Samples~
           cp -a Packages/com.trytalo.talo/. Release
           mv Assets Release/Samples~/Playground
           cd Release
-          tar -czvf release.tar.gz *
+          npm pack
           
       - name: Upload artifact
         uses: actions/upload-artifact@v2
         with:
           name: release
-          path: Release/release.tar.gz
+          path: Release/*.tgz
