@@ -16,7 +16,8 @@ jobs:
           mkdir -p Release/Samples~
           cp -a Packages/com.trytalo.talo/. Release
           mv Assets Release/Samples~/Playground
-          tar -C Release -czvf release.tar.gz Release
+          cd Release
+          tar -czvf release.tar.gz *
           
       - name: Upload artifact
         uses: actions/upload-artifact@v2
