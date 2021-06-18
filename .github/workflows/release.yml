@@ -11,18 +11,12 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Setup release folder
+      - name: Create release
         run: |
           mkdir -p Release/Samples~
           cp -a Packages/com.trytalo.talo/. Release
           mv Assets Release/Samples~/Playground
-
-      - name: Archive Release
-        uses: thedoctor0/zip-release@master
-        with:
-          filename: 'release.tar.gz'
-          type: 'tar'
-          directory: 'Release'
+          tar -czvf release.tar.gz Release
           
       - name: Upload artifact
         uses: actions/upload-artifact@v2
