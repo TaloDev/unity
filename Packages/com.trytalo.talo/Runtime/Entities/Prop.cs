@@ -7,5 +7,9 @@
             key = propTuple.Item1;
             value = propTuple.Item2;
         }
+
+        public override string ToString() {
+            return $"Key: {key}, Value: {value}";
+        }
     }
 }

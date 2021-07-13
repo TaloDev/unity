@@ -17,7 +17,7 @@ namespace TaloGameServices {
             string json = await Call(req);
             var res = JsonUtility.FromJson<PlayersIdentifyResponse>(json);
 
-            Talo.CurrentPlayer = res.alias;
+            Talo.CurrentAlias = res.alias;
         }
 
         public async Task Identify(string service, string identifier) {
@@ -27,7 +27,20 @@ namespace TaloGameServices {
 
             string json = await Call(req);
             var res = JsonUtility.FromJson<PlayersIdentifyResponse>(json);
-            Talo.CurrentPlayer = res.alias;
+            Talo.CurrentAlias = res.alias;
+        }
+
+        public async void Update() {
+            var req = new HttpRequestMessage();
+            req.Method = new HttpMethod("PATCH");
+            req.RequestUri = new Uri(baseUrl + $"/{Talo.CurrentPlayer.id}");
+
+            string content = JsonUtility.ToJson(Talo.CurrentPlayer);
+            req.Content = new StringContent(content, Encoding.UTF8, "application/json");
+
+            string json = await Call(req);
+            var res = JsonUtility.FromJson<PlayersPatchResponse>(json);
+            Talo.CurrentPlayer = res.player;
         }
     }
 }

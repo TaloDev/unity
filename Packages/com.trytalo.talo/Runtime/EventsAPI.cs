@@ -21,7 +21,7 @@ namespace TaloGameServices {
             Talo.IdentityCheck();
 
             var ev = new Event();
-            ev.aliasId = Talo.CurrentPlayer.id;
+            ev.aliasId = Talo.CurrentAlias.id;
             ev.name = name;
 
             if (props != null) {
