@@ -12,7 +12,7 @@ namespace TaloGameServices {
         public BaseAPI(TaloSettings settings, HttpClient client, string service) {
             this.settings = settings;
             this.client = client;
-            baseUrl = $"https://api.trytalo.com/v1/{service}";
+            baseUrl = $"{settings.apiUrl}/{service}";
         }
 
         protected async Task<string> Call(HttpRequestMessage req) {
