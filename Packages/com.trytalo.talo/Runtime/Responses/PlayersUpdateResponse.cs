@@ -1,6 +1,6 @@
 ﻿namespace TaloGameServices {
     [System.Serializable]
-    public class PlayersPatchResponse {
+    public class PlayersUpdateResponse {
         public Player player;
     }
 }

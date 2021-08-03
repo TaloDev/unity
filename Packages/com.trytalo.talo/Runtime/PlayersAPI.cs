@@ -39,8 +39,21 @@ namespace TaloGameServices {
             req.Content = new StringContent(content, Encoding.UTF8, "application/json");
 
             string json = await Call(req);
-            var res = JsonUtility.FromJson<PlayersPatchResponse>(json);
+            var res = JsonUtility.FromJson<PlayersUpdateResponse>(json);
             Talo.CurrentPlayer = res.player;
+        }
+
+        public async Task<Player> Merge(string alias1, string alias2) {
+            var req = new HttpRequestMessage();
+            req.Method = new HttpMethod("POST");
+            req.RequestUri = new Uri(baseUrl + "/merge");
+
+            string content = JsonUtility.ToJson(new PlayersMergeRequest(alias1, alias2));
+            req.Content = new StringContent(content, Encoding.UTF8, "application/json");
+
+            string json = await Call(req);
+            var res = JsonUtility.FromJson<PlayersUpdateResponse>(json);
+            return res.player;
         }
     }
 }
