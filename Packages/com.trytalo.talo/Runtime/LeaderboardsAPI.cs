@@ -32,7 +32,7 @@ namespace TaloGameServices
             return res.entries;
         }
 
-        public async Task<LeaderboardEntry> AddEntry(string internalName, float score)
+        public async Task<(LeaderboardEntry, bool)> AddEntry(string internalName, float score)
         {
             Talo.IdentityCheck();
 
@@ -45,7 +45,7 @@ namespace TaloGameServices
 
             string json = await Call(req);
             var res = JsonUtility.FromJson<LeaderboardEntryResponse>(json);
-            return res.entry;
+            return (res.entry, res.updated);
         }
     }
 }

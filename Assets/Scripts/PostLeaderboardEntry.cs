@@ -16,9 +16,9 @@ public class PostLeaderboardEntry : MonoBehaviour
         try
         {
             int score = UnityEngine.Random.Range(0, 10000);
-            LeaderboardEntry entry = await Talo.Leaderboards.AddEntry(internalName, score);
+            (LeaderboardEntry entry, bool updated) = await Talo.Leaderboards.AddEntry(internalName, score);
 
-            ResponseMessage.SetText($"Entry with score {score} added, position is {entry.position}");
+            ResponseMessage.SetText($"Entry with score {score} added, position is {entry.position}, it was {(updated ? "" : "not")} updated");
         }
         catch (Exception err)
         {

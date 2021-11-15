@@ -4,5 +4,6 @@
     public class LeaderboardEntryResponse
     {
         public LeaderboardEntry entry;
+        public bool updated;
     }
 }
