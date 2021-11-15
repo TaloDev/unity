@@ -6,8 +6,11 @@ using System.Net.Http;
 namespace TaloGameServices {
     public class Talo {
         private static readonly HttpClient client = new HttpClient();
+        
         private static EventsAPI _events;
         private static PlayersAPI _players;
+        private static LeaderboardsAPI _leaderboards;
+
         private static PlayerAlias _currentAlias;
 
         public static PlayerAlias CurrentAlias {
@@ -31,6 +34,11 @@ namespace TaloGameServices {
             get => _players;
         }
 
+        public static LeaderboardsAPI Leaderboards
+        {
+            get => _leaderboards;
+        }
+
         static Talo() {
             string[] assets = AssetDatabase.FindAssets("t:TaloSettings");
             if (assets.Length == 0) {
@@ -43,6 +51,7 @@ namespace TaloGameServices {
 
             _events = new EventsAPI(settings, client);
             _players = new PlayersAPI(settings, client);
+            _leaderboards = new LeaderboardsAPI(settings, client);
         }
 
         public static void IdentityCheck() {

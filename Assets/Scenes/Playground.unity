@@ -157,9 +157,9 @@ RectTransform:
   m_Father: {fileID: 2079681527}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 40, y: -40}
   m_SizeDelta: {x: 160, y: 30}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &13014978
@@ -388,9 +388,9 @@ RectTransform:
   m_Father: {fileID: 2079681527}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 240, y: -40}
   m_SizeDelta: {x: 160, y: 30}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &90646236
@@ -1102,10 +1102,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 938574828}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cdc6fa6b78ec0864d92ed3e79ce3d447, type: 3}
+  m_Script: {fileID: 11500000, guid: 79527fda957a1eb4c8f7311d598dd35d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  key: currentHealth
+  internalName: time-survived
 --- !u!114 &938574831
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1151,7 +1151,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 938574830}
-        m_TargetAssemblyTypeName: ManagePlayerProp, Assembly-CSharp
+        m_TargetAssemblyTypeName: PostLeaderboardEntry, Assembly-CSharp
         m_MethodName: OnButtonClick
         m_Mode: 1
         m_Arguments:
@@ -1234,9 +1234,9 @@ RectTransform:
   m_Father: {fileID: 2079681527}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 440, y: -40}
   m_SizeDelta: {x: 160, y: 30}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &996882624
@@ -2026,11 +2026,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 1717956219}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3d636da22b3489748bdd853bf34f6a83, type: 3}
+  m_Script: {fileID: 11500000, guid: aaeb9ce89cf504a44807b6a13565c221, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  service: steam
-  identifier: 123456
+  internalName: time-survived
+  page: 0
 --- !u!114 &1717956222
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2076,7 +2076,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1717956221}
-        m_TargetAssemblyTypeName: IdentifyPlayer, Assembly-CSharp
+        m_TargetAssemblyTypeName: GetLeaderboardEntries, Assembly-CSharp
         m_MethodName: OnButtonClick
         m_Mode: 1
         m_Arguments:
