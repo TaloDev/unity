@@ -1,0 +1,22 @@
+name: Tag
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  tag:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    
+    - name: Check version change
+      id: check
+      uses: EndBug/version-check@v1
+
+    - name: Create tag
+      if: steps.check.outputs.changed == 'true'
+      uses: tvdias/github-tagger@v0.0.1
+      with:
+        repo-token: ${{ secrets.PAT }}
+        tag: ${{ steps.check.outputs.version }}

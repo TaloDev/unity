@@ -3,14 +3,17 @@ using System.Collections.Generic;
 using UnityEngine;
 using TaloGameServices;
 
-public class SetHealthProp : MonoBehaviour {
+public class SetHealthProp : MonoBehaviour
+{
     public string key = "currentHealth";
 
-    public void OnButtonClick() {
+    public void OnButtonClick()
+    {
         UpdateProp();
     }
 
-    private void UpdateProp() {
+    private void UpdateProp()
+    {
         string value = Random.Range(0, 100).ToString();
 
         Talo.CurrentPlayer.SetProp(key, value);

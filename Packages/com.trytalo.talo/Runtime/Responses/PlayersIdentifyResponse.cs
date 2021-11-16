@@ -1,6 +1,8 @@
-﻿namespace TaloGameServices {
+﻿namespace TaloGameServices
+{
     [System.Serializable]
-    public class PlayersIdentifyResponse {
+    public class PlayersIdentifyResponse
+    {
         public PlayerAlias alias;
     }
 }
