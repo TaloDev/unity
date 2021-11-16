@@ -4,11 +4,14 @@ using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 
-namespace TaloGameServices {
-    public class PlayersAPI : BaseAPI {
+namespace TaloGameServices
+{
+    public class PlayersAPI : BaseAPI
+    {
         public PlayersAPI(TaloSettings settings, HttpClient client) : base(settings, client, "players") { }
 
-        public async void Create(PlayerAlias alias) {
+        public async void Create(PlayerAlias alias)
+        {
             var req = new HttpRequestMessage();
             req.Method = HttpMethod.Post;
             req.RequestUri = new Uri(baseUrl);
@@ -20,7 +23,8 @@ namespace TaloGameServices {
             Talo.CurrentAlias = res.alias;
         }
 
-        public async Task Identify(string service, string identifier) {
+        public async Task Identify(string service, string identifier)
+        {
             var req = new HttpRequestMessage();
             req.Method = HttpMethod.Get;
             req.RequestUri = new Uri(baseUrl + $"/identify?service={service}&identifier={identifier}");
@@ -30,7 +34,8 @@ namespace TaloGameServices {
             Talo.CurrentAlias = res.alias;
         }
 
-        public async void Update() {
+        public async void Update()
+        {
             var req = new HttpRequestMessage();
             req.Method = new HttpMethod("PATCH");
             req.RequestUri = new Uri(baseUrl + $"/{Talo.CurrentPlayer.id}");
@@ -43,7 +48,8 @@ namespace TaloGameServices {
             Talo.CurrentPlayer = res.player;
         }
 
-        public async Task<Player> Merge(string alias1, string alias2) {
+        public async Task<Player> Merge(string alias1, string alias2)
+        {
             var req = new HttpRequestMessage();
             req.Method = new HttpMethod("POST");
             req.RequestUri = new Uri(baseUrl + "/merge");

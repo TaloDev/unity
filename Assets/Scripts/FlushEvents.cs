@@ -3,17 +3,23 @@ using UnityEngine;
 using TaloGameServices;
 using System.Threading.Tasks;
 
-public class FlushEvents : MonoBehaviour {
-    public void OnButtonClick() {
+public class FlushEvents : MonoBehaviour
+{
+    public void OnButtonClick()
+    {
         Flush();
     }
 
-    private async void Flush() {
-        try {
+    private async void Flush()
+    {
+        try
+        {
             await Talo.Events.Flush();
 
             ResponseMessage.SetText("Flushed events");
-        } catch (Exception err) {
+        }
+        catch (Exception err)
+        {
             ResponseMessage.SetText(err.Message);
         }
     }

@@ -6,37 +6,44 @@ using System.Text;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace TaloGameServices {
-    public class EventsAPI : BaseAPI {
+namespace TaloGameServices
+{
+    public class EventsAPI : BaseAPI
+    {
         private List<Event> queue = new List<Event>();
         private readonly int minQueueSize = 10;
 
         public EventsAPI(TaloSettings settings, HttpClient client) : base(settings, client, "events") { }
 
-        public void Track(string name) {
+        public void Track(string name)
+        {
             Track(name, null);
         }
 
-        public void Track(string name, params (string, string)[] props) {
+        public void Track(string name, params (string, string)[] props)
+        {
             Talo.IdentityCheck();
 
             var ev = new Event();
             ev.aliasId = Talo.CurrentAlias.id;
             ev.name = name;
 
-            if (props != null) {
+            if (props != null)
+            {
                 ev.props = props.Select((propTuple) => new Prop(propTuple)).ToArray();
             }
 
             ev.timestamp = DateTimeOffset.Now.ToUnixTimeMilliseconds();
             queue.Add(ev);
 
-            if (queue.Count >= minQueueSize) {
+            if (queue.Count >= minQueueSize)
+            {
                 _ = Flush();
             }
         }
 
-        public async Task Flush() {
+        public async Task Flush()
+        {
             Talo.IdentityCheck();
 
             var eventsToSend = queue.ToArray();
@@ -49,9 +56,12 @@ namespace TaloGameServices {
             string content = JsonUtility.ToJson(new EventsPostRequest(eventsToSend));
             req.Content = new StringContent(content, Encoding.UTF8, "application/json");
 
-            try {
+            try
+            {
                 await Call(req);
-            } catch (HttpRequestException err) {
+            }
+            catch (HttpRequestException err)
+            {
                 Debug.LogError(err.Message);
                 queue.AddRange(eventsToSend);
             }

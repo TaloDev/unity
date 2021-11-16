@@ -2,18 +2,22 @@ using UnityEngine;
 using TaloGameServices;
 using System;
 
-public class TrackLevelUpEvent : MonoBehaviour {
+public class TrackLevelUpEvent : MonoBehaviour
+{
     public int level = 1;
     private float timeTaken;
 
-    public void OnButtonClick() {
+    public void OnButtonClick()
+    {
         Track();
     }
 
-    private void Track() {
+    private void Track()
+    {
         level++;
 
-        try {
+        try
+        {
             Talo.Events.Track(
                 "Level up",
                 ("newLevel", $"{level}"),
@@ -21,14 +25,17 @@ public class TrackLevelUpEvent : MonoBehaviour {
             );
 
             ResponseMessage.SetText($"Level up tracked, newLevel = {level}, timeTaken = {timeTaken}");
-        } catch (Exception err) {
+        }
+        catch (Exception err)
+        {
             ResponseMessage.SetText(err.Message);
         }
 
         timeTaken = 0;
     }
 
-    private void Update() {
+    private void Update()
+    {
         timeTaken += Time.deltaTime;
     }
 }
