@@ -13,6 +13,8 @@ jobs:
     - name: Check version change
       id: check
       uses: EndBug/version-check@v1
+      with:
+        file-name: Packages/com.trytalo.talo/package.json
 
     - name: Create tag
       if: steps.check.outputs.changed == 'true'
