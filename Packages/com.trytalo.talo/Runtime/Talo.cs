@@ -12,6 +12,7 @@ namespace TaloGameServices
         private static EventsAPI _events;
         private static PlayersAPI _players;
         private static LeaderboardsAPI _leaderboards;
+        private static SavesAPI _saves;
 
         private static PlayerAlias _currentAlias;
 
@@ -46,6 +47,11 @@ namespace TaloGameServices
             get => _leaderboards;
         }
 
+        public static SavesAPI Saves
+        {
+            get => _saves;
+        }
+
         static Talo()
         {
             string[] assets = AssetDatabase.FindAssets("t:TaloSettings");
@@ -61,6 +67,7 @@ namespace TaloGameServices
             _events = new EventsAPI(settings, client);
             _players = new PlayersAPI(settings, client);
             _leaderboards = new LeaderboardsAPI(settings, client);
+            _saves = new SavesAPI(settings, client);
         }
 
         public static void IdentityCheck()

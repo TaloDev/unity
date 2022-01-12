@@ -23,6 +23,8 @@ namespace TaloGameServices
 
         public async Task<LeaderboardEntry[]> GetEntriesForCurrentPlayer(string leaderboardInternalName, int page)
         {
+            Talo.IdentityCheck();
+
             var req = new HttpRequestMessage();
             req.Method = HttpMethod.Get;
             req.RequestUri = new Uri(baseUrl + $"/{leaderboardInternalName}/entries?page={page}&aliasId={Talo.CurrentAlias.id}");
