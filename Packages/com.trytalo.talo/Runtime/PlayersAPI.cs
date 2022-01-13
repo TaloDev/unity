@@ -32,6 +32,8 @@ namespace TaloGameServices
             string json = await Call(req);
             var res = JsonUtility.FromJson<PlayersIdentifyResponse>(json);
             Talo.CurrentAlias = res.alias;
+
+            await Talo.Saves.GetSaves();
         }
 
         public async void Update()
