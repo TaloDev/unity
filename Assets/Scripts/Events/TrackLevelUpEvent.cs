@@ -29,6 +29,7 @@ public class TrackLevelUpEvent : MonoBehaviour
         catch (Exception err)
         {
             ResponseMessage.SetText(err.Message);
+            throw err;
         }
 
         timeTaken = 0;
