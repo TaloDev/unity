@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using UnityEngine;
 
 namespace TaloGameServices
 {
@@ -19,31 +18,35 @@ namespace TaloGameServices
         public string name;
         public SavedObjectData[] data;
 
-        public SavedObject(Loadable loadable)
+        public SavedObject(LoadableData loadableData)
         {
-            id = loadable.id;
+            id = loadableData.id;
+            name = loadableData.name;
 
-            name = GetFullName(loadable.gameObject);
-
-            data = loadable.savedFields.Select((field) => new SavedObjectData()
+            if (loadableData.loadable != null)
             {
-                key = field.Key,
-                value = field.Value.ToString(),
-                type = field.Value.GetType().ToString()
-            }).ToArray();
-        }
+                loadableData.loadable.SavedFields.Clear();
+                loadableData.loadable.RegisterFields();
 
-        private string GetFullName(GameObject go)
-        {
-            var name = go.name;
-            while (go.transform.parent != null)
+                data = loadableData.loadable.SavedFields.Select((field) => new SavedObjectData()
+                {
+                    key = field.Key,
+                    value = field.Value.ToString(),
+                    type = field.Value.GetType().ToString()
+                }).ToArray();
+            } else
             {
-                go = go.transform.parent.gameObject;
-                name = $"{go.name}.{name}";
+                data = new SavedObjectData[]
+                {
+                    new SavedObjectData()
+                    {
+                        key = "meta.destroyed",
+                        value = "true",
+                        type = typeof(bool).ToString()
+                    }
+                };
             }
-            return name;
         }
-
     }
 
     [System.Serializable]
@@ -51,14 +54,10 @@ namespace TaloGameServices
     {
         public SavedObject[] objects;
 
-        public SaveContent(List<Loadable> loadables)
+        public SaveContent(List<LoadableData> loadables)
         {
             objects = loadables
-                .Select((loadable) =>
-                {
-                    loadable.RegisterFields();
-                    return new SavedObject(loadable);
-                })
+                .Select((loadable) => new SavedObject(loadable))
                 .ToArray();
         }
     }
