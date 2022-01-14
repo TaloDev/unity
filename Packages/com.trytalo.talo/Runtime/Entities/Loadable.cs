@@ -1,36 +1,57 @@
 using System;
 using UnityEngine;
-using TaloGameServices;
 using System.Collections.Generic;
 
-public class Loadable : MonoBehaviour, ILoadable
+namespace TaloGameServices
 {
-    public string id = Guid.NewGuid().ToString();
-    public Dictionary<string, object> savedFields = new Dictionary<string, object>();
-
-    protected virtual void OnEnable()
+    public class Loadable : MonoBehaviour, ILoadable
     {
-        Talo.Saves.Register(this);
-        Talo.Saves.OnSaveChosen += LoadData;
-    }
+        private string _id = Guid.NewGuid().ToString();
 
-    protected virtual void OnDisable()
-    {
-        Talo.Saves.OnSaveChosen -= LoadData;
-    }
+        private Dictionary<string, object> _savedFields = new Dictionary<string, object>();
 
-    private void LoadData(GameSave save)
-    {
-        OnLoaded(Talo.Saves.LoadObject(save, id));
-    }
+        public string Id => _id;
 
-    public virtual void RegisterFields()
-    {
-        throw new NotImplementedException();
-    }
+        public Dictionary<string, object> SavedFields => _savedFields;
 
-    public virtual void OnLoaded(Dictionary<string, object> data)
-    {
-        throw new NotImplementedException();
+        protected virtual void OnEnable()
+        {
+            Talo.Saves.Register(this);
+            Talo.Saves.OnSaveChosen += LoadData;
+        }
+
+        protected virtual void OnDisable()
+        {
+            Talo.Saves.OnSaveChosen -= LoadData;
+        }
+
+        private void LoadData(GameSave save)
+        {
+            var data = Talo.Saves.LoadObject(save, _id);
+            if (data != null) OnLoaded(data);
+        }
+
+        public virtual void RegisterFields()
+        {
+            throw new NotImplementedException();
+        }
+
+        protected void RegisterField(string key, object value)
+        {
+            _savedFields.Add(key, value);
+        }
+
+        public virtual void OnLoaded(Dictionary<string, object> data)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected bool HandleDestroyed(Dictionary<string, object> data)
+        {
+            data.TryGetValue("meta.destroyed", out var destroyed);
+            if (destroyed != null) Destroy(gameObject);
+
+            return destroyed != null;
+        }
     }
 }

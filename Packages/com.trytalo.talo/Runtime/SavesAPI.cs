@@ -13,7 +13,7 @@ namespace TaloGameServices
         private bool _savesLoaded;
         private GameSave _currentSave;
         private List<GameSave> _allSaves = new List<GameSave>();
-        private List<Loadable> registeredLoadables = new List<Loadable>();
+        private List<LoadableData> registeredLoadables = new List<LoadableData>();
 
         public event Action OnSavesLoaded;
         public event Action<GameSave> OnSaveChosen;
@@ -63,7 +63,7 @@ namespace TaloGameServices
 
         public void Register(Loadable loadable)
         {
-            registeredLoadables.Add(loadable);
+            registeredLoadables.Add(new LoadableData(loadable));
         }
 
         public async Task<GameSave> CreateSave(string saveName)
@@ -141,17 +141,24 @@ namespace TaloGameServices
         public Dictionary<string, object> LoadObject(GameSave save, string id)
         {
             var content = JsonUtility.FromJson<SaveContent>(save.content);
-            var savedObject = content.objects.First((obj) => obj.id.Equals(id));
 
             Dictionary<string, object> fields = new Dictionary<string, object>();
+            SavedObject savedObject;
 
-            if (savedObject != null)
+            try
             {
-                foreach (SavedObjectData field in savedObject.data)
-                {
-                    var type = Type.GetType(field.type);
-                    fields.Add(field.key, Convert.ChangeType(field.value, type));
-                }
+                savedObject = content.objects.First((obj) => obj.id.Equals(id));
+            }
+            catch (InvalidOperationException)
+            {
+                Debug.LogWarning($"Saved object id '{id}' not found in save '{save.name}'");
+                return null;
+            }
+
+            foreach (SavedObjectData field in savedObject.data)
+            {
+                var type = Type.GetType(field.type);
+                fields.Add(field.key, Convert.ChangeType(field.value, type));
             }
 
             return fields;

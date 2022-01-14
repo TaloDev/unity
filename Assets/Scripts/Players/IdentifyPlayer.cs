@@ -39,6 +39,7 @@ public class IdentifyPlayer : MonoBehaviour
         catch (Exception err)
         {
             ResponseMessage.SetText(err.Message);
+            throw err;
         }
     }
 }
