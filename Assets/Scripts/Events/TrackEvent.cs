@@ -32,6 +32,7 @@ public class TrackEvent : MonoBehaviour
         catch (Exception err)
         {
             ResponseMessage.SetText(err.Message);
+            throw err;
         }
     }
 }

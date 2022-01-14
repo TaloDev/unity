@@ -31,6 +31,7 @@ public class SaveManager : MonoBehaviour
         catch (Exception err)
         {
             ResponseMessage.SetText(err.Message);
+            throw err;
         }
     }
 }

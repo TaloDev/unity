@@ -32,8 +32,16 @@ namespace TaloGameServices
                 }
                 else
                 {
-                    var error = JsonUtility.FromJson<ErrorResponse>(body);
-                    throw new Exception(error.message);
+                    string message;
+
+                    try
+                    {
+                        message = JsonUtility.FromJson<ErrorResponse>(body).message;
+                    } catch (Exception)
+                    {
+                        message = body;
+                    }
+                    throw new Exception($"Request failed, {(int)res.StatusCode} {res.StatusCode}: {message}");
                 }
             }
             catch (HttpRequestException err)
