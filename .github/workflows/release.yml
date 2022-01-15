@@ -31,7 +31,7 @@ jobs:
           destination-github-username: TaloDev
           destination-repository-name: unity-package
           user-email: 7089284+tudddorrr@users.noreply.github.com
-          commit-message: "Release https://github.com/TaloDev/unity/releases/tag/$GITHUB_REF_NAME"
+          commit-message: "Release https://github.com/TaloDev/unity/releases/tag/${{ github.ref_name }}"
 
       - name: Create artifact
         run: |
