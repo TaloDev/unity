@@ -21,12 +21,14 @@ public class SaveManager : MonoBehaviour
             if (updateCurrentSave)
             {
                 save = await Talo.Saves.UpdateCurrentSave(saveName);
-            } else
+                ResponseMessage.SetText($"Save '{save.name}' updated");
+            }
+            else
             {
                 save = await Talo.Saves.CreateSave(saveName);
+                ResponseMessage.SetText($"Save '{save.name}' created. It will automatically be loaded in next time the scene is loaded.");
             }
 
-            ResponseMessage.SetText($"Save '{save.name}' {(updateCurrentSave ? "updated" : "created")}");
         }
         catch (Exception err)
         {
