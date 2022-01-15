@@ -6,6 +6,7 @@ namespace TaloGameServices
 {
     public class Loadable : MonoBehaviour, ILoadable
     {
+        [SerializeField]
         private string _id = Guid.NewGuid().ToString();
 
         private Dictionary<string, object> _savedFields = new Dictionary<string, object>();
