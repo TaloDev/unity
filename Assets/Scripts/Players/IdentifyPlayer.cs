@@ -13,8 +13,19 @@ public class IdentifyPlayer : MonoBehaviour
         {
             if (Talo.Saves.All.Length > 0)
             {
+                ResponseMessage.SetText("Loading...");
                 Talo.Saves.ChooseSave(Talo.Saves.Latest);
+            } else
+            {
+                ResponseMessage.SetText("No saves found. Modify the scene and then create one.");
+                GameObject.Find("Overlay")?.SetActive(false);
             }
+        };
+
+        Talo.Saves.OnSaveLoadingCompleted += () =>
+        {
+            ResponseMessage.SetText($"Save '{Talo.Saves.Current.name}' loaded");
+            GameObject.Find("Overlay")?.SetActive(false);
         };
     }
 
@@ -28,11 +39,11 @@ public class IdentifyPlayer : MonoBehaviour
         try
         {
             await Talo.Players.Identify(service, identifier);
-            ResponseMessage.SetText("Identified!");
 
             var panel = GameObject.Find("Panel");
             if (panel != null)
             {
+                ResponseMessage.SetText("Identified!");
                 panel.GetComponent<Image>().color = new Color(135 / 255f, 1f, 135 / 255f);
             }
         }

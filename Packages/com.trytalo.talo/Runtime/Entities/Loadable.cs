@@ -28,8 +28,9 @@ namespace TaloGameServices
 
         private void LoadData(GameSave save)
         {
-            var data = Talo.Saves.LoadObject(save, _id);
+            var data = Talo.Saves.LoadObject(save, this);
             if (data != null) OnLoaded(data);
+            Talo.Saves.SetObjectLoaded(_id);
         }
 
         public virtual void RegisterFields()

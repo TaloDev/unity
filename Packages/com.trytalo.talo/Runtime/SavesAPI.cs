@@ -13,10 +13,12 @@ namespace TaloGameServices
         private bool _savesLoaded;
         private GameSave _currentSave;
         private List<GameSave> _allSaves = new List<GameSave>();
-        private List<LoadableData> registeredLoadables = new List<LoadableData>();
+        private List<LoadableData> _registeredLoadables = new List<LoadableData>();
+        private List<string> _loadedLoadables = new List<string>();
 
         public event Action OnSavesLoaded;
         public event Action<GameSave> OnSaveChosen;
+        public event Action OnSaveLoadingCompleted;
 
         public GameSave[] All
         {
@@ -63,7 +65,7 @@ namespace TaloGameServices
 
         public void Register(Loadable loadable)
         {
-            registeredLoadables.Add(new LoadableData(loadable));
+            _registeredLoadables.Add(new LoadableData(loadable));
         }
 
         public async Task<GameSave> CreateSave(string saveName)
@@ -78,7 +80,7 @@ namespace TaloGameServices
             {
                 aliasId = Talo.CurrentAlias.id,
                 name = saveName,
-                content = JsonUtility.ToJson(new SaveContent(registeredLoadables))
+                content = JsonUtility.ToJson(new SaveContent(_registeredLoadables))
             });
 
             req.Content = new StringContent(content, Encoding.UTF8, "application/json");
@@ -119,7 +121,7 @@ namespace TaloGameServices
             {
                 aliasId = Talo.CurrentAlias.id,
                 name = newName,
-                content = JsonUtility.ToJson(new SaveContent(registeredLoadables))
+                content = JsonUtility.ToJson(new SaveContent(_registeredLoadables))
             });
 
             req.Content = new StringContent(content, Encoding.UTF8, "application/json");
@@ -138,7 +140,7 @@ namespace TaloGameServices
             return _currentSave;
         }
 
-        public Dictionary<string, object> LoadObject(GameSave save, string id)
+        public Dictionary<string, object> LoadObject(GameSave save, Loadable loadable)
         {
             var content = JsonUtility.FromJson<SaveContent>(save.content);
 
@@ -147,11 +149,11 @@ namespace TaloGameServices
 
             try
             {
-                savedObject = content.objects.First((obj) => obj.id.Equals(id));
+                savedObject = content.objects.First((obj) => obj.id.Equals(loadable.Id));
             }
             catch (InvalidOperationException)
             {
-                Debug.LogWarning($"Saved object id '{id}' not found in save '{save.name}'");
+                Debug.LogWarning($"Loadable with id '{loadable.Id}' not found in save '{save.name}'", loadable);
                 return null;
             }
 
@@ -166,8 +168,18 @@ namespace TaloGameServices
 
         public void ChooseSave(GameSave save)
         {
+            _loadedLoadables.Clear();
             _currentSave = save;
             OnSaveChosen?.Invoke(save);
+        }
+
+        public void SetObjectLoaded(string id)
+        {
+            _loadedLoadables.Add(id);
+            if (_loadedLoadables.Count == _registeredLoadables.Count)
+            {
+                OnSaveLoadingCompleted?.Invoke();
+            }
         }
     }
 }
