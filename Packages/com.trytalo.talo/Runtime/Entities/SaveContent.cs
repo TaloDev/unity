@@ -41,7 +41,7 @@ namespace TaloGameServices
                     new SavedObjectData()
                     {
                         key = "meta.destroyed",
-                        value = "true",
+                        value = true.ToString(),
                         type = typeof(bool).ToString()
                     }
                 };
