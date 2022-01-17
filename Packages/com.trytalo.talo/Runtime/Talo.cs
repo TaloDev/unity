@@ -1,6 +1,5 @@
 using System;
 using UnityEngine;
-using UnityEditor;
 using System.Net.Http;
 
 namespace TaloGameServices
@@ -54,15 +53,12 @@ namespace TaloGameServices
 
         static Talo()
         {
-            string[] assets = AssetDatabase.FindAssets("t:TaloSettings");
-            if (assets.Length == 0)
+            var settings = Resources.Load<TaloSettings>("Talo Settings");
+            if (!settings)
             {
-                Debug.LogError("Talo settings asset not found. Create one using the Create menu > Talo > Settings Asset");
+                Debug.LogError("'Talo Settings' asset not found in Resources folder. Create one using the Create menu > Talo > Settings Asset");
                 return;
             }
-
-            string path = AssetDatabase.GUIDToAssetPath(assets[0]);
-            TaloSettings settings = AssetDatabase.LoadAssetAtPath<TaloSettings>(path);
 
             _events = new EventsAPI(settings, client);
             _players = new PlayersAPI(settings, client);
