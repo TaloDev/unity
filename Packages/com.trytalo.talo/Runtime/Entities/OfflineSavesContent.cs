@@ -9,9 +9,9 @@ namespace TaloGameServices
     {
         public GameSave[] saves;
 
-        public OfflineSavesContent(List<GameSave> saves)
+        public OfflineSavesContent(GameSave[] saves)
         {
-            this.saves = saves.Where((save) => save.id < 0).ToArray();
+            this.saves = saves;
         }
     }
 }

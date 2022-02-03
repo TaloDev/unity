@@ -10,9 +10,9 @@ public class LoadableCube : Loadable
         RegisterField("y", transform.position.y);
         RegisterField("z", transform.position.z);
 
-        RegisterField("r.x", transform.rotation.x);
-        RegisterField("r.y", transform.rotation.y);
-        RegisterField("r.z", transform.rotation.z);
+        RegisterField("r.x", transform.rotation.eulerAngles.x);
+        RegisterField("r.y", transform.rotation.eulerAngles.y);
+        RegisterField("r.z", transform.rotation.eulerAngles.z);
 
         RegisterField("s.x", transform.localScale.x);
         RegisterField("s.y", transform.localScale.y);

@@ -57,7 +57,11 @@ namespace TaloGameServices
 
             if (mode != SaveMode.ONLINE_ONLY && File.Exists(_offlineSavesPath))
             {
-                saves.AddRange(GetOfflineSavesContent().saves);
+                var offlineSaves = GetOfflineSavesContent()?.saves;
+                if (offlineSaves != null)
+                {
+                    saves.AddRange(offlineSaves);
+                }
             }
 
             if (mode != SaveMode.OFFLINE_ONLY)
@@ -91,6 +95,8 @@ namespace TaloGameServices
 
         private OfflineSavesContent GetOfflineSavesContent()
         {
+            if (!File.Exists(_offlineSavesPath)) return null;
+
             var sr = new StreamReader(_offlineSavesPath);
             var content = sr.ReadToEnd();
             sr.Close();
@@ -103,19 +109,30 @@ namespace TaloGameServices
             var offlineContent = GetOfflineSavesContent();
 
             var updated = false;
-            offlineContent.saves = offlineContent.saves.Select((existingSave) =>
+            if (offlineContent?.saves != null)
             {
-                if (existingSave.id == incomingSave.id)
+                // updating
+                offlineContent.saves = offlineContent.saves.Select((existingSave) =>
                 {
-                    updated = true;
-                    return incomingSave;
-                }
-                return existingSave;
-            }).ToArray();
+                    if (existingSave.id == incomingSave.id)
+                    {
+                        updated = true;
+                        return incomingSave;
+                    }
+                    return existingSave;
+                }).ToArray();
 
-            if (!updated)
+                // appending
+                if (!updated)
+                {
+                    incomingSave.id = -offlineContent.saves.Length - 1;
+                    offlineContent.saves = offlineContent.saves.Concat(new GameSave[] { incomingSave }).ToArray();
+                }
+            } else
             {
-                offlineContent.saves = offlineContent.saves.Concat(new GameSave[] { incomingSave }).ToArray();
+                // first entry into the saves file
+                incomingSave.id = -1;
+                offlineContent = new OfflineSavesContent(new GameSave[] { incomingSave });
             }
 
             var sw = new StreamWriter(_offlineSavesPath);
@@ -136,7 +153,6 @@ namespace TaloGameServices
                 save.name = saveName;
                 save.content = saveContent;
                 save.updatedAt = DateTime.UtcNow.ToString("O");
-                save.id = -save.GetHashCode();
                 UpdateOfflineSaves(save);
             }
 

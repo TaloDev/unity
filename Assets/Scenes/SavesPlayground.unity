@@ -476,7 +476,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   saveName: 
   updateCurrentSave: 1
-  saveMode: 0
+  saveMode: 2
 --- !u!114 &520722617
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -719,7 +719,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   saveName: New Save
   updateCurrentSave: 0
-  saveMode: 0
+  saveMode: 2
 --- !u!1 &551657113
 GameObject:
   m_ObjectHideFlags: 0
