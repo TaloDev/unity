@@ -13,7 +13,7 @@ public class StatsAPI : BaseAPI
         Talo.IdentityCheck();
 
         var req = new HttpRequestMessage();
-        req.Method = HttpMethod.Post;
+        req.Method = HttpMethod.Put;
         req.RequestUri = new Uri(baseUrl + $"/{internalName}");
 
         string content = JsonUtility.ToJson(new StatsPutRequest(change));
