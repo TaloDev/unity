@@ -1,34 +1,44 @@
 using System;
 using UnityEngine;
-using System.Net.Http;
 using System.Threading.Tasks;
+using UnityEngine.Networking;
 
 namespace TaloGameServices
 {
     public class BaseAPI
     {
-        protected TaloSettings settings;
+        protected TaloManager manager;
         protected string baseUrl;
-        private readonly HttpClient client;
 
-        public BaseAPI(TaloSettings settings, HttpClient client, string service)
+        public BaseAPI(TaloManager manager, string service)
         {
-            this.settings = settings;
-            this.client = client;
-            baseUrl = $"{settings.apiUrl}/{service}";
+            this.manager = manager;
+            baseUrl = $"{manager.settings.apiUrl}/{service}";
         }
 
-        protected async Task<string> Call(HttpRequestMessage req)
+        protected async Task<string> Call(Uri uri, string method, string content = "")
         {
-            try
-            {
-                req.Headers.Add("Authorization", $"Bearer {settings.accessKey}");
-                var res = await client.SendAsync(req);
-                string body = await res.Content.ReadAsStringAsync();
+            byte[] json = new System.Text.UTF8Encoding().GetBytes(content);
 
-                if (res.IsSuccessStatusCode)
+            using (UnityWebRequest www = new UnityWebRequest(uri, method))
+            {
+                if (json.Length > 0) www.uploadHandler = new UploadHandlerRaw(json);
+                www.downloadHandler = new DownloadHandlerBuffer();
+
+                www.SetRequestHeader("Authorization", $"Bearer {manager.settings.accessKey}");
+                www.SetRequestHeader("Content-Type", "application/json");
+                www.SetRequestHeader("Accept", "application/json");
+
+                var op = www.SendWebRequest();
+
+                while (!op.isDone)
                 {
-                    return body;
+                    await Task.Yield();
+                }
+
+                if (www.result == UnityWebRequest.Result.Success)
+                {
+                    return www.downloadHandler.text;
                 }
                 else
                 {
@@ -36,17 +46,14 @@ namespace TaloGameServices
 
                     try
                     {
-                        message = JsonUtility.FromJson<ErrorResponse>(body).message;
-                    } catch (Exception)
-                    {
-                        message = body;
+                        message = JsonUtility.FromJson<ErrorResponse>(www.downloadHandler.text).message;
                     }
-                    throw new Exception($"Request failed, {(int)res.StatusCode} {res.StatusCode}: {message}");
+                    catch (Exception)
+                    {
+                        message = www.error;
+                    }
+                    throw new Exception($"Request failed: {message}");
                 }
-            }
-            catch (HttpRequestException err)
-            {
-                throw err;
             }
         }
     }

@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Net.Http;
 using System.Threading.Tasks;
 using UnityEngine;
 using System.Linq;
 using System.Collections.Generic;
-using System.Text;
 using System.IO;
 
 namespace TaloGameServices
@@ -47,7 +45,7 @@ namespace TaloGameServices
             get => _currentSave;
         }
 
-        public SavesAPI(TaloSettings settings, HttpClient client) : base(settings, client, "game-saves") {}
+        public SavesAPI(TaloManager manager) : base(manager, "game-saves") {}
 
         public async Task<GameSave[]> GetSaves(SaveMode mode = SaveMode.BOTH)
         {
@@ -68,12 +66,11 @@ namespace TaloGameServices
             {
                 try
                 {
-                    var req = new HttpRequestMessage();
-                    req.Method = HttpMethod.Get;
-                    req.RequestUri = new Uri(baseUrl + $"?aliasId={Talo.CurrentAlias.id}");
+                    var uri = new Uri(baseUrl + $"?aliasId={Talo.CurrentAlias.id}");
 
-                    string json = await Call(req);
+                    var json = await Call(uri, "GET");
                     var res = JsonUtility.FromJson<SavesIndexResponse>(json);
+
                     saves.AddRange(res.saves);
                 } catch
                 {
@@ -160,21 +157,17 @@ namespace TaloGameServices
             {
                 try
                 {
-                    var req = new HttpRequestMessage();
-                    req.Method = HttpMethod.Post;
-                    req.RequestUri = new Uri(baseUrl);
-
-                    string content = JsonUtility.ToJson(new SavesPostRequest()
+                    var uri = new Uri(baseUrl);
+                    var content = JsonUtility.ToJson(new SavesPostRequest()
                     {
                         aliasId = Talo.CurrentAlias.id,
                         name = saveName,
                         content = saveContent
                     });
 
-                    req.Content = new StringContent(content, Encoding.UTF8, "application/json");
-
-                    string json = await Call(req);
+                    var json = await Call(uri, "POST", content);
                     var res = JsonUtility.FromJson<SavesPostResponse>(json);
+
                     save = res.save;
                 } catch
                 {
@@ -218,21 +211,17 @@ namespace TaloGameServices
             }
             else
             {
-                var req = new HttpRequestMessage();
-                req.Method = new HttpMethod("PATCH");
-                req.RequestUri = new Uri(baseUrl + $"/{saveId}");
-
-                string content = JsonUtility.ToJson(new SavesPostRequest()
+                var uri = new Uri(baseUrl + $"/{saveId}");
+                var content = JsonUtility.ToJson(new SavesPostRequest()
                 {
                     aliasId = Talo.CurrentAlias.id,
                     name = newName,
                     content = saveContent
                 });
 
-                req.Content = new StringContent(content, Encoding.UTF8, "application/json");
-
-                string json = await Call(req);
+                var json = await Call(uri, "PATCH", content);
                 var res = JsonUtility.FromJson<SavesPostResponse>(json);
+
                 save = res.save;
             }
 
