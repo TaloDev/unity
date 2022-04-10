@@ -9,6 +9,11 @@ on:
 jobs:
   release:
     runs-on: ubuntu-latest
+
+    env:
+      COMMIT_EMAIL: 7089284+tudddorrr@users.noreply.github.com
+      COMMIT_MESSAGE: "Release https://github.com/TaloDev/unity/releases/tag/${{ github.ref_name }}"
+
     steps:
       - uses: actions/checkout@v2
 
@@ -22,7 +27,19 @@ jobs:
           cp -a Packages/com.trytalo.talo/. Release
           cp -a Assets/. Release/Samples~/Playground
 
-      - name: Copy to package repo
+      - name: Copy to package repo (main branch)
+        uses: cpina/github-action-push-to-another-repository@main
+        if: "!contains(github.event.head_commit.message, '--no-release') && !contains(github.event.head_commit.message, 'pre.')"
+        env:
+          API_TOKEN_GITHUB: ${{ secrets.PAT }}
+        with:
+          source-directory: Release
+          destination-github-username: TaloDev
+          destination-repository-name: unity-package
+          user-email: ${{ env.COMMIT_EMAIL }}
+          commit-message: ${{ env.COMMIT_MESSAGE }}
+
+      - name: Copy to package repo (version branch)
         uses: cpina/github-action-push-to-another-repository@main
         env:
           API_TOKEN_GITHUB: ${{ secrets.PAT }}
@@ -30,8 +47,9 @@ jobs:
           source-directory: Release
           destination-github-username: TaloDev
           destination-repository-name: unity-package
-          user-email: 7089284+tudddorrr@users.noreply.github.com
-          commit-message: "Release https://github.com/TaloDev/unity/releases/tag/${{ github.ref_name }}"
+          user-email: ${{ env.COMMIT_EMAIL }}
+          commit-message: ${{ env.COMMIT_MESSAGE }}
+          target-branch: ${{ github.ref_name }}
 
       - name: Create artifact
         run: |
@@ -43,4 +61,5 @@ jobs:
         if: "!contains(github.event.head_commit.message, '--no-release')"
         with:
           generate_release_notes: true
+          prerelease: ${{ contains(github.event.head_commit.message, 'pre.') }}
           files: Release/*.tgz
