@@ -7,5 +7,7 @@ namespace TaloGameServices
     {
         public string accessKey;
         public string apiUrl = "https://api.trytalo.com/v1";
+        [Tooltip("How often in seconds events are flushed in a WebGL build, see the docs for more info")]
+        public float webGLEventFlushRate = 30f;
     }
 }
