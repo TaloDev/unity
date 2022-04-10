@@ -18,7 +18,8 @@ public class GetLeaderboardEntries : MonoBehaviour
         try
         {
             int score = UnityEngine.Random.Range(0, 10000);
-            LeaderboardEntry[] entries = await Talo.Leaderboards.GetEntries(internalName, page);
+            LeaderboardEntriesResponse res = await Talo.Leaderboards.GetEntries(internalName, page);
+            LeaderboardEntry[] entries = res.entries;
 
             if (entries.Length == 0)
             {

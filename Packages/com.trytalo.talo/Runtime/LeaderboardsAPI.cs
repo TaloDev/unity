@@ -8,13 +8,13 @@ namespace TaloGameServices
     {
         public LeaderboardsAPI(TaloManager manager) : base(manager, "leaderboards") { }
 
-        public async Task<LeaderboardEntry[]> GetEntries(string internalName, int page)
+        public async Task<LeaderboardEntriesResponse> GetEntries(string internalName, int page)
         {
             var uri = new Uri(baseUrl + $"/{internalName}/entries?page={page}");
 
             var json = await Call(uri, "GET");
             var res = JsonUtility.FromJson<LeaderboardEntriesResponse>(json);
-            return res.entries;
+            return res;
         }
 
         public async Task<LeaderboardEntry[]> GetEntriesForCurrentPlayer(string leaderboardInternalName, int page)
