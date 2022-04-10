@@ -60,3 +60,5 @@ crashlytics-build.properties
 
 # Settings asset
 Talo Settings.asset*
+
+.DS_Store

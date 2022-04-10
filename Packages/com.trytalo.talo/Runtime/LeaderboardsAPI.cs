@@ -1,6 +1,4 @@
 using System;
-using System.Net.Http;
-using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 
@@ -8,15 +6,13 @@ namespace TaloGameServices
 {
     public class LeaderboardsAPI : BaseAPI
     {
-        public LeaderboardsAPI(TaloSettings settings, HttpClient client) : base(settings, client, "leaderboards") { }
+        public LeaderboardsAPI(TaloManager manager) : base(manager, "leaderboards") { }
 
         public async Task<LeaderboardEntry[]> GetEntries(string internalName, int page)
         {
-            var req = new HttpRequestMessage();
-            req.Method = HttpMethod.Get;
-            req.RequestUri = new Uri(baseUrl + $"/{internalName}/entries?page={page}");
+            var uri = new Uri(baseUrl + $"/{internalName}/entries?page={page}");
 
-            string json = await Call(req);
+            var json = await Call(uri, "GET");
             var res = JsonUtility.FromJson<LeaderboardEntriesResponse>(json);
             return res.entries;
         }
@@ -25,12 +21,11 @@ namespace TaloGameServices
         {
             Talo.IdentityCheck();
 
-            var req = new HttpRequestMessage();
-            req.Method = HttpMethod.Get;
-            req.RequestUri = new Uri(baseUrl + $"/{leaderboardInternalName}/entries?page={page}&aliasId={Talo.CurrentAlias.id}");
+            var uri = new Uri(baseUrl + $"/{leaderboardInternalName}/entries?page={page}&aliasId={Talo.CurrentAlias.id}");
 
-            string json = await Call(req);
+            var json = await Call(uri, "GET");
             var res = JsonUtility.FromJson<LeaderboardEntriesResponse>(json);
+
             return res.entries;
         }
 
@@ -38,15 +33,12 @@ namespace TaloGameServices
         {
             Talo.IdentityCheck();
 
-            var req = new HttpRequestMessage();
-            req.Method = HttpMethod.Post;
-            req.RequestUri = new Uri(baseUrl + $"/{internalName}/entries");
+            var uri = new Uri(baseUrl + $"/{internalName}/entries");
+            var content = JsonUtility.ToJson(new LeaderboardsPostRequest(score));
 
-            string content = JsonUtility.ToJson(new LeaderboardsPostRequest(score));
-            req.Content = new StringContent(content, Encoding.UTF8, "application/json");
-
-            string json = await Call(req);
+            var json = await Call(uri, "POST", content);
             var res = JsonUtility.FromJson<LeaderboardEntryResponse>(json);
+
             return (res.entry, res.updated);
         }
     }

@@ -1,13 +1,10 @@
 using System;
 using UnityEngine;
-using System.Net.Http;
 
 namespace TaloGameServices
 {
     public class Talo
     {
-        private static readonly HttpClient client = new HttpClient();
-
         private static EventsAPI _events;
         private static PlayersAPI _players;
         private static LeaderboardsAPI _leaderboards;
@@ -66,11 +63,15 @@ namespace TaloGameServices
                 return;
             }
 
-            _events = new EventsAPI(settings, client);
-            _players = new PlayersAPI(settings, client);
-            _leaderboards = new LeaderboardsAPI(settings, client);
-            _saves = new SavesAPI(settings, client);
-            _stats = new StatsAPI(settings, client);
+            var go = new GameObject("Talo Manager");
+            var manager = go.AddComponent<TaloManager>();
+            manager.settings = settings;
+
+            _events = new EventsAPI(manager);
+            _players = new PlayersAPI(manager);
+            _leaderboards = new LeaderboardsAPI(manager);
+            _saves = new SavesAPI(manager);
+            _stats = new StatsAPI(manager);
         }
 
         public static void IdentityCheck()
