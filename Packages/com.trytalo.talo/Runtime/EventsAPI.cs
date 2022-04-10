@@ -45,19 +45,24 @@ namespace TaloGameServices
             Talo.IdentityCheck();
 
             var eventsToSend = queue.ToArray();
-            queue.Clear();
-
-            var uri = new Uri(baseUrl);
-            var content = JsonUtility.ToJson(new EventsPostRequest(eventsToSend));
-
-            try
+            
+            if (eventsToSend.Length > 0)
             {
-                await Call(uri, "POST", content);
-            }
-            catch (Exception err)
-            {
-                Debug.LogError(err.Message);
-                queue.AddRange(eventsToSend);
+                queue.Clear();
+
+                var uri = new Uri(baseUrl);
+                var content = JsonUtility.ToJson(new EventsPostRequest(eventsToSend));
+
+                try
+                {
+                    await Call(uri, "POST", content);
+                    manager.ResetFlushTimer();
+                }
+                catch (Exception err)
+                {
+                    Debug.LogError(err.Message);
+                    queue.AddRange(eventsToSend);
+                }
             }
         }
     }
