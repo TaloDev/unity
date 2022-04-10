@@ -64,18 +64,12 @@ namespace TaloGameServices
 
             if (mode != SaveMode.OFFLINE_ONLY)
             {
-                try
-                {
-                    var uri = new Uri(baseUrl + $"?aliasId={Talo.CurrentAlias.id}");
+                var uri = new Uri(baseUrl + $"?aliasId={Talo.CurrentAlias.id}");
 
-                    var json = await Call(uri, "GET");
-                    var res = JsonUtility.FromJson<SavesIndexResponse>(json);
+                var json = await Call(uri, "GET");
+                var res = JsonUtility.FromJson<SavesIndexResponse>(json);
 
-                    saves.AddRange(res.saves);
-                } catch
-                {
-                    Debug.LogWarning("Failed to load online saves");
-                }
+                saves.AddRange(res.saves);
             }
 
             _allSaves = saves;

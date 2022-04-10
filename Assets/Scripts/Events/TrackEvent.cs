@@ -14,7 +14,7 @@ public class TrackEvent : MonoBehaviour
         Track();
     }
 
-    private void Track()
+    private async void Track()
     {
         try
         {
@@ -24,7 +24,7 @@ public class TrackEvent : MonoBehaviour
 
             if (flushImmediately)
             {
-                Talo.Events.Flush();
+                await Talo.Events.Flush();
 
                 ResponseMessage.SetText($"{eventName} tracked and events flushed");
             }

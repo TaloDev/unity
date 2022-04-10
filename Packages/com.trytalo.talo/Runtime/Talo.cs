@@ -63,8 +63,7 @@ namespace TaloGameServices
                 return;
             }
 
-            var go = new GameObject("Talo Manager");
-            var manager = go.AddComponent<TaloManager>();
+            var manager = new GameObject("Talo Manager").AddComponent<TaloManager>();
             manager.settings = settings;
 
             _events = new EventsAPI(manager);
@@ -74,9 +73,14 @@ namespace TaloGameServices
             _stats = new StatsAPI(manager);
         }
 
+        public static bool HasIdentity()
+        {
+            return CurrentAlias != null;
+        }
+
         public static void IdentityCheck()
         {
-            if (CurrentAlias == null)
+            if (!HasIdentity())
             {
                 throw new Exception("You need to identify a player using Talo.Identify() before doing this.");
             }
