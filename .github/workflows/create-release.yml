@@ -28,7 +28,7 @@ jobs:
           cp -a Assets/. Release/Samples~/Playground
 
       - name: Copy to package repo (main branch)
-        uses: cpina/github-action-push-to-another-repository@main
+        uses: tudddorrr/github-action-push-to-another-repository@main
         if: "!contains(github.event.head_commit.message, '--no-release') && !contains(github.event.head_commit.message, 'pre.')"
         env:
           API_TOKEN_GITHUB: ${{ secrets.PAT }}
@@ -40,7 +40,7 @@ jobs:
           commit-message: ${{ env.COMMIT_MESSAGE }}
 
       - name: Copy to package repo (version branch)
-        uses: cpina/github-action-push-to-another-repository@main
+        uses: tudddorrr/github-action-push-to-another-repository@main
         env:
           API_TOKEN_GITHUB: ${{ secrets.PAT }}
         with:
