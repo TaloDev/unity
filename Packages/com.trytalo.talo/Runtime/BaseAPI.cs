@@ -29,6 +29,7 @@ namespace TaloGameServices
                 www.SetRequestHeader("Content-Type", "application/json");
                 www.SetRequestHeader("Accept", "application/json");
                 www.SetRequestHeader("X-Talo-Dev-Build", Debug.isDebugBuild ? "1" : "0");
+                www.SetRequestHeader("X-Talo-Include-Dev-Data", Debug.isDebugBuild ? "1" : "0");
 
                 var op = www.SendWebRequest();
 
