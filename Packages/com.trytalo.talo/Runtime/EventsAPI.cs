@@ -18,6 +18,40 @@ namespace TaloGameServices
             Track(name, null);
         }
 
+        private string GetWindowMode()
+        {
+            if (Screen.fullScreenMode == FullScreenMode.ExclusiveFullScreen)
+            {
+                return "Exclusive fullscreen";
+            }
+            else if (Screen.fullScreenMode == FullScreenMode.FullScreenWindow)
+            {
+                return "Fullscreen window";
+            }
+            else if (Screen.fullScreenMode == FullScreenMode.MaximizedWindow)
+            {
+                return "Maximized window";
+            }
+            else if (Screen.fullScreenMode == FullScreenMode.Windowed)
+            {
+                return "Windowed";
+            }
+
+            return "";
+        }
+
+        private Prop[] BuildMetaProps()
+        {
+            return new Prop[]
+                {
+                    new Prop(("META_OS", SystemInfo.operatingSystem)),
+                    new Prop(("META_GAME_VERSION", Application.version)),
+                    new Prop(("META_WINDOW_MODE", GetWindowMode())),
+                    new Prop(("META_SCREEN_WIDTH", Screen.width.ToString())),
+                    new Prop(("META_SCREEN_HEIGHT", Screen.height.ToString()))
+                };
+        }
+
         public void Track(string name, params (string, string)[] props)
         {
             Talo.IdentityCheck();
@@ -28,7 +62,10 @@ namespace TaloGameServices
 
             if (props != null)
             {
-                ev.props = props.Select((propTuple) => new Prop(propTuple)).ToArray();
+                ev.props = props
+                    .Select((propTuple) => new Prop(propTuple))
+                    .Concat(BuildMetaProps())
+                    .ToArray();
             }
 
             ev.timestamp = DateTimeOffset.Now.ToUnixTimeMilliseconds();
