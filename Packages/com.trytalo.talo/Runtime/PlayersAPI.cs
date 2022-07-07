@@ -22,7 +22,7 @@ namespace TaloGameServices
 
         public async void Update()
         {
-            var uri = new Uri(baseUrl + $"/{Talo.CurrentPlayer.id}");
+            var uri = new Uri(baseUrl + $"/{Talo.CurrentAlias.id}");
             var content = JsonUtility.ToJson(Talo.CurrentPlayer);
 
             var json = await Call(uri, "PATCH", content);
