@@ -17,7 +17,14 @@ namespace TaloGameServices
 
             Talo.CurrentAlias = res.alias;
 
-            await Talo.Saves.GetSaves();
+            try
+            {
+                await Talo.Saves.GetSaves();
+            }
+            catch (Exception err)
+            {
+                Debug.LogError(err.Message);
+            }
         }
 
         public async void Update()
