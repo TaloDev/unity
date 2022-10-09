@@ -9,6 +9,7 @@ namespace TaloGameServices
     {
         public string id;
         public Prop[] props;
+        public Group[] groups;
 
         public override string ToString()
         {
@@ -49,6 +50,11 @@ namespace TaloGameServices
             prop.value = null;
 
             Talo.Players.Update();
+        }
+
+        public bool IsInGroup(string groupId)
+        {
+            return groups.Any((group) => group.id == groupId);
         }
     }
 }
