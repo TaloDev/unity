@@ -1,13 +1,10 @@
-﻿using System.Collections;
-using UnityEngine;
-
-public class PlayersMergeRequest
+﻿public class PlayersMergeRequest
 {
-    public string alias1, alias2;
+    public string playerId1, playerId2;
 
-    public PlayersMergeRequest(string alias1, string alias2)
+    public PlayersMergeRequest(string playerId1, string playerId2)
     {
-        this.alias1 = alias1;
-        this.alias2 = alias2;
+        this.playerId1 = playerId1;
+        this.playerId2 = playerId2;
     }
 }

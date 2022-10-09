@@ -38,10 +38,10 @@ namespace TaloGameServices
             Talo.CurrentPlayer = res.player;
         }
 
-        public async Task<Player> Merge(string alias1, string alias2)
+        public async Task<Player> Merge(string playerId1, string playerId2)
         {
             var uri = new Uri(baseUrl + "/merge");
-            string content = JsonUtility.ToJson(new PlayersMergeRequest(alias1, alias2));
+            string content = JsonUtility.ToJson(new PlayersMergeRequest(playerId1, playerId2));
 
             string json = await Call(uri, "POST", content);
             var res = JsonUtility.FromJson<PlayersUpdateResponse>(json);
