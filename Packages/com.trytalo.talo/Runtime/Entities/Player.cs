@@ -52,14 +52,9 @@ namespace TaloGameServices
             Talo.Players.Update();
         }
 
-        public bool IsInGroup(int groupId)
+        public bool IsInGroup(string groupId)
         {
             return groups.Any((group) => group.id == groupId);
-        }
-
-        public bool IsInGroup(string groupName)
-        {
-            return groups.Any((group) => group.name == groupName);
         }
     }
 }
