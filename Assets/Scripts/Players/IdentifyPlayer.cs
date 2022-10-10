@@ -9,6 +9,11 @@ public class IdentifyPlayer : MonoBehaviour
 
     private void Start()
     {
+        Talo.Players.OnIdentified += async (player) =>
+        {
+            await Talo.Saves.GetSaves();
+        };
+
         Talo.Saves.OnSavesLoaded += () =>
         {
             if (Talo.Saves.All.Length > 0)
