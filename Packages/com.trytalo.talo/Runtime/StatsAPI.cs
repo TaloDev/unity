@@ -1,18 +1,20 @@
 using System;
-using TaloGameServices;
 using UnityEngine;
 
-public class StatsAPI : BaseAPI
+namespace TaloGameServices
 {
-    public StatsAPI(TaloManager manager) : base(manager, "game-stats") { }
-
-    public async void Track(string internalName, float change = 1f)
+    public class StatsAPI : BaseAPI
     {
-        Talo.IdentityCheck();
+        public StatsAPI(TaloManager manager) : base(manager, "game-stats") { }
 
-        var uri = new Uri(baseUrl + $"/{internalName}");
-        var content = JsonUtility.ToJson(new StatsPutRequest(change));
+        public async void Track(string internalName, float change = 1f)
+        {
+            Talo.IdentityCheck();
 
-        await Call(uri, "PUT", content);
+            var uri = new Uri(baseUrl + $"/{internalName}");
+            var content = JsonUtility.ToJson(new StatsPutRequest(change));
+
+            await Call(uri, "PUT", content);
+        }
     }
 }

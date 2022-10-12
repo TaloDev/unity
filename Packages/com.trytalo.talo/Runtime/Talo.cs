@@ -10,6 +10,7 @@ namespace TaloGameServices
         private static LeaderboardsAPI _leaderboards;
         private static SavesAPI _saves;
         private static StatsAPI _stats;
+        private static GameConfigAPI _gameConfig;
 
         private static PlayerAlias _currentAlias;
 
@@ -27,6 +28,20 @@ namespace TaloGameServices
                 return _currentAlias.player;
             }
             set => _currentAlias.player = value;
+        }
+
+        private static LiveConfig _liveConfig;
+
+        public static LiveConfig LiveConfig
+        {
+            get {
+                if (_liveConfig == null)
+                {
+                    throw new Exception("Live config needs to be inited first - use Talo.GameConfig.Get() to fetch it");
+                }
+                return _liveConfig;
+            }
+            set => _liveConfig = value;
         }
 
         public static EventsAPI Events
@@ -54,12 +69,17 @@ namespace TaloGameServices
             get => _stats;
         }
 
+        public static GameConfigAPI GameConfig
+        {
+            get => _gameConfig;
+        }
+
         static Talo()
         {
             var settings = Resources.Load<TaloSettings>("Talo Settings");
             if (!settings)
             {
-                Debug.LogError("'Talo Settings' asset not found in Resources folder. Create one using the Create menu > Talo > Settings Asset");
+                Debug.LogError("A 'Talo Settings' asset was not found in the Resources folder. Create one using the Create menu > Talo > Settings Asset");
                 return;
             }
 
@@ -71,6 +91,7 @@ namespace TaloGameServices
             _leaderboards = new LeaderboardsAPI(manager);
             _saves = new SavesAPI(manager);
             _stats = new StatsAPI(manager);
+            _gameConfig = new GameConfigAPI(manager);
         }
 
         public static bool HasIdentity()
