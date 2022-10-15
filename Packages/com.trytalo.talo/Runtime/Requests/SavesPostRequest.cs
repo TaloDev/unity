@@ -5,6 +5,5 @@
     {
         public string name;
         public string content;
-        public int aliasId;
     }
 }

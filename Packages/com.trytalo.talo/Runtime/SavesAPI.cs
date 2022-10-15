@@ -64,7 +64,7 @@ namespace TaloGameServices
 
             if (mode != SaveMode.OFFLINE_ONLY)
             {
-                var uri = new Uri(baseUrl + $"?aliasId={Talo.CurrentAlias.id}");
+                var uri = new Uri(baseUrl);
 
                 var json = await Call(uri, "GET");
                 var res = JsonUtility.FromJson<SavesIndexResponse>(json);
@@ -154,7 +154,6 @@ namespace TaloGameServices
                     var uri = new Uri(baseUrl);
                     var content = JsonUtility.ToJson(new SavesPostRequest()
                     {
-                        aliasId = Talo.CurrentAlias.id,
                         name = saveName,
                         content = saveContent
                     });
@@ -208,7 +207,6 @@ namespace TaloGameServices
                 var uri = new Uri(baseUrl + $"/{saveId}");
                 var content = JsonUtility.ToJson(new SavesPostRequest()
                 {
-                    aliasId = Talo.CurrentAlias.id,
                     name = newName,
                     content = saveContent
                 });

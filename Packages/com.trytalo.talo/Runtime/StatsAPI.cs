@@ -12,7 +12,7 @@ namespace TaloGameServices
             Talo.IdentityCheck();
 
             var uri = new Uri(baseUrl + $"/{internalName}");
-            var content = JsonUtility.ToJson(new StatsPutRequest(change));
+            var content = JsonUtility.ToJson(new StatsPutRequest() { change = change });
 
             await Call(uri, "PUT", content);
         }
