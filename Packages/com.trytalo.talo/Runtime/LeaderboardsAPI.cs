@@ -34,7 +34,7 @@ namespace TaloGameServices
             Talo.IdentityCheck();
 
             var uri = new Uri(baseUrl + $"/{internalName}/entries");
-            var content = JsonUtility.ToJson(new LeaderboardsPostRequest(score));
+            var content = JsonUtility.ToJson(new LeaderboardsPostRequest() { score = score });
 
             var json = await Call(uri, "POST", content);
             var res = JsonUtility.FromJson<LeaderboardEntryResponse>(json);
