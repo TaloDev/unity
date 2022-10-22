@@ -64,7 +64,7 @@ namespace TaloGameServices
 
             if (mode != SaveMode.OFFLINE_ONLY)
             {
-                var uri = new Uri(baseUrl + $"?aliasId={Talo.CurrentAlias.id}");
+                var uri = new Uri(baseUrl);
 
                 var json = await Call(uri, "GET");
                 var res = JsonUtility.FromJson<SavesIndexResponse>(json);
@@ -93,6 +93,13 @@ namespace TaloGameServices
             sr.Close();
 
             return JsonUtility.FromJson<OfflineSavesContent>(content);
+        }
+
+        private void WriteOfflineSavesContent(OfflineSavesContent newContent)
+        {
+            var sw = new StreamWriter(_offlineSavesPath);
+            sw.WriteLine(JsonUtility.ToJson(newContent));
+            sw.Close();
         }
 
         private void UpdateOfflineSaves(GameSave incomingSave)
@@ -126,9 +133,7 @@ namespace TaloGameServices
                 offlineContent = new OfflineSavesContent(new GameSave[] { incomingSave });
             }
 
-            var sw = new StreamWriter(_offlineSavesPath);
-            sw.WriteLine(JsonUtility.ToJson(offlineContent));
-            sw.Close();
+            WriteOfflineSavesContent(offlineContent);
         }
 
         public async Task<GameSave> CreateSave(string saveName, SaveMode mode = SaveMode.BOTH)
@@ -154,7 +159,6 @@ namespace TaloGameServices
                     var uri = new Uri(baseUrl);
                     var content = JsonUtility.ToJson(new SavesPostRequest()
                     {
-                        aliasId = Talo.CurrentAlias.id,
                         name = saveName,
                         content = saveContent
                     });
@@ -208,7 +212,6 @@ namespace TaloGameServices
                 var uri = new Uri(baseUrl + $"/{saveId}");
                 var content = JsonUtility.ToJson(new SavesPostRequest()
                 {
-                    aliasId = Talo.CurrentAlias.id,
                     name = newName,
                     content = saveContent
                 });
@@ -270,6 +273,32 @@ namespace TaloGameServices
             {
                 OnSaveLoadingCompleted?.Invoke();
             }
+        }
+
+        private void DeleteOfflineSave(int saveId)
+        {
+            var offlineContent = GetOfflineSavesContent();
+            offlineContent.saves = offlineContent.saves.Where((save) => save.id != saveId).ToArray();
+            WriteOfflineSavesContent(offlineContent);
+        }
+
+        public async void DeleteSave(int saveId)
+        {
+            GameSave save = _allSaves.First((save) => save.id == saveId);
+            if (save == null) throw new Exception("Save not found");
+
+            if (save.id < 0)
+            {
+                DeleteOfflineSave(saveId);
+            }
+            else
+            {
+                Talo.IdentityCheck();
+                var uri = new Uri(baseUrl + $"/{saveId}");
+                await Call(uri, "DELETE");
+            }
+
+            _allSaves = _allSaves.Where((save) => save.id != saveId).ToList();
         }
     }
 }

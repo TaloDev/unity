@@ -31,6 +31,12 @@ namespace TaloGameServices
                 www.SetRequestHeader("X-Talo-Dev-Build", Debug.isDebugBuild ? "1" : "0");
                 www.SetRequestHeader("X-Talo-Include-Dev-Data", Debug.isDebugBuild ? "1" : "0");
 
+                if (Talo.CurrentAlias != null)
+                {
+                    www.SetRequestHeader("X-Talo-Player", Talo.CurrentPlayer.id);
+                    www.SetRequestHeader("X-Talo-Alias", Talo.CurrentAlias.id.ToString());
+                }
+
                 var op = www.SendWebRequest();
 
                 while (!op.isDone)
