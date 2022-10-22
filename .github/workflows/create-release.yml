@@ -13,11 +13,11 @@ jobs:
       COMMIT_MESSAGE: "Release https://github.com/TaloDev/unity/releases/tag/${{ github.ref_name }}"
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
-      - uses: actions/setup-node@v2
+      - uses: actions/setup-node@v3
         with:
-          node-version: 14
+          node-version: 16
 
       - name: Copy files
         run: |
