@@ -24,6 +24,7 @@ jobs:
         tag: ${{ steps.check.outputs.version }}
 
     - name: Trigger workflow
+      if: steps.check.outputs.changed == 'true'
       uses: actions/github-script@v6
       with:
         script: |
@@ -31,5 +32,5 @@ jobs:
             owner: context.repo.owner,
             repo: context.repo.repo,
             workflow_id: 'create-release.yml',
-            ref: ${{ steps.check.outputs.version }}
+            ref: '${{ steps.check.outputs.version }}'
           })
