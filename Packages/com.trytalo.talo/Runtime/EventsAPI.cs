@@ -53,7 +53,6 @@ namespace TaloGameServices
 
             var ev = new Event
             {
-                aliasId = Talo.CurrentAlias.id,
                 name = name
             };
 
