@@ -1,4 +1,5 @@
 using System;
+using System.Threading.Tasks;
 using UnityEngine;
 
 namespace TaloGameServices
@@ -9,7 +10,7 @@ namespace TaloGameServices
 
         public GameConfigAPI(TaloManager manager) : base(manager, "game-config") { }
 
-        public async void Get()
+        public async Task Get()
         {
             var uri = new Uri(baseUrl);
             var json = await Call(uri, "GET");

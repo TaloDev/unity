@@ -2,6 +2,7 @@ using System;
 using UnityEngine;
 using TaloGameServices;
 using System.Linq;
+using System.Threading.Tasks;
 
 public class TrackEvent : MonoBehaviour
 {
@@ -9,16 +10,16 @@ public class TrackEvent : MonoBehaviour
     public Prop[] props;
     public bool flushImmediately;
 
-    public void OnButtonClick()
+    public async void OnButtonClick()
     {
-        Track();
+        await Track();
     }
 
-    private async void Track()
+    private async Task Track()
     {
         try
         {
-            Talo.Events.Track(eventName, props.Select((prop) => (prop.key, prop.value)).ToArray());
+            await Talo.Events.Track(eventName, props.Select((prop) => (prop.key, prop.value)).ToArray());
 
             ResponseMessage.SetText($"{eventName} tracked");
 

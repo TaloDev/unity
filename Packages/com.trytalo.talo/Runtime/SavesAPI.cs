@@ -282,7 +282,7 @@ namespace TaloGameServices
             WriteOfflineSavesContent(offlineContent);
         }
 
-        public async void DeleteSave(int saveId)
+        public async Task DeleteSave(int saveId)
         {
             GameSave save = _allSaves.First((save) => save.id == saveId);
             if (save == null) throw new Exception("Save not found");

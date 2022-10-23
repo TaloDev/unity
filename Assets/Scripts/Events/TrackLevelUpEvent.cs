@@ -1,24 +1,25 @@
 using UnityEngine;
 using TaloGameServices;
 using System;
+using System.Threading.Tasks;
 
 public class TrackLevelUpEvent : MonoBehaviour
 {
     public int level = 1;
     private float timeTaken;
 
-    public void OnButtonClick()
+    public async void OnButtonClick()
     {
-        Track();
+        await Track();
     }
 
-    private void Track()
+    private async Task Track()
     {
         level++;
 
         try
         {
-            Talo.Events.Track(
+            await Talo.Events.Track(
                 "Level up",
                 ("newLevel", $"{level}"),
                 ("timeTaken", $"{timeTaken}")

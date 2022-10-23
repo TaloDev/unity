@@ -1,15 +1,16 @@
 using UnityEngine;
 using TaloGameServices;
 using System;
+using System.Threading.Tasks;
 
 public class OfflineSavesLoader : MonoBehaviour
 {
-    public void OnButtonClick()
+    public async void OnButtonClick()
     {
-        Save();
+        await Save();
     }
 
-    private async void Save()
+    private async Task Save()
     {
         try
         {

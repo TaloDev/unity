@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using TaloGameServices;
 using UnityEngine;
 
@@ -6,12 +7,12 @@ public class PostLeaderboardEntry : MonoBehaviour
 {
     public string internalName;
 
-    public void OnButtonClick()
+    public async void OnButtonClick()
     {
-        PostEntry();
+        await PostEntry();
     }
 
-    private async void PostEntry()
+    private async Task PostEntry()
     {
         try
         {
