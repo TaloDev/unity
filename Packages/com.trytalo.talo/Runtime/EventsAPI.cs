@@ -13,11 +13,6 @@ namespace TaloGameServices
 
         public EventsAPI(TaloManager manager) : base(manager, "events") { }
 
-        public void Track(string name)
-        {
-            Track(name, null);
-        }
-
         private string GetWindowMode()
         {
             if (Screen.fullScreenMode == FullScreenMode.ExclusiveFullScreen)
@@ -52,13 +47,14 @@ namespace TaloGameServices
                 };
         }
 
-        public void Track(string name, params (string, string)[] props)
+        public async Task Track(string name, params (string, string)[] props)
         {
             Talo.IdentityCheck();
 
-            var ev = new Event();
-            ev.aliasId = Talo.CurrentAlias.id;
-            ev.name = name;
+            var ev = new Event
+            {
+                name = name
+            };
 
             if (props != null)
             {
@@ -73,7 +69,7 @@ namespace TaloGameServices
 
             if (queue.Count >= minQueueSize)
             {
-                _ = Flush();
+                await Flush();
             }
         }
 

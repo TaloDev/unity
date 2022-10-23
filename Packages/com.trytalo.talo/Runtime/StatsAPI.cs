@@ -1,4 +1,5 @@
 using System;
+using System.Threading.Tasks;
 using UnityEngine;
 
 namespace TaloGameServices
@@ -7,7 +8,7 @@ namespace TaloGameServices
     {
         public StatsAPI(TaloManager manager) : base(manager, "game-stats") { }
 
-        public async void Track(string internalName, float change = 1f)
+        public async Task Track(string internalName, float change = 1f)
         {
             Talo.IdentityCheck();
 

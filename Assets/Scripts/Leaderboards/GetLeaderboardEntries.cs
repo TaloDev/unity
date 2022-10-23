@@ -2,18 +2,19 @@
 using TaloGameServices;
 using UnityEngine;
 using System.Linq;
+using System.Threading.Tasks;
 
 public class GetLeaderboardEntries : MonoBehaviour
 {
     public string internalName;
     public int page;
 
-    public void OnButtonClick()
+    public async void OnButtonClick()
     {
-        FetchEntries();
+        await FetchEntries();
     }
 
-    private async void FetchEntries()
+    private async Task FetchEntries()
     {
         try
         {

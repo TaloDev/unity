@@ -4,6 +4,13 @@ using TaloGameServices;
 
 public class LoadableCube : Loadable
 {
+    private void OnMouseDrag()
+    {
+        var nextPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        nextPos.z = 0;
+        transform.position = nextPos;
+    }
+
     public override void RegisterFields()
     {
         RegisterField("x", transform.position.x);

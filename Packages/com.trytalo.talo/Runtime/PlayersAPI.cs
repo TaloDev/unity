@@ -21,7 +21,7 @@ namespace TaloGameServices
             OnIdentified?.Invoke(Talo.CurrentPlayer);
         }
 
-        public async void Update()
+        public async Task Update()
         {
             var uri = new Uri(baseUrl + $"/{Talo.CurrentPlayer.id}");
             var content = JsonUtility.ToJson(Talo.CurrentPlayer);

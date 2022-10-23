@@ -5,12 +5,12 @@ using System.Threading.Tasks;
 
 public class FlushEvents : MonoBehaviour
 {
-    public void OnButtonClick()
+    public async void OnButtonClick()
     {
-        Flush();
+        await Flush();
     }
 
-    private async void Flush()
+    private async Task Flush()
     {
         try
         {

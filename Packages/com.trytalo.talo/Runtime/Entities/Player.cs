@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Linq;
 using System;
+using System.Threading.Tasks;
 
 namespace TaloGameServices
 {
@@ -22,7 +23,7 @@ namespace TaloGameServices
             return prop?.key ?? fallback;
         }
 
-        public void SetProp(string key, string value)
+        public async Task SetProp(string key, string value)
         {
             if (GetProp(key) != null)
             {
@@ -39,17 +40,17 @@ namespace TaloGameServices
                 props = propList.ToArray();
             }
 
-            Talo.Players.Update();
+            await Talo.Players.Update();
         }
 
-        public void DeleteProp(string key)
+        public async Task DeleteProp(string key)
         {
             Prop prop = props.First((prop) => prop.key == key);
             if (prop == null) throw new Exception($"Prop with key {key} does not exist");
 
             prop.value = null;
 
-            Talo.Players.Update();
+            await Talo.Players.Update();
         }
 
         public bool IsInGroup(string groupId)
