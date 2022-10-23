@@ -1,6 +1,7 @@
 using UnityEngine;
 using TaloGameServices;
 using System;
+using System.Threading.Tasks;
 
 public class SaveManager : MonoBehaviour
 {
@@ -8,12 +9,12 @@ public class SaveManager : MonoBehaviour
     public bool updateCurrentSave;
     public SaveMode saveMode = SaveMode.BOTH;
 
-    public void OnButtonClick()
+    public async void OnButtonClick()
     {
-        Save();
+        await Save();
     }
 
-    private async void Save()
+    private async Task Save()
     {
         try
         {

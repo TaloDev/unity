@@ -2,6 +2,7 @@ using System;
 using UnityEngine;
 using UnityEngine.UI;
 using TaloGameServices;
+using System.Threading.Tasks;
 
 public class IdentifyPlayer : MonoBehaviour
 {
@@ -34,12 +35,12 @@ public class IdentifyPlayer : MonoBehaviour
         };
     }
 
-    public void OnButtonClick()
+    public async void OnButtonClick()
     {
-        Identify();
+        await Identify();
     }
 
-    private async void Identify()
+    private async Task Identify()
     {
         try
         {
