@@ -4,6 +4,18 @@ using TaloGameServices;
 
 public class LoadableCube : Loadable
 {
+    private Vector3 originalPos;
+
+    private void Start()
+    {
+        originalPos = transform.position;
+    }
+
+    public void MoveToOriginalPos()
+    {
+        transform.position = originalPos;
+    }
+
     private void OnMouseDrag()
     {
         var nextPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
@@ -16,14 +28,6 @@ public class LoadableCube : Loadable
         RegisterField("x", transform.position.x);
         RegisterField("y", transform.position.y);
         RegisterField("z", transform.position.z);
-
-        RegisterField("r.x", transform.rotation.eulerAngles.x);
-        RegisterField("r.y", transform.rotation.eulerAngles.y);
-        RegisterField("r.z", transform.rotation.eulerAngles.z);
-
-        RegisterField("s.x", transform.localScale.x);
-        RegisterField("s.y", transform.localScale.y);
-        RegisterField("s.z", transform.localScale.z);
     }
 
     public override void OnLoaded(Dictionary<string, object> data)
@@ -34,18 +38,6 @@ public class LoadableCube : Loadable
             (float)data["x"],
             (float)data["y"],
             (float)data["z"]
-        );
-
-        transform.rotation = Quaternion.Euler(
-            (float)data["r.x"],
-            (float)data["r.y"],
-            (float)data["r.z"]
-        );
-
-        transform.localScale = new Vector3(
-            (float)data["s.x"],
-            (float)data["s.y"],
-            (float)data["s.z"]
         );
     }
 }

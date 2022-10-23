@@ -55,7 +55,7 @@ public class ChooseSaveTest
         var eventMock = new LoadingCompletedEvent();
         api.OnSaveLoadingCompleted += eventMock.Invoke;
 
-        api.ChooseSave(api.All[0]);
+        api.ChooseSave(api.All[0].id);
 
         Assert.AreEqual(loadable1.transform.position, loadable1Pos);
         Assert.AreEqual(loadable2.transform.position, loadable2Pos);

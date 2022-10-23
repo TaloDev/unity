@@ -1,0 +1,7 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Assets/Samples/SavesDemo/UI/SavesUI.uss?fileID=7433441132597879392&amp;guid=ec88216832605476ca23cbb98e4edd72&amp;type=3#SavesUI" />
+    <ui:VisualElement style="flex-direction: row; align-items: center;">
+        <ui:Button text="X" display-tooltip-when-elided="true" name="delete-btn" style="border-top-left-radius: 100%; border-bottom-left-radius: 100%; border-top-right-radius: 100%; border-bottom-right-radius: 100%; width: 32px; margin-top: 0; height: 32px; padding-left: 8px; padding-right: 8px; padding-top: 8px; padding-bottom: 8px; background-color: rgb(190, 71, 71); color: rgba(255, 255, 255, 255);" />
+        <ui:Button text="Save name" display-tooltip-when-elided="true" name="load-btn" style="align-items: center; margin-top: 0; margin-left: 8px; margin-right: 8px; flex-grow: 1;" />
+    </ui:VisualElement>
+</ui:UXML>

@@ -2,8 +2,8 @@
   "name": "com.trytalo.talo",
   "version": "0.14.0",
   "displayName": "Talo Game Services",
-  "description": "Talo (https://trytalo.com) is an open-source game backend with services designed to help you build games faster. You can currently:\n\n- Identify players\n- Store persistent data across players\n- Track events (levelling up, finding loot, etc)\n- Display high scores with leaderboards\n- Store and load player saves",
-  "unity": "2019.1",
+  "description": "Talo (https://trytalo.com) is an open-source game backend with services designed to help you build games faster. You can currently:\n\n- Identify players\n- Store persistent data across players\n- Track events (levelling up, finding loot, etc)\n- Display high scores with leaderboards\n- Store and load player saves\n- Load game config options and flags from the cloud",
+  "unity": "2021.3",
   "keywords": [],
   "author": {
     "name": "Talo",
@@ -14,8 +14,13 @@
   "samples": [
     {
       "displayName": "Playground",
-      "description": "A simple UI playground, letting you test identifying and events",
+      "description": "A simple UI-based playground, allowing you to test identifying, events, stats and leaderboards",
       "path": "Samples~/Playground"
+    },
+    {
+      "displayName": "Saves Demo",
+      "description": "A basic saves UI, allowing you to load, create and update saves",
+      "path": "Samples~/SavesDemo"
     }
   ],
   "changelogUrl": "https://github.com/TaloDev/unity/releases",

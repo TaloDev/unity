@@ -29,6 +29,8 @@ namespace TaloGameServices
 
         private void LoadData(GameSave save)
         {
+            if (save == null) return;
+
             var content = JsonUtility.FromJson<SaveContent>(save.content);
             var fields = new Dictionary<string, object>();
             SavedObject savedObject;
