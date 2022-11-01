@@ -1,6 +1,7 @@
 using System;
 using UnityEngine;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace TaloGameServices
 {
@@ -28,8 +29,27 @@ namespace TaloGameServices
 
         private void LoadData(GameSave save)
         {
-            var data = Talo.Saves.LoadObject(save, this);
-            if (data != null) OnLoaded(data);
+            var content = JsonUtility.FromJson<SaveContent>(save.content);
+            var fields = new Dictionary<string, object>();
+            SavedObject savedObject;
+
+            try
+            {
+                savedObject = content.objects.First((obj) => obj.id.Equals(Id));
+            }
+            catch (InvalidOperationException)
+            {
+                Debug.LogWarning($"Loadable with id '{Id}' not found in save '{save.name}'");
+                return;
+            }
+
+            foreach (SavedObjectData field in savedObject.data)
+            {
+                var type = Type.GetType(field.type);
+                fields.Add(field.key, Convert.ChangeType(field.value, type));
+            }
+
+            OnLoaded(fields);
             Talo.Saves.SetObjectLoaded(_id);
         }
 
