@@ -31,9 +31,6 @@ public class UpdateSaveTest
         api._allSaves.Add(new GameSave() { id = 1, name = "Online Save" });
         api.WriteOfflineSavesContent(new OfflineSavesContent(api._allSaves.ToArray()));
 
-        var eventMock = new ChosenEventMock();
-        api.OnSaveChosen += eventMock.Invoke;
-
         RequestMock.ReplyOnce(new Uri(api.GetUri() + "/1"), "PATCH", JsonUtility.ToJson(new SavesPostResponse
         {
             save = new GameSave { id = 1, name = "Online Save", content = "updated", updatedAt = "2022-10-30T21:23:30.977Z" }
@@ -48,9 +45,6 @@ public class UpdateSaveTest
         Assert.AreEqual("Online Save", api.GetOfflineSavesContent().saves[0].name);
         Assert.AreEqual("updated", api.GetOfflineSavesContent().saves[0].content);
 
-        Assert.AreEqual(1, eventMock.chosenSave.id);
-        api.OnSaveChosen -= eventMock.Invoke;
-
         yield return null;
     }
 
@@ -62,9 +56,6 @@ public class UpdateSaveTest
 
         api._allSaves.Add(new GameSave() { id = 1, name = "Online Save" });
         api.WriteOfflineSavesContent(new OfflineSavesContent(api._allSaves.ToArray()));
-
-        var eventMock = new ChosenEventMock();
-        api.OnSaveChosen += eventMock.Invoke;
 
         RequestMock.ReplyOnce(new Uri(api.GetUri() + "/1"), "PATCH", JsonUtility.ToJson(new SavesPostResponse
         {
@@ -78,14 +69,11 @@ public class UpdateSaveTest
         Assert.AreEqual(1, api.GetOfflineSavesContent().saves.Length);
         Assert.AreEqual("New Name", api.GetOfflineSavesContent().saves[0].name);
 
-        Assert.AreEqual(1, eventMock.chosenSave.id);
-        api.OnSaveChosen -= eventMock.Invoke;
-
         yield return null;
     }
 
     [UnityTest]
-    public IEnumerator CreateSave_InOfflineMode_UpdatesTheSaveContent()
+    public IEnumerator UpdateSave_InOfflineMode_UpdatesTheSaveContent()
     {
         RequestMock.Offline = true;
 
@@ -94,9 +82,6 @@ public class UpdateSaveTest
 
         api._allSaves.Add(new GameSave() { id = -1, name = "Offline Save" });
         api.WriteOfflineSavesContent(new OfflineSavesContent(api._allSaves.ToArray()));
-
-        var eventMock = new ChosenEventMock();
-        api.OnSaveChosen += eventMock.Invoke;
 
         _ = api.UpdateSave(-1);
 
@@ -106,14 +91,11 @@ public class UpdateSaveTest
         Assert.AreEqual(1, api.GetOfflineSavesContent().saves.Length);
         Assert.AreEqual("Offline Save", api.GetOfflineSavesContent().saves[0].name);
 
-        Assert.AreEqual(-1, eventMock.chosenSave.id);
-        api.OnSaveChosen -= eventMock.Invoke;
-
         yield return null;
     }
 
     [UnityTest]
-    public IEnumerator CreateSave_InOfflineMode_UpdatesTheSaveName()
+    public IEnumerator UpdateSave_InOfflineMode_UpdatesTheSaveName()
     {
         RequestMock.Offline = true;
 
@@ -123,9 +105,6 @@ public class UpdateSaveTest
         api._allSaves.Add(new GameSave() { id = -1, name = "Offline Save" });
         api.WriteOfflineSavesContent(new OfflineSavesContent(api._allSaves.ToArray()));
 
-        var eventMock = new ChosenEventMock();
-        api.OnSaveChosen += eventMock.Invoke;
-
         _ = api.UpdateSave(-1, "New Name");
 
         Assert.AreEqual(1, api.All.Length);
@@ -133,9 +112,6 @@ public class UpdateSaveTest
 
         Assert.AreEqual(1, api.GetOfflineSavesContent().saves.Length);
         Assert.AreEqual("New Name", api.GetOfflineSavesContent().saves[0].name);
-
-        Assert.AreEqual(-1, eventMock.chosenSave.id);
-        api.OnSaveChosen -= eventMock.Invoke;
 
         yield return null;
     }

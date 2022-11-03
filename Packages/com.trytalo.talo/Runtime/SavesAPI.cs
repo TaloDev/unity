@@ -230,7 +230,7 @@ namespace TaloGameServices
             _allSaves.Add(save);
             UpdateOfflineSaves(save);
 
-            ChooseSave(save);
+            ChooseSave(save, true);
             return save;
         }
 
@@ -272,14 +272,15 @@ namespace TaloGameServices
                 .ToList();
             UpdateOfflineSaves(save);
 
-            ChooseSave(save);
             return save;
         }
 
-        public void ChooseSave(GameSave save)
+        public void ChooseSave(GameSave save, bool newSave = false)
         {
-            _loadedLoadables.Clear();
             _currentSave = save;
+            if (newSave) return;
+
+            _loadedLoadables.Clear();
             OnSaveChosen?.Invoke(save);
         }
 

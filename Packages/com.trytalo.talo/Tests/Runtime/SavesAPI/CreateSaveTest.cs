@@ -57,7 +57,8 @@ public class CreateSaveTest
         Assert.AreEqual("Existing Online Save", api.GetOfflineSavesContent().saves[0].name);
         Assert.AreEqual("New Online Save", api.GetOfflineSavesContent().saves[1].name);
 
-        Assert.AreEqual(1, eventMock.chosenSave.id);
+        Assert.AreEqual(1, api.Current.id);
+        Assert.Null(eventMock.chosenSave); // should not invoke the OnSaveChosen event
         api.OnSaveChosen -= eventMock.Invoke;
 
         yield return null;
@@ -87,7 +88,8 @@ public class CreateSaveTest
         Assert.AreEqual("Existing Offline Save", api.GetOfflineSavesContent().saves[0].name);
         Assert.AreEqual("New Offline Save", api.GetOfflineSavesContent().saves[1].name);
 
-        Assert.AreEqual(-2, eventMock.chosenSave.id);
+        Assert.AreEqual(-2, api.Current.id);
+        Assert.Null(eventMock.chosenSave); // should not invoke the OnSaveChosen event
         api.OnSaveChosen -= eventMock.Invoke;
 
         yield return null;
