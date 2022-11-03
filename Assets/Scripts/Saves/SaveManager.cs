@@ -7,7 +7,6 @@ public class SaveManager : MonoBehaviour
 {
     public string saveName = "New Save";
     public bool updateCurrentSave;
-    public SaveMode saveMode = SaveMode.BOTH;
 
     public async void OnButtonClick()
     {
@@ -27,7 +26,7 @@ public class SaveManager : MonoBehaviour
             }
             else
             {
-                save = await Talo.Saves.CreateSave(saveName, saveMode);
+                save = await Talo.Saves.CreateSave(saveName);
                 ResponseMessage.SetText($"Save '{save.name}' created. It will automatically be loaded in next time the scene is loaded.");
             }
 

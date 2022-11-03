@@ -16,8 +16,18 @@ namespace TaloGameServices
             baseUrl = $"{manager.settings.apiUrl}/{service}";
         }
 
+        public Uri GetUri()
+        {
+            return new Uri(baseUrl);
+        }
+
         protected async Task<string> Call(Uri uri, string method, string content = "")
         {
+            if (Talo.TestMode)
+            {
+                return RequestMock.HandleCall(uri, method);
+            }
+
             byte[] json = new System.Text.UTF8Encoding().GetBytes(content);
 
             using (UnityWebRequest www = new UnityWebRequest(uri, method))
