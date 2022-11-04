@@ -1,16 +1,21 @@
 using System;
+using System.Reflection;
 using UnityEngine;
 
 namespace TaloGameServices
 {
     public class Talo
     {
-        private static EventsAPI _events;
-        private static PlayersAPI _players;
-        private static LeaderboardsAPI _leaderboards;
-        private static SavesAPI _saves;
-        private static StatsAPI _stats;
-        private static GameConfigAPI _gameConfig;
+        private static bool _testMode;
+
+        internal static bool TestMode => _testMode;
+
+        internal static EventsAPI _events;
+        internal static PlayersAPI _players;
+        internal static LeaderboardsAPI _leaderboards;
+        internal static SavesAPI _saves;
+        internal static StatsAPI _stats;
+        internal static GameConfigAPI _gameConfig;
 
         private static PlayerAlias _currentAlias;
 
@@ -76,27 +81,35 @@ namespace TaloGameServices
 
         static Talo()
         {
-            var settings = Resources.Load<TaloSettings>("Talo Settings");
-            if (!settings)
+            TaloManager tm;
+
+            if (!CheckTestMode())
             {
-                Debug.LogError("A 'Talo Settings' asset was not found in the Resources folder. Create one using the Create menu > Talo > Settings Asset");
-                return;
+                var settings = Resources.Load<TaloSettings>("Talo Settings");
+                if (!settings)
+                {
+                    Debug.LogError("A 'Talo Settings' asset was not found in the Resources folder. Create one using the Create menu > Talo > Settings Asset");
+                    return;
+                }
+
+                tm = new GameObject("Talo Manager").AddComponent<TaloManager>();
+                tm.settings = settings;
+            } else
+            {
+                tm = UnityEngine.Object.FindObjectOfType<TaloManager>();
             }
 
-            var manager = new GameObject("Talo Manager").AddComponent<TaloManager>();
-            manager.settings = settings;
-
-            _events = new EventsAPI(manager);
-            _players = new PlayersAPI(manager);
-            _leaderboards = new LeaderboardsAPI(manager);
-            _saves = new SavesAPI(manager);
-            _stats = new StatsAPI(manager);
-            _gameConfig = new GameConfigAPI(manager);
+            _events = new EventsAPI(tm);
+            _players = new PlayersAPI(tm);
+            _leaderboards = new LeaderboardsAPI(tm);
+            _saves = new SavesAPI(tm);
+            _stats = new StatsAPI(tm);
+            _gameConfig = new GameConfigAPI(tm);
         }
 
         public static bool HasIdentity()
         {
-            return CurrentAlias != null;
+            return _testMode || CurrentAlias != null;
         }
 
         public static void IdentityCheck()
@@ -105,6 +118,26 @@ namespace TaloGameServices
             {
                 throw new Exception("You need to identify a player using Talo.Identify() before doing this.");
             }
+        }
+
+        public static bool IsOffline()
+        {
+            if (TestMode) return RequestMock.Offline;
+            return Application.internetReachability == NetworkReachability.NotReachable;
+        }
+
+        internal static bool CheckTestMode()
+        {
+            foreach (Assembly assem in AppDomain.CurrentDomain.GetAssemblies())
+            {
+                if (assem.FullName.ToLowerInvariant().StartsWith("nunit.framework"))
+                {
+                    _testMode = true;
+                    break;
+                }
+            }
+
+            return _testMode;
         }
     }
 }
