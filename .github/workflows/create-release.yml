@@ -22,8 +22,7 @@ jobs:
         run: |
           mkdir -p Release/Samples~
           cp -a Packages/com.trytalo.talo/. Release
-          cp -a Assets/Playground/. Release/Samples~/Playground
-          cp -a Assets/SavesDemo/. Release/Samples~/SavesDemo
+          cp -a Assets/Samples/. Release/Samples~
 
       - name: Copy to package repo (main branch)
         uses: tudddorrr/github-action-push-to-another-repository@main
