@@ -1,5 +1,6 @@
 using System;
-using System.Reflection;
+using System.Linq;
+using NUnit.Framework;
 using UnityEngine;
 
 namespace TaloGameServices
@@ -128,12 +129,19 @@ namespace TaloGameServices
 
         internal static bool CheckTestMode()
         {
-            foreach (Assembly assem in AppDomain.CurrentDomain.GetAssemblies())
+            var assembly = AppDomain.CurrentDomain.GetAssemblies()
+                .FirstOrDefault((assembly) => assembly.FullName.ToLowerInvariant().StartsWith("nunit.framework"));
+
+            if (assembly != null)
             {
-                if (assem.FullName.ToLowerInvariant().StartsWith("nunit.framework"))
+                try
                 {
-                    _testMode = true;
-                    break;
+                    _testMode = TestContext.CurrentContext.Test.ID != null;
+                    return _testMode;
+                }
+                catch
+                {
+                    return false;
                 }
             }
 

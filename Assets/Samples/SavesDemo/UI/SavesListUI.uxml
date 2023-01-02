@@ -1,0 +1,10 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Assets/Samples/SavesDemo/UI/SavesUI.uss?fileID=7433441132597879392&amp;guid=ec88216832605476ca23cbb98e4edd72&amp;type=3#SavesUI" />
+    <ui:VisualElement style="justify-content: flex-start; align-items: center; background-color: rgb(31, 41, 55); min-height: 100%;">
+        <ui:VisualElement style="width: 60%; height: 100%; padding-left: 0; padding-right: 0; padding-top: 0; padding-bottom: 0; justify-content: center; margin-top: 0;">
+            <ui:ListView focusable="true" name="list" selection-type="None" show-border="false" fixed-item-height="80" style="height: auto; max-height: 70%; min-height: 70%; flex-shrink: 0;" />
+            <ui:Label text="You don&apos;t currently have any saves" display-tooltip-when-elided="true" name="no-saves" style="font-size: 24px; -unity-text-align: upper-center; color: rgb(255, 255, 255); padding-left: 0; padding-right: 0; padding-top: 0; padding-bottom: 0; margin-bottom: 0;" />
+            <ui:Button text="Back" display-tooltip-when-elided="true" name="back-btn" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>
