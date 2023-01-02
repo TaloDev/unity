@@ -30,7 +30,7 @@ namespace TaloGameServices
 
             byte[] json = new System.Text.UTF8Encoding().GetBytes(content);
 
-            using (UnityWebRequest www = new UnityWebRequest(uri, method))
+            using (UnityWebRequest www = new(uri, method))
             {
                 if (json.Length > 0) www.uploadHandler = new UploadHandlerRaw(json);
                 www.downloadHandler = new DownloadHandlerBuffer();

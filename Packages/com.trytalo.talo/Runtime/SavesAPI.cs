@@ -47,29 +47,25 @@ namespace TaloGameServices
         private async Task<GameSave> ReplaceSaveWithOfflineSave(GameSave offlineSave)
         {
             var uri = new Uri(baseUrl + $"/{offlineSave.id}");
-
-            var content = JsonUtility.ToJson(new SavesPatchRequest()
+            var json = await Call(uri, "PATCH", JsonUtility.ToJson(new SavesPatchRequest()
             {
                 name = offlineSave.name,
                 content = offlineSave.content
-            });
+            }));
 
-            var json = await Call(uri, "PATCH", content);
             var res = JsonUtility.FromJson<SavesPostResponse>(json);
-
-            DeleteOfflineSave(offlineSave.id);
-
             return res.save;
         }
 
         private async Task<GameSave> SyncSave(GameSave onlineSave, GameSave offlineSave)
         {
-            var onlineUpdatedAt = DateTime.Parse(onlineSave.updatedAt).ToUniversalTime();
-            var offlineUpdatedAt = DateTime.Parse(offlineSave.updatedAt).ToUniversalTime();
+            var onlineUpdatedAt = DateTime.Parse(onlineSave.updatedAt);
+            var offlineUpdatedAt = DateTime.Parse(offlineSave.updatedAt);
 
-            if (offlineUpdatedAt > onlineUpdatedAt)
+            if (DateTime.Compare(offlineUpdatedAt, onlineUpdatedAt) > 0)
             {
-                return await ReplaceSaveWithOfflineSave(offlineSave);
+                var save = await ReplaceSaveWithOfflineSave(offlineSave);
+                return save;
             }
             else
             {
@@ -112,11 +108,10 @@ namespace TaloGameServices
 
                 if (offlineSaves != null)
                 {
-                    onlineSaves = onlineSaves.Select(async (onlineSave) =>
+                    var tasks = onlineSaves.Select(async (onlineSave) =>
                     {
                         var offlineSave = offlineSaves
-                            .Where((offlineSave) => offlineSave.id == onlineSave.id)
-                            .FirstOrDefault();
+                            .FirstOrDefault((offlineSave) => offlineSave.id == onlineSave.id);
 
                         if (offlineSave != null)
                         {
@@ -124,8 +119,9 @@ namespace TaloGameServices
                         }
                         return onlineSave;
                     })
-                        .Select((t) => t.Result)
-                        .ToArray();
+                        .ToList();
+
+                    onlineSaves = await Task.WhenAll(tasks);
 
                     var syncedSaves = await SyncOfflineSaves(offlineSaves);
                     saves.AddRange(syncedSaves);
@@ -230,7 +226,7 @@ namespace TaloGameServices
             _allSaves.Add(save);
             UpdateOfflineSaves(save);
 
-            ChooseSave(save, true);
+            SetChosenSave(save, false);
             return save;
         }
 
@@ -239,10 +235,17 @@ namespace TaloGameServices
             return await UpdateSave(_currentSave.id, newName);
         }
 
+        private GameSave FindSaveByID(int saveId)
+        {
+            GameSave save = _allSaves.FirstOrDefault((existingSave) => existingSave.id == saveId);
+            if (save == null) throw new Exception("Save not found");
+
+            return save;
+        }
+
         public async Task<GameSave> UpdateSave(int saveId, string newName = "")
         {
-            GameSave save = _allSaves.First((existingSave) => existingSave.id == saveId);
-            if (save == null) throw new Exception("Save not found");
+            var save = FindSaveByID(saveId);
 
             var saveContent = JsonUtility.ToJson(new SaveContent(_registeredLoadables));
 
@@ -275,13 +278,24 @@ namespace TaloGameServices
             return save;
         }
 
-        public void ChooseSave(GameSave save, bool newSave = false)
+        private void SetChosenSave(GameSave save, bool loadSave = true)
         {
             _currentSave = save;
-            if (newSave) return;
+            if (!loadSave) return;
 
             _loadedLoadables.Clear();
             OnSaveChosen?.Invoke(save);
+        }
+
+        public void ChooseSave(int saveId)
+        {
+            var save = FindSaveByID(saveId);
+            SetChosenSave(save);
+        }
+
+        public void UnloadCurrentSave()
+        {
+            SetChosenSave(null);
         }
 
         public void SetObjectLoaded(string id)
@@ -302,8 +316,7 @@ namespace TaloGameServices
 
         public async Task DeleteSave(int saveId)
         {
-            GameSave save = _allSaves.First((existingSave) => existingSave.id == saveId);
-            if (save == null) throw new Exception("Save not found");
+            var save = FindSaveByID(saveId);
 
             if (!Talo.IsOffline())
             {
@@ -315,9 +328,9 @@ namespace TaloGameServices
             _allSaves = _allSaves.Where((existingSave) => existingSave.id != saveId).ToList();
             DeleteOfflineSave(saveId);
 
-            if (_currentSave.id == saveId)
+            if (_currentSave?.id == saveId)
             {
-                ChooseSave(null);
+                UnloadCurrentSave();
             }
         }
     }
