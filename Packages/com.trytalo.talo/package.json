@@ -21,6 +21,11 @@
       "displayName": "Saves Demo",
       "description": "A basic saves UI, allowing you to load, create and update saves",
       "path": "Samples~/SavesDemo"
+    },
+    {
+      "displayName": "Leaderboards Demo",
+      "description": "A basic leaderboard UI, allowing you to add and update entries",
+      "path": "Samples~/LeaderboardsDemo"
     }
   ],
   "changelogUrl": "https://github.com/TaloDev/unity/releases",
