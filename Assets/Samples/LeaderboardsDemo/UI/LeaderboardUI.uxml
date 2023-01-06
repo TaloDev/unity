@@ -1,0 +1,13 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Assets/Samples/LeaderboardsDemo/UI/LeaderboardsUI.uss?fileID=7433441132597879392&amp;guid=2bd38c9f9a03048a88b3c28c3964db62&amp;type=3#LeaderboardsUI" />
+    <ui:VisualElement style="justify-content: flex-start; align-items: center; background-color: rgb(31, 41, 55); min-height: 100%;">
+        <ui:VisualElement style="width: 60%; height: 100%; padding-left: 0; padding-right: 0; padding-top: 0; padding-bottom: 0; justify-content: center; margin-top: 0;">
+            <ui:ListView focusable="true" name="list" selection-type="None" show-border="false" fixed-item-height="40" style="height: auto; max-height: 50%; min-height: 50%; flex-shrink: 0;" />
+            <ui:Label text="Loading...." display-tooltip-when-elided="true" name="info" style="font-size: 24px; -unity-text-align: upper-center; color: rgb(255, 255, 255); padding-left: 0; padding-right: 0; padding-top: 0; padding-bottom: 0; margin-bottom: 0;" />
+            <ui:VisualElement style="flex-direction: column; margin-top: 16px;">
+                <ui:TextField picking-mode="Ignore" text="Username" name="username" />
+                <ui:Button text="Add entry" display-tooltip-when-elided="true" name="post-btn" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>
