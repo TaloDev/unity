@@ -19,7 +19,7 @@ namespace TaloGameServices
                 Prop prop = props.First((prop) => prop.key == key);
                 return ((T)Convert.ChangeType(prop.value, typeof(T)));
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 return fallback;
             }
