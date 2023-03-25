@@ -53,7 +53,7 @@ public class MenuUIController : MonoBehaviour
             cube.MoveToOriginalPos();
         }
 
-        var save = await Talo.Saves.CreateSave($"Save {Talo.Saves.Latest.id + 1}");
+        var save = await Talo.Saves.CreateSave($"Save {(Talo.Saves.Latest?.id ?? 0) + 1}");
         Talo.Saves.ChooseSave(save.id);
 
         SendMessageUpwards("AddNewSaveToList", SendMessageOptions.RequireReceiver);
