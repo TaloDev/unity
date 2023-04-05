@@ -53,14 +53,20 @@ jobs:
           cd Release
           npm pack
 
-      - name: Upload to itch.io
+      - name: Set itch package path
+        id: find-package
+        run: |
+          filepath="`ls Release | grep .tgz`"
+          echo "filepath=$filepath" >> $GITHUB_OUTPUT
+
+      - name: Upload to itch
         uses: manleydev/butler-publish-itchio-action@master
         env:
           BUTLER_CREDENTIALS: ${{ secrets.BUTLER_CREDENTIALS }}
-          CHANNEL: source-code
+          CHANNEL: unity-package
           ITCH_GAME: talo
           ITCH_USER: sleepystudios
-          PACKAGE: Release/*.tgz
+          PACKAGE: Release/${{ steps.find-package.outputs.filepath }}
           VERSION: ${{ github.ref_name }}
 
       - name: Create release
