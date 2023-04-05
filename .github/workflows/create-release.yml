@@ -53,6 +53,16 @@ jobs:
           cd Release
           npm pack
 
+      - name: Upload to itch.io
+        uses: manleydev/butler-publish-itchio-action@master
+        env:
+          BUTLER_CREDENTIALS: ${{ secrets.BUTLER_CREDENTIALS }}
+          CHANNEL: source-code
+          ITCH_GAME: talo
+          ITCH_USER: sleepystudios
+          PACKAGE: Release/*.tgz
+          VERSION: ${{ github.ref_name }}
+
       - name: Create release
         uses: softprops/action-gh-release@v1
         if: "!contains(github.event.head_commit.message, '--no-release')"
