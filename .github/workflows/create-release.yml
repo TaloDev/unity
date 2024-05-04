@@ -63,6 +63,7 @@ jobs:
         uses: manleydev/butler-publish-itchio-action@master
         env:
           BUTLER_CREDENTIALS: ${{ secrets.BUTLER_CREDENTIALS }}
+          CHANNEL: unity-package
           ITCH_GAME: talo-unity
           ITCH_USER: sleepystudios
           PACKAGE: Release/${{ steps.find-package.outputs.filepath }}
