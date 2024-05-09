@@ -1,11 +1,11 @@
-# Talo Unity SDK
+# Talo Unity package
 
-Build games faster and make better decisions with the [Talo](https://trytalo.com) Unity SDK.
+Build games faster and make better decisions with the [Talo](https://trytalo.com) Unity package.
 
 ## Features
 - ⚡️ [Event tracking](https://trytalo.com/events)
 - 👥 [Player management](https://trytalo.com/players) (including cross-session data, groups and identity management)
-- 🎮 [Unity SDK](https://trytalo.com/unity)
+- 🎮 [Unity package](https://trytalo.com/unity)
 - 🗃️ Data exports
 - 🕹️ [Leaderboards](https://trytalo.com/leaderboards)
 - 💾 [Game saves](https://trytalo.com/saves)

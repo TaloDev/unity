@@ -8,7 +8,7 @@ jobs:
   tag:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     
     - name: Check version change
       id: check
@@ -18,14 +18,14 @@ jobs:
 
     - name: Create tag
       if: steps.check.outputs.changed == 'true'
-      uses: tvdias/github-tagger@v0.0.1
+      uses: pxpm/github-tag-action@1.0.1
       with:
         repo-token: ${{ secrets.GITHUB_TOKEN }}
         tag: ${{ steps.check.outputs.version }}
 
     - name: Trigger workflow
       if: steps.check.outputs.changed == 'true'
-      uses: actions/github-script@v6
+      uses: actions/github-script@v7
       with:
         script: |
           github.rest.actions.createWorkflowDispatch({
