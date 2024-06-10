@@ -17,6 +17,7 @@ namespace TaloGameServices
         internal static SavesAPI _saves;
         internal static StatsAPI _stats;
         internal static GameConfigAPI _gameConfig;
+        internal static FeedbackAPI _feedback;
 
         private static PlayerAlias _currentAlias;
 
@@ -80,6 +81,11 @@ namespace TaloGameServices
             get => _gameConfig;
         }
 
+        public static FeedbackAPI Feedback
+        {
+            get => _feedback;
+        }
+
         static Talo()
         {
             TaloManager tm;
@@ -106,6 +112,7 @@ namespace TaloGameServices
             _saves = new SavesAPI(tm);
             _stats = new StatsAPI(tm);
             _gameConfig = new GameConfigAPI(tm);
+            _feedback = new FeedbackAPI(tm);
         }
 
         public static bool HasIdentity()
