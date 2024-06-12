@@ -6,7 +6,7 @@ namespace TaloGameServices
 {
     public class FeedbackAPI : BaseAPI
     {
-        public FeedbackAPI(TaloManager manager) : base(manager, "game-feedback") { }
+        public FeedbackAPI(TaloManager manager) : base(manager, "/v1/game-feedback") { }
 
         public async Task<FeedbackCategory[]> GetCategories()
         {
