@@ -17,16 +17,15 @@ namespace TaloGameServices
             return res;
         }
 
-        public async Task<LeaderboardEntry[]> GetEntriesForCurrentPlayer(string leaderboardInternalName, int page)
+        public async Task<LeaderboardEntriesResponse> GetEntriesForCurrentPlayer(string internalName, int page)
         {
             Talo.IdentityCheck();
 
-            var uri = new Uri(baseUrl + $"/{leaderboardInternalName}/entries?page={page}&aliasId={Talo.CurrentAlias.id}");
+            var uri = new Uri(baseUrl + $"/{internalName}/entries?page={page}&aliasId={Talo.CurrentAlias.id}");
 
             var json = await Call(uri, "GET");
             var res = JsonUtility.FromJson<LeaderboardEntriesResponse>(json);
-
-            return res.entries;
+            return res;
         }
 
         public async Task<(LeaderboardEntry, bool)> AddEntry(string internalName, float score)
