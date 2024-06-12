@@ -19,8 +19,8 @@ namespace TaloGameServices
 
         public string GetProp(string key, string fallback = null)
         {
-            Prop prop = props.First((prop) => prop.key == key);
-            return prop?.key ?? fallback;
+            Prop prop = props.FirstOrDefault((prop) => prop.key == key);
+            return prop?.value ?? fallback;
         }
 
         public async Task SetProp(string key, string value)
@@ -45,7 +45,7 @@ namespace TaloGameServices
 
         public async Task DeleteProp(string key)
         {
-            Prop prop = props.First((prop) => prop.key == key);
+            Prop prop = props.FirstOrDefault((prop) => prop.key == key);
             if (prop == null) throw new Exception($"Prop with key {key} does not exist");
 
             prop.value = null;
@@ -53,9 +53,14 @@ namespace TaloGameServices
             await Talo.Players.Update();
         }
 
-        public bool IsInGroup(string groupId)
+        public bool IsInGroupID(string groupId)
         {
             return groups.Any((group) => group.id == groupId);
+        }
+
+        public bool IsInGroupName(string groupName)
+        {
+            return groups.Any((group) => group.name == groupName);
         }
     }
 }
