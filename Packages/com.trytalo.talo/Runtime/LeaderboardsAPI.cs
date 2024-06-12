@@ -6,7 +6,7 @@ namespace TaloGameServices
 {
     public class LeaderboardsAPI : BaseAPI
     {
-        public LeaderboardsAPI(TaloManager manager) : base(manager, "leaderboards") { }
+        public LeaderboardsAPI(TaloManager manager) : base(manager, "/v1/leaderboards") { }
 
         public async Task<LeaderboardEntriesResponse> GetEntries(string internalName, int page)
         {

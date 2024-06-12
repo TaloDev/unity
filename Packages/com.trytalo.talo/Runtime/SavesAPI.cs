@@ -38,7 +38,7 @@ namespace TaloGameServices
             get => _currentSave;
         }
 
-        public SavesAPI(TaloManager manager) : base(manager, "game-saves") {
+        public SavesAPI(TaloManager manager) : base(manager, "/v1/game-saves") {
             _fileHandler = Talo.TestMode
                 ? new SavesTestFileHandler()
                 : new SavesFileHandler();
