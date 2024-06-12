@@ -6,7 +6,7 @@ namespace TaloGameServices
 {
     public class StatsAPI : BaseAPI
     {
-        public StatsAPI(TaloManager manager) : base(manager, "game-stats") { }
+        public StatsAPI(TaloManager manager) : base(manager, "/v1/game-stats") { }
 
         public async Task Track(string internalName, float change = 1f)
         {
