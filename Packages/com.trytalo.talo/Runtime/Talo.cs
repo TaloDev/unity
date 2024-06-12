@@ -117,7 +117,7 @@ namespace TaloGameServices
         {
             if (!HasIdentity())
             {
-                throw new Exception("You need to identify a player using Talo.Identify() before doing this.");
+                throw new Exception("You need to identify a player using Talo.Players.Identify() before doing this.");
             }
         }
 
