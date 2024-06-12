@@ -101,7 +101,8 @@ namespace TaloGameServices
 
                 tm = new GameObject("Talo Manager").AddComponent<TaloManager>();
                 tm.settings = settings;
-            } else
+            }
+            else
             {
                 tm = UnityEngine.Object.FindObjectOfType<TaloManager>();
             }
