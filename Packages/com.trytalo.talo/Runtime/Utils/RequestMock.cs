@@ -68,7 +68,8 @@ internal class RequestMock
             {
                 _oneTimeHandlers.Remove(handler.GetValueOrDefault());
                 return handler.GetValueOrDefault().response;
-            } else
+            }
+            else
             {
                 throw new Exception($"Request handler not set for {method} {uri}");
             }

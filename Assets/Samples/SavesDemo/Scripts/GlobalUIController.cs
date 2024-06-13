@@ -39,7 +39,8 @@ public class GlobalUIController : MonoBehaviour
             SetDocumentVisibility(savesListUI, DisplayStyle.None);
             SetDocumentVisibility(menuUI, DisplayStyle.None);
             SetDocumentVisibility(gameUI, DisplayStyle.Flex);
-        } else
+        }
+        else
         {
             SetDocumentVisibility(gameUI, DisplayStyle.None);
             SetDocumentVisibility(menuUI, DisplayStyle.Flex);
