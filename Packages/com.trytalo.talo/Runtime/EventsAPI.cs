@@ -11,7 +11,7 @@ namespace TaloGameServices
         private List<Event> queue = new List<Event>();
         private readonly int minQueueSize = 10;
 
-        public EventsAPI(TaloManager manager) : base(manager, "events") { }
+        public EventsAPI(TaloManager manager) : base(manager, "/v1/events") { }
 
         private string GetWindowMode()
         {

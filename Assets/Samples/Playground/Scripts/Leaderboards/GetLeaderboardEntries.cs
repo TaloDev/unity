@@ -25,7 +25,8 @@ public class GetLeaderboardEntries : MonoBehaviour
             if (entries.Length == 0)
             {
                 ResponseMessage.SetText($"No entries for page {page}");
-            } else
+            }
+            else
             {
                 ResponseMessage.SetText(string.Join(", ", entries.Select((e) => e.ToString()).ToArray()));
             }

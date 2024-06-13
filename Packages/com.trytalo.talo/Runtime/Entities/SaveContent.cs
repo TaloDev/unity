@@ -34,7 +34,8 @@ namespace TaloGameServices
                     value = field.Value.ToString(),
                     type = field.Value.GetType().ToString()
                 }).ToArray();
-            } else
+            }
+            else
             {
                 data = new SavedObjectData[]
                 {

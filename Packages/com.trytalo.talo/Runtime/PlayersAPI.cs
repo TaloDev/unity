@@ -8,7 +8,7 @@ namespace TaloGameServices
     {
         public event Action<Player> OnIdentified;
 
-        public PlayersAPI(TaloManager manager) : base(manager, "players") { }
+        public PlayersAPI(TaloManager manager) : base(manager, "/v1/players") { }
 
         public async Task Identify(string service, string identifier)
         {

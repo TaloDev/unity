@@ -38,7 +38,7 @@ namespace TaloGameServices
             get => _currentSave;
         }
 
-        public SavesAPI(TaloManager manager) : base(manager, "game-saves") {
+        public SavesAPI(TaloManager manager) : base(manager, "/v1/game-saves") {
             _fileHandler = Talo.TestMode
                 ? new SavesTestFileHandler()
                 : new SavesFileHandler();
@@ -98,7 +98,8 @@ namespace TaloGameServices
             if (Talo.IsOffline())
             {
                 if (offlineSaves != null) saves.AddRange(offlineSaves);
-            } else
+            }
+            else
             {
                 Talo.IdentityCheck();
 
@@ -184,7 +185,8 @@ namespace TaloGameServices
 
                     offlineContent.saves = offlineContent.saves.Concat(new GameSave[] { incomingSave }).ToArray();
                 }
-            } else
+            }
+            else
             {
                 // first entry into the saves file
                 incomingSave.id = -1;
@@ -208,7 +210,8 @@ namespace TaloGameServices
                     content = saveContent,
                     updatedAt = DateTime.UtcNow.ToString("O")
                 };
-            } else
+            }
+            else
             {
                 Talo.IdentityCheck();
 
@@ -254,7 +257,8 @@ namespace TaloGameServices
                 if (!string.IsNullOrEmpty(newName)) save.name = newName;
                 save.content = saveContent;
                 save.updatedAt = DateTime.UtcNow.ToString("O");
-            } else
+            }
+            else
             {
                 Talo.IdentityCheck();
 
