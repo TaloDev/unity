@@ -1,5 +1,6 @@
 namespace TaloGameServices
 {
+    [System.Serializable]
     public class PlayerAuthChangePasswordRequest
     {
         public string currentPassword;
