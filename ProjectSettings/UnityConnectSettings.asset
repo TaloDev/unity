@@ -6,8 +6,8 @@ UnityConnectSettings:
   serializedVersion: 1
   m_Enabled: 0
   m_TestMode: 0
-  m_EventOldUrl: https://api.uca.cloud.unity3d.com/v1/events
-  m_EventUrl: https://cdp.cloud.unity3d.com/v1/events
+  m_EventOldUrl: https://api.uca.cloud.unity3d.comv1/events
+  m_EventUrl: https://cdp.cloud.unity3d.comv1/events
   m_ConfigUrl: https://config.uca.cloud.unity3d.com
   m_DashboardUrl: https://dashboard.unity3d.com
   m_TestInitMode: 0

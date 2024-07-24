@@ -47,6 +47,12 @@ namespace TaloGameServices
                     www.SetRequestHeader("X-Talo-Alias", Talo.CurrentAlias.id.ToString());
                 }
 
+                var sessionToken = Talo.PlayerAuth.SessionManager.GetSessionToken();
+                if (!string.IsNullOrEmpty(sessionToken))
+                {
+                    www.SetRequestHeader("X-Talo-Session", sessionToken);
+                }
+
                 var op = www.SendWebRequest();
 
                 while (!op.isDone)
@@ -60,17 +66,28 @@ namespace TaloGameServices
                 }
                 else
                 {
-                    string message;
+                    string message = "";
+                    string errorCode = "";
 
                     try
                     {
-                        message = JsonUtility.FromJson<ErrorResponse>(www.downloadHandler.text).message;
+                        var jsonError = JsonUtility.FromJson<ErrorResponse>(www.downloadHandler.text);
+                        message = string.IsNullOrEmpty(jsonError.message) ? www.downloadHandler.text : jsonError.message;
+                        errorCode = jsonError.errorCode;
                     }
                     catch (Exception)
                     {
                         message = www.error;
                     }
-                    throw new Exception($"Request failed: {message}");
+
+                    if (string.IsNullOrEmpty(errorCode))
+                    {
+                        throw new Exception($"Request failed: {message}");
+                    }
+                    else
+                    {
+                        throw new PlayerAuthException(errorCode, new Exception(message));
+                    }
                 }
             }
         }

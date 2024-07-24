@@ -2,42 +2,45 @@ using System.Collections.Generic;
 using UnityEngine;
 using TaloGameServices;
 
-public class LoadableCube : Loadable
+namespace TaloSavesDemo
 {
-    private Vector3 originalPos;
-
-    private void Start()
+    public class LoadableCube : Loadable
     {
-        originalPos = transform.position;
-    }
+        private Vector3 originalPos;
 
-    public void MoveToOriginalPos()
-    {
-        transform.position = originalPos;
-    }
+        private void Start()
+        {
+            originalPos = transform.position;
+        }
 
-    private void OnMouseDrag()
-    {
-        var nextPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        nextPos.z = 0;
-        transform.position = nextPos;
-    }
+        public void MoveToOriginalPos()
+        {
+            transform.position = originalPos;
+        }
 
-    public override void RegisterFields()
-    {
-        RegisterField("x", transform.position.x);
-        RegisterField("y", transform.position.y);
-        RegisterField("z", transform.position.z);
-    }
+        private void OnMouseDrag()
+        {
+            var nextPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            nextPos.z = 0;
+            transform.position = nextPos;
+        }
 
-    public override void OnLoaded(Dictionary<string, object> data)
-    {
-        if (HandleDestroyed(data)) return;
+        public override void RegisterFields()
+        {
+            RegisterField("x", transform.position.x);
+            RegisterField("y", transform.position.y);
+            RegisterField("z", transform.position.z);
+        }
 
-        transform.position = new Vector3(
-            (float)data["x"],
-            (float)data["y"],
-            (float)data["z"]
-        );
+        public override void OnLoaded(Dictionary<string, object> data)
+        {
+            if (HandleDestroyed(data)) return;
+
+            transform.position = new Vector3(
+                (float)data["x"],
+                (float)data["y"],
+                (float)data["z"]
+            );
+        }
     }
 }

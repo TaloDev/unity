@@ -6,7 +6,7 @@ namespace TaloGameServices
 {
     public class LeaderboardsAPI : BaseAPI
     {
-        public LeaderboardsAPI(TaloManager manager) : base(manager, "/v1/leaderboards") { }
+        public LeaderboardsAPI(TaloManager manager) : base(manager, "v1/leaderboards") { }
 
         public async Task<LeaderboardEntriesResponse> GetEntries(string internalName, int page)
         {
@@ -33,7 +33,7 @@ namespace TaloGameServices
             Talo.IdentityCheck();
 
             var uri = new Uri(baseUrl + $"/{internalName}/entries");
-            var content = JsonUtility.ToJson(new LeaderboardsPostRequest() { score = score });
+            var content = JsonUtility.ToJson(new LeaderboardsPostRequest { score = score });
 
             var json = await Call(uri, "POST", content);
             var res = JsonUtility.FromJson<LeaderboardEntryResponse>(json);

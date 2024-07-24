@@ -1,0 +1,13 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Assets/Samples/AuthenticationDemo/UI/AuthenticationUI.uss?fileID=7433441132597879392&amp;guid=104230bbfbc4740f388d000aa530ae8e&amp;type=3#AuthenticationUI" />
+    <ui:VisualElement style="justify-content: flex-start; align-items: center; background-color: rgb(31, 41, 55); min-height: 100%;">
+        <ui:VisualElement style="width: 60%; height: 100%; padding-left: 0; padding-right: 0; padding-top: 0; padding-bottom: 0; justify-content: center; margin-top: 0;">
+            <ui:Label text="Login" name="title" class="menu-title" />
+            <ui:TextField text="Username" name="username" label="Username" />
+            <ui:TextField text="Username" name="password" password="false" label="Password&#10;" />
+            <ui:Button text="Login" display-tooltip-when-elided="true" name="submit" class="menu-title-extra" />
+            <ui:Button text="Go to Register" display-tooltip-when-elided="true" name="register" class="menu-title-extra" />
+            <ui:Label name="validation-label" class="validation-label" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

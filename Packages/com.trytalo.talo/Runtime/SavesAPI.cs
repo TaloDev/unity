@@ -38,7 +38,7 @@ namespace TaloGameServices
             get => _currentSave;
         }
 
-        public SavesAPI(TaloManager manager) : base(manager, "/v1/game-saves") {
+        public SavesAPI(TaloManager manager) : base(manager, "v1/game-saves") {
             _fileHandler = Talo.TestMode
                 ? new SavesTestFileHandler()
                 : new SavesFileHandler();
@@ -47,7 +47,7 @@ namespace TaloGameServices
         private async Task<GameSave> ReplaceSaveWithOfflineSave(GameSave offlineSave)
         {
             var uri = new Uri(baseUrl + $"/{offlineSave.id}");
-            var json = await Call(uri, "PATCH", JsonUtility.ToJson(new SavesPatchRequest()
+            var json = await Call(uri, "PATCH", JsonUtility.ToJson(new SavesPatchRequest
             {
                 name = offlineSave.name,
                 content = offlineSave.content
@@ -216,7 +216,7 @@ namespace TaloGameServices
                 Talo.IdentityCheck();
 
                 var uri = new Uri(baseUrl);
-                var json = await Call(uri, "POST", JsonUtility.ToJson(new SavesPostRequest()
+                var json = await Call(uri, "POST", JsonUtility.ToJson(new SavesPostRequest
                 {
                     name = saveName,
                     content = saveContent
@@ -263,7 +263,7 @@ namespace TaloGameServices
                 Talo.IdentityCheck();
 
                 var uri = new Uri(baseUrl + $"/{saveId}");
-                var content = JsonUtility.ToJson(new SavesPatchRequest()
+                var content = JsonUtility.ToJson(new SavesPatchRequest
                 {
                     name = newName,
                     content = saveContent
