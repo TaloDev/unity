@@ -1,0 +1,7 @@
+{
+    "dotnet.preferCSharpExtension": true,
+    "files.exclude": {
+        "**/*.meta": true
+    },
+    "dotnet.defaultSolution": "unity.sln"
+}

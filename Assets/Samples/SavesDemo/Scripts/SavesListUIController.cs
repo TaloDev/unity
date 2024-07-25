@@ -2,88 +2,90 @@ using UnityEngine;
 using TaloGameServices;
 using UnityEngine.UIElements;
 using System.Collections.Generic;
-using UnityEditor;
 
-public class SavesListUIController : MonoBehaviour
+namespace TaloSavesDemo
 {
-    private ListView savesList;
-    private Label noSavesLabel;
-    public VisualTreeAsset listItemTemplate;
-    private List<GameSave> saves;
-
-    private void Start()
+    public class SavesListUIController : MonoBehaviour
     {
-        var root = GetComponent<UIDocument>().rootVisualElement;
-        savesList = root.Q<ListView>();
-        noSavesLabel = root.Q<Label>("no-saves");
+        private ListView savesList;
+        private Label noSavesLabel;
+        public VisualTreeAsset listItemTemplate;
+        private List<GameSave> saves;
 
-        root.Q<Button>("back-btn").clicked += () =>
+        private void Start()
         {
-            SendMessageUpwards("OnSavesListBackClick", SendMessageOptions.RequireReceiver);
-        };
-    }
+            var root = GetComponent<UIDocument>().rootVisualElement;
+            savesList = root.Q<ListView>();
+            noSavesLabel = root.Q<Label>("no-saves");
 
-    private void OnEnable()
-    {
-        Talo.Saves.OnSavesLoaded += OnSavesLoaded;
-    }
-
-    private void OnDisable()
-    {
-        Talo.Saves.OnSavesLoaded -= OnSavesLoaded;
-    }
-
-    private void HandleListVisibility()
-    {
-        if (saves.Count == 0)
-        {
-            savesList.style.display = DisplayStyle.None;
-            noSavesLabel.style.display = DisplayStyle.Flex;
-        }
-        else
-        {
-            savesList.style.display = DisplayStyle.Flex;
-            noSavesLabel.style.display = DisplayStyle.None;
-        }
-    }
-
-    public void RepopulateList()
-    {
-        savesList.Rebuild();
-        HandleListVisibility();
-    }
-
-    public void AddSaveToList(GameSave save)
-    {
-        saves.Insert(0, save);
-        RepopulateList();
-    }
-
-    private void OnSavesLoaded()
-    {
-        saves = new List<GameSave>(Talo.Saves.All);
-        saves.Reverse();
-
-        HandleListVisibility();
-
-        savesList.makeItem = () =>
-        {
-            return listItemTemplate.Instantiate();
-        };
-
-        savesList.bindItem = (e, i) =>
-        {
-            var loadButton = e.Q<Button>("load-btn");
-            loadButton.text = saves[i].name;
-            loadButton.clicked += () => Talo.Saves.ChooseSave(saves[i].id);
-
-            e.Q<Button>("delete-btn").clicked += async () => {
-                await Talo.Saves.DeleteSave(saves[i].id);
-                savesList.itemsSource.RemoveAt(i);
-                RepopulateList();
+            root.Q<Button>("back-btn").clicked += () =>
+            {
+                SendMessageUpwards("OnSavesListBackClick", SendMessageOptions.RequireReceiver);
             };
-        };
+        }
 
-        savesList.itemsSource = saves;
+        private void OnEnable()
+        {
+            Talo.Saves.OnSavesLoaded += OnSavesLoaded;
+        }
+
+        private void OnDisable()
+        {
+            Talo.Saves.OnSavesLoaded -= OnSavesLoaded;
+        }
+
+        private void HandleListVisibility()
+        {
+            if (saves.Count == 0)
+            {
+                savesList.style.display = DisplayStyle.None;
+                noSavesLabel.style.display = DisplayStyle.Flex;
+            }
+            else
+            {
+                savesList.style.display = DisplayStyle.Flex;
+                noSavesLabel.style.display = DisplayStyle.None;
+            }
+        }
+
+        public void RepopulateList()
+        {
+            savesList.Rebuild();
+            HandleListVisibility();
+        }
+
+        public void AddSaveToList(GameSave save)
+        {
+            saves.Insert(0, save);
+            RepopulateList();
+        }
+
+        private void OnSavesLoaded()
+        {
+            saves = new List<GameSave>(Talo.Saves.All);
+            saves.Reverse();
+
+            HandleListVisibility();
+
+            savesList.makeItem = () =>
+            {
+                return listItemTemplate.Instantiate();
+            };
+
+            savesList.bindItem = (e, i) =>
+            {
+                var loadButton = e.Q<Button>("load-btn");
+                loadButton.text = saves[i].name;
+                loadButton.clicked += () => Talo.Saves.ChooseSave(saves[i].id);
+
+                e.Q<Button>("delete-btn").clicked += async () => {
+                    await Talo.Saves.DeleteSave(saves[i].id);
+                    savesList.itemsSource.RemoveAt(i);
+                    RepopulateList();
+                };
+            };
+
+            savesList.itemsSource = saves;
+        }
     }
 }

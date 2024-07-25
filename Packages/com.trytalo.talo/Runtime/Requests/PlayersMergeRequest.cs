@@ -1,10 +1,14 @@
-﻿public class PlayersMergeRequest
+﻿namespace TaloGameServices
 {
-    public string playerId1, playerId2;
-
-    public PlayersMergeRequest(string playerId1, string playerId2)
+    [System.Serializable]
+    public class PlayersMergeRequest
     {
-        this.playerId1 = playerId1;
-        this.playerId2 = playerId2;
+        public string playerId1, playerId2;
+
+        public PlayersMergeRequest(string playerId1, string playerId2)
+        {
+            this.playerId1 = playerId1;
+            this.playerId2 = playerId2;
+        }
     }
 }
