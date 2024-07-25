@@ -6,7 +6,7 @@ namespace TaloGameServices
 {
     public class FeedbackAPI : BaseAPI
     {
-        public FeedbackAPI(TaloManager manager) : base(manager, "/v1/game-feedback") { }
+        public FeedbackAPI(TaloManager manager) : base(manager, "v1/game-feedback") { }
 
         public async Task<FeedbackCategory[]> GetCategories()
         {
@@ -22,7 +22,7 @@ namespace TaloGameServices
             Talo.IdentityCheck();
 
             var uri = new Uri(baseUrl + $"/categories/{internalName}");
-            var content = JsonUtility.ToJson(new FeedbackPostRequest() { comment = comment });
+            var content = JsonUtility.ToJson(new FeedbackPostRequest { comment = comment });
 
             await Call(uri, "POST", content);
         }

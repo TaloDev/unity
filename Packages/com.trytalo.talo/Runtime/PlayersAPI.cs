@@ -8,7 +8,12 @@ namespace TaloGameServices
     {
         public event Action<Player> OnIdentified;
 
-        public PlayersAPI(TaloManager manager) : base(manager, "/v1/players") { }
+        public PlayersAPI(TaloManager manager) : base(manager, "v1/players") { }
+
+        public void InvokeIdentifiedEvent()
+        {
+            OnIdentified?.Invoke(Talo.CurrentPlayer);
+        }
 
         public async Task Identify(string service, string identifier)
         {
@@ -18,7 +23,7 @@ namespace TaloGameServices
             var res = JsonUtility.FromJson<PlayersIdentifyResponse>(json);
 
             Talo.CurrentAlias = res.alias;
-            OnIdentified?.Invoke(Talo.CurrentPlayer);
+            InvokeIdentifiedEvent();
         }
 
         public async Task Update()

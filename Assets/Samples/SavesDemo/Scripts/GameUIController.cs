@@ -2,49 +2,52 @@ using UnityEngine;
 using TaloGameServices;
 using UnityEngine.UIElements;
 
-public class GameUIController : MonoBehaviour
+namespace TaloSavesDemo
 {
-    private VisualElement root;
-    private Button updateSaveButton;
-
-    private void Awake()
+    public class GameUIController : MonoBehaviour
     {
-        root = GetComponent<UIDocument>().rootVisualElement;
+        private VisualElement root;
+        private Button updateSaveButton;
 
-        updateSaveButton = root.Q<Button>("update-btn");
-        updateSaveButton.clicked += async () =>
+        private void Awake()
         {
-            await Talo.Saves.UpdateCurrentSave();
-            updateSaveButton.text = "Saved!";
-            Invoke("ResetUpdateSaveButtonText", 1f);
-        };
+            root = GetComponent<UIDocument>().rootVisualElement;
 
-        root.Q<Button>("back-btn").clicked += () =>
-        {
-            Talo.Saves.UnloadCurrentSave();
-        };
-    }
+            updateSaveButton = root.Q<Button>("update-btn");
+            updateSaveButton.clicked += async () =>
+            {
+                await Talo.Saves.UpdateCurrentSave();
+                updateSaveButton.text = "Saved!";
+                Invoke("ResetUpdateSaveButtonText", 1f);
+            };
 
-    private void OnEnable()
-    {
-        Talo.Saves.OnSaveChosen += OnSaveChosen;
-    }
-
-    private void OnDisable()
-    {
-        Talo.Saves.OnSaveChosen -= OnSaveChosen;
-    }
-
-    private void OnSaveChosen(GameSave save)
-    {
-        if (save != null)
-        {
-            root.Q<Label>("save-name").text = save.name;
+            root.Q<Button>("back-btn").clicked += () =>
+            {
+                Talo.Saves.UnloadCurrentSave();
+            };
         }
-    }
 
-    private void ResetUpdateSaveButtonText()
-    {
-        updateSaveButton.text = "Save";
+        private void OnEnable()
+        {
+            Talo.Saves.OnSaveChosen += OnSaveChosen;
+        }
+
+        private void OnDisable()
+        {
+            Talo.Saves.OnSaveChosen -= OnSaveChosen;
+        }
+
+        private void OnSaveChosen(GameSave save)
+        {
+            if (save != null)
+            {
+                root.Q<Label>("save-name").text = save.name;
+            }
+        }
+
+        private void ResetUpdateSaveButtonText()
+        {
+            updateSaveButton.text = "Save";
+        }
     }
 }
