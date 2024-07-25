@@ -6,7 +6,7 @@
             <ui:TextField text="Username" name="username" label="Username" />
             <ui:TextField text="Username" name="password" password="false" label="Password" />
             <ui:Toggle label="Enable email verification?" name="enable-verification" />
-            <ui:TextField text="Username" name="email" password="false" label="Email" />
+            <ui:TextField text="Username" name="email" password="false" label="Email (optional)" />
             <ui:Button text="Submit" display-tooltip-when-elided="true" name="submit" class="menu-title-extra" />
             <ui:Button text="Go to Login" display-tooltip-when-elided="true" name="login" class="menu-title-extra" />
             <ui:Label name="validation-label" class="validation-label" />

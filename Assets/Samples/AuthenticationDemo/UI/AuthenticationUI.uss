@@ -49,14 +49,8 @@
 }
 
 .unity-base-field__input {
-    padding-left: 16px;
-    padding-right: 16px;
-    padding-top: 16px;
-    padding-bottom: 16px;
-    margin-left: 0;
-    margin-right: 0;
-    margin-top: 0;
-    margin-bottom: 0;
+    padding: 16px;
+    margin: 0;
     background-color: white;
     color: black;
     border-radius: 8px;
@@ -68,10 +62,7 @@
     margin-right: 0;
     margin-top: 16px;
     margin-bottom: 0;
-    padding-left: 0;
-    padding-right: 0;
-    padding-top: 0;
-    padding-bottom: 0;
+    padding: 0;
 }
 
 .unity-base-text-field {

@@ -12,6 +12,7 @@ namespace TaloAuthenticationDemo
         private void OnEnable()
         {
             root = GetComponent<UIDocument>().rootVisualElement;
+            root.Q<TextField>("code").value = "";
             root.Q<Button>("submit").clicked += OnSubmitClicked;
         }
 
