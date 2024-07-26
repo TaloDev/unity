@@ -115,5 +115,16 @@ namespace TaloGameServices
             });
             await Call(uri, "POST", content);
         }
+
+        public async Task ToggleVerification(string currentPassword, bool verificationEnabled, string email = "")
+        {
+            var uri = new Uri(baseUrl + "/toggle_verification");
+            string content = JsonUtility.ToJson(new PlayerAuthToggleVerificationRequest {
+                currentPassword = currentPassword,
+                verificationEnabled = verificationEnabled,
+                email = email
+            });
+            await Call(uri, "PATCH", content);
+        }
     }
 }
