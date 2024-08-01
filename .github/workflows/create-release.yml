@@ -53,11 +53,11 @@ jobs:
           cd Release
           npm pack
 
-      - name: Set itch package path
-        id: find-package
+      - name: Remove the version from the artifact name
         run: |
-          filepath="`ls Release | grep .tgz`"
-          echo "filepath=$filepath" >> $GITHUB_OUTPUT
+          filepath=$(ls Release/*.tgz)
+          new_filepath=$(echo "$filepath" | sed -E 's/-[0-9]+\.[0-9]+\.[0-9]+\.tgz$/.tgz/')
+          mv "$filepath" "$new_filepath"
 
       - name: Upload to itch
         uses: manleydev/butler-publish-itchio-action@master
@@ -66,7 +66,7 @@ jobs:
           CHANNEL: package
           ITCH_GAME: talo-unity
           ITCH_USER: sleepystudios
-          PACKAGE: Release/${{ steps.find-package.outputs.filepath }}
+          PACKAGE: Release/com.trytalo.talo.tgz
           VERSION: ${{ github.ref_name }}
 
       - name: Create release
