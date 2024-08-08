@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using UnityEngine;
 
@@ -6,7 +7,21 @@ namespace TaloGameServices
 {
     public class LeaderboardsAPI : BaseAPI
     {
+        private LeaderboardEntriesManager _entriesManager = new();
+
         public LeaderboardsAPI(TaloManager manager) : base(manager, "v1/leaderboards") { }
+
+        public List<LeaderboardEntry> GetCachedEntries(string internalName)
+        {
+            return _entriesManager.GetEntries(internalName);
+        }
+
+        public List<LeaderboardEntry> GetCachedEntriesForCurrentPlayer(string internalName)
+        {
+            Talo.IdentityCheck();
+
+            return _entriesManager.GetEntries(internalName).FindAll(e => e.playerAlias.id == Talo.CurrentAlias.id);
+        }
 
         public async Task<LeaderboardEntriesResponse> GetEntries(string internalName, int page)
         {
@@ -14,6 +29,12 @@ namespace TaloGameServices
 
             var json = await Call(uri, "GET");
             var res = JsonUtility.FromJson<LeaderboardEntriesResponse>(json);
+
+            foreach (var entry in res.entries)
+            {
+                _entriesManager.UpsertEntry(internalName, entry);
+            }
+
             return res;
         }
 
@@ -37,6 +58,8 @@ namespace TaloGameServices
 
             var json = await Call(uri, "POST", content);
             var res = JsonUtility.FromJson<LeaderboardEntryResponse>(json);
+
+            _entriesManager.UpsertEntry(internalName, res.entry);
 
             return (res.entry, res.updated);
         }
