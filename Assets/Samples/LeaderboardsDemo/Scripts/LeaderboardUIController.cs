@@ -12,7 +12,6 @@ public class LeaderboardUIController : MonoBehaviour
     private VisualElement root;
     private ListView entriesList;
     private Label infoLabel;
-    private List<LeaderboardEntry> entries = new ();
 
     private async void Start()
     {
@@ -38,14 +37,6 @@ public class LeaderboardUIController : MonoBehaviour
         var score = Random.Range(0, 100);
         (LeaderboardEntry entry, bool updated) = await Talo.Leaderboards.AddEntry(leaderboardName, score);
 
-        var idx = entries.FindIndex((existingEntry) => existingEntry.playerAlias.id == entry.playerAlias.id);
-        if (idx != -1)
-        {
-            entries.RemoveAt(idx);
-        }
-
-        entries.Insert(entry.position, entry);
-
         infoLabel.text = $"You scored {score}.";
         if (updated) infoLabel.text += " Your highscore was updated!";
 
@@ -54,7 +45,7 @@ public class LeaderboardUIController : MonoBehaviour
 
     private void HandleListVisibility()
     {
-        if (entries.Count == 0)
+        if (Talo.Leaderboards.GetCachedEntries(leaderboardName).Count == 0)
         {
             infoLabel.text = "There are currently no entries";
         }
@@ -72,8 +63,6 @@ public class LeaderboardUIController : MonoBehaviour
         do
         {
             var res = await Talo.Leaderboards.GetEntries(leaderboardName, page);
-            entries.AddRange(res.entries);
-
             page++;
             done = res.isLastPage;
         } while (!done);
@@ -88,6 +77,8 @@ public class LeaderboardUIController : MonoBehaviour
 
             return label;
         };
+
+        var entries = Talo.Leaderboards.GetCachedEntries(leaderboardName);
 
         entriesList.bindItem = (e, i) =>
         {
