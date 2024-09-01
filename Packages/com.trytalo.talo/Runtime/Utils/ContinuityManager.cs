@@ -43,7 +43,7 @@ namespace TaloGameServices
 
         private ContinuityContent ReadRequests()
         {
-            if (!File.Exists(_continuityPath)) return new ContinuityContent();
+            if (!File.Exists(_continuityPath) || Talo.TestMode) return new ContinuityContent();
             return JsonUtility.FromJson<ContinuityContent>(Talo.Crypto.ReadFileContent(_continuityPath));
         }
 

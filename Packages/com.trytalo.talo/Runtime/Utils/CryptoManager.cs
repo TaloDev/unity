@@ -10,9 +10,15 @@ namespace TaloGameServices
     {
         private readonly string _keyPath = Application.persistentDataPath + "/talo-init.bin";
 
+        private IFileHandler<string> _fileHandler;
+
         public CryptoManager()
         {
-            if (!File.Exists(_keyPath))
+            _fileHandler = Talo.TestMode
+                ? new CryptoTestFileHandler()
+                : new CryptoFileHandler();
+
+            if (!File.Exists(_keyPath) || Talo.TestMode)
             {
                 var randomBytes = new byte[32];
                 using (var rng = RandomNumberGenerator.Create())
@@ -21,31 +27,25 @@ namespace TaloGameServices
                 }
 
                 var encryptedKey = EncryptString(GetAESKey(), BitConverter.ToString(randomBytes).Replace("-", ""));
-                File.WriteAllText(_keyPath, encryptedKey);
+                _fileHandler.WriteContent(_keyPath, encryptedKey);
             }
         }
 
-        private byte[] GetDecryptedKey()
+        private byte[] GetUniqueKey()
         {
-            var encryptedKey = File.ReadAllText(_keyPath);
+            var encryptedKey = _fileHandler.ReadContent(_keyPath);
             var decryptedKeyHex = DecryptString(GetAESKey(), encryptedKey);
             return HexStringToByteArray(decryptedKeyHex);
         }
 
         public string ReadFileContent(string path)
         {
-            var sr = new StreamReader(path);
-            var content = sr.ReadToEnd();
-            sr.Close();
-
-            return DecryptString(GetDecryptedKey(), content);
+            return DecryptString(GetUniqueKey(), _fileHandler.ReadContent(path));
         }
 
         public void WriteFileContent(string path, string content)
         {
-            var sw = new StreamWriter(path);
-            sw.WriteLine(EncryptString(GetDecryptedKey(), content));
-            sw.Close();
+            _fileHandler.WriteContent(path, EncryptString(GetUniqueKey(), content));
         }
 
         private byte[] GetAESKey()
