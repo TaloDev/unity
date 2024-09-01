@@ -8,6 +8,7 @@ internal class RequestMock
     {
         public Uri uri;
         public string method, response;
+        public long status;
     }
 
     private static List<RequestHandler> _permanentHandlers = new List<RequestHandler>();
@@ -26,24 +27,25 @@ internal class RequestMock
         _oneTimeHandlers.Clear();
     }
 
-    private static void AddToHandlerList(List<RequestHandler> list, Uri uri, string method, string response)
+    private static void AddToHandlerList(List<RequestHandler> list, Uri uri, string method, string response, long status)
     {
         list.Add(new RequestHandler
         {
             uri = uri,
             method = method,
-            response = response
+            response = response,
+            status = status
         });
     }
 
-    public static void Reply(Uri uri, string method, string response = "")
+    public static void Reply(Uri uri, string method, string response = "", long status = 200)
     {
-        AddToHandlerList(_permanentHandlers, uri, method, response);
+        AddToHandlerList(_permanentHandlers, uri, method, response, status);
     }
 
-    public static void ReplyOnce(Uri uri, string method, string response = "")
+    public static void ReplyOnce(Uri uri, string method, string response = "", long status = 200)
     {
-        AddToHandlerList(_oneTimeHandlers, uri, method, response);
+        AddToHandlerList(_oneTimeHandlers, uri, method, response, status);
     }
 
     private static RequestHandler? FindInHandlerList(List<RequestHandler> list, Uri uri, string method)
@@ -59,15 +61,17 @@ internal class RequestMock
         var handler = FindInHandlerList(_permanentHandlers, uri, method);
         if (handler != null)
         {
-            return handler.GetValueOrDefault().response;
+            var value = handler.GetValueOrDefault();
+            return value.response;
         }
         else
         {
             handler = FindInHandlerList(_oneTimeHandlers, uri, method);
             if (handler != null)
             {
-                _oneTimeHandlers.Remove(handler.GetValueOrDefault());
-                return handler.GetValueOrDefault().response;
+                var value = handler.GetValueOrDefault();
+                _oneTimeHandlers.Remove(value);
+                return value.response;
             }
             else
             {

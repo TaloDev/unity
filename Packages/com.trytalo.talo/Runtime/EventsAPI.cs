@@ -8,10 +8,12 @@ namespace TaloGameServices
 {
     public class EventsAPI : BaseAPI
     {
+        public event Action OnFlushed;
+
         private List<Event> queue = new List<Event>();
         private readonly int minQueueSize = 10;
 
-        public EventsAPI(TaloManager manager) : base(manager, "v1/events") { }
+        public EventsAPI() : base("v1/events") { }
 
         private string GetWindowMode()
         {
@@ -89,12 +91,11 @@ namespace TaloGameServices
                 try
                 {
                     await Call(uri, "POST", content);
-                    manager.ResetFlushTimer();
+                    OnFlushed.Invoke();
                 }
                 catch (Exception err)
                 {
                     Debug.LogError(err.Message);
-                    queue.AddRange(eventsToSend);
                 }
             }
         }

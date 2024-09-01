@@ -7,10 +7,21 @@ namespace TaloGameServices
         public TaloSettings settings;
 
         private float tmrFlush;
+        private float tmrContinuity;
 
         private void Awake()
         {
             DontDestroyOnLoad(gameObject);
+        }
+
+        public void OnReady()
+        {
+            Talo.Events.OnFlushed += ResetFlushTimer;
+        }
+
+        private void OnDisable()
+        {
+            Talo.Events.OnFlushed -= ResetFlushTimer;
         }
 
         private void OnApplicationQuit()
@@ -45,6 +56,16 @@ namespace TaloGameServices
                 {
                     DoFlush();
                     tmrFlush = 0;
+                }
+            }
+
+            if (Talo.Continuity.HasRequests())
+            {
+                tmrContinuity += Time.deltaTime;
+                if (tmrContinuity >= 10f)
+                {
+                    Talo.Continuity.ProcessRequests();
+                    tmrContinuity = 0;
                 }
             }
         }

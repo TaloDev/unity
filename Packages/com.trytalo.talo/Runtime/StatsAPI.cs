@@ -6,13 +6,13 @@ namespace TaloGameServices
 {
     public class StatsAPI : BaseAPI
     {
-        public StatsAPI(TaloManager manager) : base(manager, "v1/game-stats") { }
+        public StatsAPI() : base("v1/game-stats") { }
 
         public async Task Track(string internalName, float change = 1f)
         {
             Talo.IdentityCheck();
 
-            var uri = new Uri(baseUrl + $"/{internalName}");
+            var uri = new Uri($"{baseUrl}/{internalName}");
             var content = JsonUtility.ToJson(new StatsPutRequest { change = change });
 
             await Call(uri, "PUT", content);

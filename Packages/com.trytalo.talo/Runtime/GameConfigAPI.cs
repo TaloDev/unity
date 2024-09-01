@@ -8,14 +8,14 @@ namespace TaloGameServices
     {
         public event Action<LiveConfig> OnLiveConfigLoaded;
 
-        public GameConfigAPI(TaloManager manager) : base(manager, "v1/game-config") { }
+        public GameConfigAPI() : base("v1/game-config") { }
 
         public async Task Get()
         {
             var uri = new Uri(baseUrl);
             var json = await Call(uri, "GET");
-            var res = JsonUtility.FromJson<GameConfigResponse>(json);
 
+            var res = JsonUtility.FromJson<GameConfigResponse>(json);
             Talo.LiveConfig = new LiveConfig(res.config);
             OnLiveConfigLoaded?.Invoke(Talo.LiveConfig);
         }

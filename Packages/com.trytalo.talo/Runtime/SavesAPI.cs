@@ -17,7 +17,7 @@ namespace TaloGameServices
         public event Action<GameSave> OnSaveChosen;
         public event Action OnSaveLoadingCompleted;
 
-        private readonly string _offlineSavesPath = Application.persistentDataPath + "/saves.json";
+        private readonly string _offlineSavesPath = Application.persistentDataPath + "/talo-saves.bin";
         private IFileHandler<OfflineSavesContent> _fileHandler;
 
         public GameSave[] All
@@ -38,7 +38,7 @@ namespace TaloGameServices
             get => _currentSave;
         }
 
-        public SavesAPI(TaloManager manager) : base(manager, "v1/game-saves") {
+        public SavesAPI() : base("v1/game-saves") {
             _fileHandler = Talo.TestMode
                 ? new SavesTestFileHandler()
                 : new SavesFileHandler();
@@ -46,7 +46,7 @@ namespace TaloGameServices
 
         private async Task<GameSave> ReplaceSaveWithOfflineSave(GameSave offlineSave)
         {
-            var uri = new Uri(baseUrl + $"/{offlineSave.id}");
+            var uri = new Uri($"{baseUrl}/{offlineSave.id}");
             var json = await Call(uri, "PATCH", JsonUtility.ToJson(new SavesPatchRequest
             {
                 name = offlineSave.name,
@@ -104,6 +104,7 @@ namespace TaloGameServices
                 Talo.IdentityCheck();
 
                 var json = await Call(GetUri(), "GET");
+
                 var res = JsonUtility.FromJson<SavesIndexResponse>(json);
                 var onlineSaves = res.saves;
 
@@ -262,7 +263,7 @@ namespace TaloGameServices
             {
                 Talo.IdentityCheck();
 
-                var uri = new Uri(baseUrl + $"/{saveId}");
+                var uri = new Uri($"{baseUrl}/{saveId}");
                 var content = JsonUtility.ToJson(new SavesPatchRequest
                 {
                     name = newName,
@@ -270,6 +271,7 @@ namespace TaloGameServices
                 });
 
                 var json = await Call(uri, "PATCH", content);
+
                 var res = JsonUtility.FromJson<SavesPostResponse>(json);
                 save = res.save;
             }
@@ -325,7 +327,7 @@ namespace TaloGameServices
             if (!Talo.IsOffline())
             {
                 Talo.IdentityCheck();
-                var uri = new Uri(baseUrl + $"/{saveId}");
+                var uri = new Uri($"{baseUrl}/{saveId}");
                 await Call(uri, "DELETE");
             }
 

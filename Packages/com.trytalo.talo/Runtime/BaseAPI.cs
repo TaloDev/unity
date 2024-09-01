@@ -2,18 +2,17 @@ using System;
 using UnityEngine;
 using System.Threading.Tasks;
 using UnityEngine.Networking;
+using System.Collections.Generic;
 
 namespace TaloGameServices
 {
     public class BaseAPI
     {
-        protected TaloManager manager;
         protected string baseUrl;
 
-        public BaseAPI(TaloManager manager, string service)
+        public BaseAPI(string service)
         {
-            this.manager = manager;
-            baseUrl = $"{manager.settings.apiUrl}/{service}";
+            baseUrl = $"{Talo.Settings.apiUrl}/{service}";
         }
 
         public Uri GetUri()
@@ -21,11 +20,52 @@ namespace TaloGameServices
             return new Uri(baseUrl);
         }
 
-        protected async Task<string> Call(Uri uri, string method, string content = "")
+        private List<HttpHeader> BuildHeaders()
+        {
+            var headers = new List<HttpHeader>
+            {
+                new HttpHeader("Authorization", $"Bearer {Talo.Settings.accessKey}"),
+                new HttpHeader("Content-Type", "application/json"),
+                new HttpHeader("Accept", "application/json"),
+                new HttpHeader("X-Talo-Dev-Build", Debug.isDebugBuild ? "1" : "0"),
+                new HttpHeader("X-Talo-Include-Dev-Data", Debug.isDebugBuild ? "1" : "0")
+            };
+
+            if (Talo.CurrentAlias != null)
+            {
+                headers.Add(new HttpHeader("X-Talo-Player", Talo.CurrentPlayer.id));
+                headers.Add(new HttpHeader("X-Talo-Alias", Talo.CurrentAlias.id.ToString()));
+            }
+
+            var sessionToken = Talo.PlayerAuth.SessionManager.GetSessionToken();
+            if (!string.IsNullOrEmpty(sessionToken))
+            {
+                headers.Add(new HttpHeader("X-Talo-Session", sessionToken));
+            }
+
+            return headers;
+        }
+
+        protected async Task<string> Call(
+            Uri uri,
+            string method,
+            string content = "",
+            List<HttpHeader> headers = null,
+            bool continuity = false
+        )
         {
             if (Talo.TestMode)
             {
                 return RequestMock.HandleCall(uri, method);
+            }
+
+            var continuityTimestamp = DateTimeOffset.Now.ToUnixTimeMilliseconds();
+
+            var allHeaders = continuity ? headers : BuildHeaders();
+
+            if (Talo.Settings.offlineMode)
+            {
+                return HandleOfflineRequest(uri, method, content, allHeaders);
             }
 
             byte[] json = new System.Text.UTF8Encoding().GetBytes(content);
@@ -35,22 +75,9 @@ namespace TaloGameServices
                 if (json.Length > 0) www.uploadHandler = new UploadHandlerRaw(json);
                 www.downloadHandler = new DownloadHandlerBuffer();
 
-                www.SetRequestHeader("Authorization", $"Bearer {manager.settings.accessKey}");
-                www.SetRequestHeader("Content-Type", "application/json");
-                www.SetRequestHeader("Accept", "application/json");
-                www.SetRequestHeader("X-Talo-Dev-Build", Debug.isDebugBuild ? "1" : "0");
-                www.SetRequestHeader("X-Talo-Include-Dev-Data", Debug.isDebugBuild ? "1" : "0");
-
-                if (Talo.CurrentAlias != null)
+                foreach (var header in allHeaders)
                 {
-                    www.SetRequestHeader("X-Talo-Player", Talo.CurrentPlayer.id);
-                    www.SetRequestHeader("X-Talo-Alias", Talo.CurrentAlias.id.ToString());
-                }
-
-                var sessionToken = Talo.PlayerAuth.SessionManager.GetSessionToken();
-                if (!string.IsNullOrEmpty(sessionToken))
-                {
-                    www.SetRequestHeader("X-Talo-Session", sessionToken);
+                    www.SetRequestHeader(header.key, header.value);
                 }
 
                 var op = www.SendWebRequest();
@@ -66,6 +93,11 @@ namespace TaloGameServices
                 }
                 else
                 {
+                    if (www.responseCode >= 500 || www.result != UnityWebRequest.Result.ProtocolError)
+                    {
+                        Talo.Continuity.PushRequest(uri, method, content, headers, continuityTimestamp);
+                    }
+
                     string message = "";
                     string errorCode = "";
 
@@ -82,7 +114,7 @@ namespace TaloGameServices
 
                     if (string.IsNullOrEmpty(errorCode))
                     {
-                        throw new Exception($"Request failed: {message}");
+                        throw new RequestException(www.responseCode, new Exception(message));
                     }
                     else
                     {
@@ -90,6 +122,17 @@ namespace TaloGameServices
                     }
                 }
             }
+        }
+
+        private string HandleOfflineRequest(
+            Uri uri,
+            string method,
+            string content = "",
+            List<HttpHeader> headers = null
+        )
+        {
+            Talo.Continuity.PushRequest(uri, method, content, headers, DateTimeOffset.Now.ToUnixTimeMilliseconds());
+            throw new RequestException(0, new Exception("Offline mode enabled"));
         }
     }
 }

@@ -17,12 +17,10 @@ internal class LoadedEventMock
 
 public class GetSavesTest
 {
-    private TaloManager tm;
-
     [OneTimeSetUp]
     public void SetUp()
     {
-        tm = new GameObject().AddComponent<TaloManager>();
+        var tm = new GameObject().AddComponent<TaloManager>();
         tm.settings = ScriptableObject.CreateInstance<TaloSettings>();
     }
 
@@ -35,7 +33,7 @@ public class GetSavesTest
     [UnityTest]
     public IEnumerator GetSaves_InOnlineMode_ReturnsAnArrayOfSaves()
     {
-        var api = new SavesAPI(tm);
+        var api = new SavesAPI();
 
         var eventMock = new LoadedEventMock();
         api.OnSavesLoaded += eventMock.Invoke; 
@@ -70,7 +68,7 @@ public class GetSavesTest
     {
         RequestMock.Offline = true;
 
-        var api = new SavesAPI(tm);
+        var api = new SavesAPI();
 
         var eventMock = new LoadedEventMock();
         api.OnSavesLoaded += eventMock.Invoke;
@@ -91,7 +89,7 @@ public class GetSavesTest
     {
         RequestMock.Offline = true;
 
-        var api = new SavesAPI(tm);
+        var api = new SavesAPI();
         _ = api.CreateSave("Offline Save");
 
         var eventMock = new LoadedEventMock();
@@ -114,7 +112,7 @@ public class GetSavesTest
     [UnityTest]
     public IEnumerator GetSaves_InOnlineMode_PrefersTheLastUpdatedSaveIfTwoWithTheSameIDExist()
     {
-        var api = new SavesAPI(tm);
+        var api = new SavesAPI();
 
         var eventMock = new LoadedEventMock();
         api.OnSavesLoaded += eventMock.Invoke;
@@ -160,7 +158,7 @@ public class GetSavesTest
     [UnityTest]
     public IEnumerator GetSaves_InOnlineMode_ReplacesTheOnlineSaveIfTheOfflineVersionIsNewer()
     {
-        var api = new SavesAPI(tm);
+        var api = new SavesAPI();
 
         var eventMock = new LoadedEventMock();
         api.OnSavesLoaded += eventMock.Invoke;

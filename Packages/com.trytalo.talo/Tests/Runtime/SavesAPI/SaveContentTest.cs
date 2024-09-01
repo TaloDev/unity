@@ -28,19 +28,17 @@ internal class PositionedLoadable : Loadable
 
 public class SaveContentTest
 {
-    private TaloManager tm;
-
     [OneTimeSetUp]
     public void Setup()
     {
-        tm = new GameObject().AddComponent<TaloManager>();
+        var tm = new GameObject().AddComponent<TaloManager>();
         tm.settings = ScriptableObject.CreateInstance<TaloSettings>();
     }
 
     [UnityTest]
     public IEnumerator SaveContent_ActiveObjects_AreSavedCorrectly()
     {
-        var api = new SavesAPI(tm);
+        var api = new SavesAPI();
         Talo._saves = api;
 
         var loadable = new GameObject("First Loadable").AddComponent<PositionedLoadable>();
@@ -72,7 +70,7 @@ public class SaveContentTest
     [UnityTest]
     public IEnumerator SaveContent_DestroyedObjects_AreSavedCorrectly()
     {
-        var api = new SavesAPI(tm);
+        var api = new SavesAPI();
         Talo._saves = api;
 
         var activeLoadable = new GameObject("Active Loadable").AddComponent<PositionedLoadable>();
@@ -103,7 +101,7 @@ public class SaveContentTest
     [UnityTest]
     public IEnumerator SaveContent_NestedObjects_AreNamedCorrectly()
     {
-        var api = new SavesAPI(tm);
+        var api = new SavesAPI();
         Talo._saves = api;
 
         var grandParent = new GameObject("Grandparent");
