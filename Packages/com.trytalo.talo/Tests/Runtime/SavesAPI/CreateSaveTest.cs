@@ -16,12 +16,10 @@ internal class ChosenEventMock
 
 public class CreateSaveTest
 {
-    private TaloManager tm;
-
     [OneTimeSetUp]
     public void SetUp()
     {
-        tm = new GameObject().AddComponent<TaloManager>();
+        var tm = new GameObject().AddComponent<TaloManager>();
         tm.settings = ScriptableObject.CreateInstance<TaloSettings>();
     }
 
@@ -34,7 +32,7 @@ public class CreateSaveTest
     [UnityTest]
     public IEnumerator CreateSave_InOnlineMode_AddsToArrayOfSaves()
     {
-        var api = new SavesAPI(tm);
+        var api = new SavesAPI();
         Talo._saves = api;
 
         api._allSaves.Add(new GameSave() { name = "Existing Online Save" });
@@ -69,7 +67,7 @@ public class CreateSaveTest
     {
         RequestMock.Offline = true;
 
-        var api = new SavesAPI(tm);
+        var api = new SavesAPI();
         Talo._saves = api;
 
         api._allSaves.Add(new GameSave() { id = -1, name = "Existing Offline Save" });

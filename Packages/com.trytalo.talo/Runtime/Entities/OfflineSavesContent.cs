@@ -1,8 +1,4 @@
-﻿using UnityEngine;
-using System.Collections.Generic;
-using System.Linq;
-
-namespace TaloGameServices
+﻿namespace TaloGameServices
 {
     [System.Serializable]
     public class OfflineSavesContent

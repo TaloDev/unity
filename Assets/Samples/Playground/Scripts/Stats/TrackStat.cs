@@ -12,11 +12,11 @@ public class TrackStat : MonoBehaviour
         Track();
     }
 
-    private void Track()
+    private async void Track()
     {
         try
         {
-            Talo.Stats.Track(statInternalName, change);
+            await Talo.Stats.Track(statInternalName, change);
 
             ResponseMessage.SetText($"{statInternalName} changed by {change}");
         }

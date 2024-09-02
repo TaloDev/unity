@@ -7,12 +7,10 @@ using System;
 
 public class DeleteSaveTest
 {
-    private TaloManager tm;
-
     [OneTimeSetUp]
     public void SetUp()
     {
-        tm = new GameObject().AddComponent<TaloManager>();
+        var tm = new GameObject().AddComponent<TaloManager>();
         tm.settings = ScriptableObject.CreateInstance<TaloSettings>();
     }
 
@@ -25,7 +23,7 @@ public class DeleteSaveTest
     [UnityTest]
     public IEnumerator DeleteSave_InOnlineMode_RemovesFromArrayOfSaves()
     {
-        var api = new SavesAPI(tm);
+        var api = new SavesAPI();
         Talo._saves = api;
 
         api._allSaves.Add(new GameSave() { id = 1, name = "Save 1" });
@@ -55,7 +53,7 @@ public class DeleteSaveTest
     {
         RequestMock.Offline = true;
 
-        var api = new SavesAPI(tm);
+        var api = new SavesAPI();
         Talo._saves = api;
 
         api._allSaves.Add(new GameSave() { id = -1, name = "Save 1" });

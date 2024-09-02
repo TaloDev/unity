@@ -17,19 +17,17 @@ internal class LoadingCompletedEvent
 
 public class ChooseSaveTest
 {
-    private TaloManager tm;
-
     [OneTimeSetUp]
     public void SetUp()
     {
-        tm = new GameObject().AddComponent<TaloManager>();
+        var tm = new GameObject().AddComponent<TaloManager>();
         tm.settings = ScriptableObject.CreateInstance<TaloSettings>();
     }
 
     [UnityTest]
     public IEnumerator ChooseSave_LoadsLoadableData()
     {
-        var api = new SavesAPI(tm);
+        var api = new SavesAPI();
         Talo._saves = api;
 
         Vector3 loadable1Pos, loadable2Pos;

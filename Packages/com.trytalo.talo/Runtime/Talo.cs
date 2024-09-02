@@ -19,6 +19,7 @@ namespace TaloGameServices
         internal static GameConfigAPI _gameConfig;
         internal static FeedbackAPI _feedback;
         internal static PlayerAuthAPI _playerAuth;
+        internal static HealthCheckAPI _healthCheck;
 
         private static PlayerAlias _currentAlias;
 
@@ -37,6 +38,14 @@ namespace TaloGameServices
             }
             set => _currentAlias.player = value;
         }
+
+        private static CryptoManager _crypto;
+        public static CryptoManager Crypto => _crypto;
+
+        private static ContinuityManager _continuity;
+        public static ContinuityManager Continuity => _continuity;
+
+        public static TaloSettings Settings => UnityEngine.Object.FindObjectOfType<TaloManager>().settings;
 
         private static LiveConfig _liveConfig;
 
@@ -92,6 +101,11 @@ namespace TaloGameServices
             get => _playerAuth;
         }
 
+        public static HealthCheckAPI HealthCheck
+        {
+            get => _healthCheck;
+        }
+
         static Talo()
         {
             TaloManager tm;
@@ -113,14 +127,20 @@ namespace TaloGameServices
                 tm = UnityEngine.Object.FindObjectOfType<TaloManager>();
             }
 
-            _events = new EventsAPI(tm);
-            _players = new PlayersAPI(tm);
-            _leaderboards = new LeaderboardsAPI(tm);
-            _saves = new SavesAPI(tm);
-            _stats = new StatsAPI(tm);
-            _gameConfig = new GameConfigAPI(tm);
-            _feedback = new FeedbackAPI(tm);
-            _playerAuth = new PlayerAuthAPI(tm);
+            _crypto = new CryptoManager();
+            _continuity = new ContinuityManager();
+
+            _events = new EventsAPI();
+            _players = new PlayersAPI();
+            _leaderboards = new LeaderboardsAPI();
+            _saves = new SavesAPI();
+            _stats = new StatsAPI();
+            _gameConfig = new GameConfigAPI();
+            _feedback = new FeedbackAPI();
+            _playerAuth = new PlayerAuthAPI();
+            _healthCheck = new HealthCheckAPI();
+
+            tm.OnReady();
         }
 
         public static bool HasIdentity()

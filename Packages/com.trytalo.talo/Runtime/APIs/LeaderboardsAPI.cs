@@ -9,7 +9,7 @@ namespace TaloGameServices
     {
         private LeaderboardEntriesManager _entriesManager = new();
 
-        public LeaderboardsAPI(TaloManager manager) : base(manager, "v1/leaderboards") { }
+        public LeaderboardsAPI() : base("v1/leaderboards") { }
 
         public List<LeaderboardEntry> GetCachedEntries(string internalName)
         {
@@ -23,11 +23,11 @@ namespace TaloGameServices
             return _entriesManager.GetEntries(internalName).FindAll(e => e.playerAlias.id == Talo.CurrentAlias.id);
         }
 
-        public async Task<LeaderboardEntriesResponse> GetEntries(string internalName, int page)
+        public async Task<LeaderboardEntriesResponse> GetEntries(string internalName, int page, int aliasId = -1)
         {
-            var uri = new Uri(baseUrl + $"/{internalName}/entries?page={page}");
-
+            var uri = new Uri($"{baseUrl}/{internalName}/entries?page={page}" + (aliasId != -1 ? $"&aliasId={aliasId}" : ""));
             var json = await Call(uri, "GET");
+
             var res = JsonUtility.FromJson<LeaderboardEntriesResponse>(json);
 
             foreach (var entry in res.entries)
@@ -41,24 +41,18 @@ namespace TaloGameServices
         public async Task<LeaderboardEntriesResponse> GetEntriesForCurrentPlayer(string internalName, int page)
         {
             Talo.IdentityCheck();
-
-            var uri = new Uri(baseUrl + $"/{internalName}/entries?page={page}&aliasId={Talo.CurrentAlias.id}");
-
-            var json = await Call(uri, "GET");
-            var res = JsonUtility.FromJson<LeaderboardEntriesResponse>(json);
-            return res;
+            return await GetEntries(internalName, page, Talo.CurrentAlias.id);
         }
 
         public async Task<(LeaderboardEntry, bool)> AddEntry(string internalName, float score)
         {
             Talo.IdentityCheck();
 
-            var uri = new Uri(baseUrl + $"/{internalName}/entries");
+            var uri = new Uri($"{baseUrl}/{internalName}/entries");
             var content = JsonUtility.ToJson(new LeaderboardsPostRequest { score = score });
-
             var json = await Call(uri, "POST", content);
-            var res = JsonUtility.FromJson<LeaderboardEntryResponse>(json);
 
+            var res = JsonUtility.FromJson<LeaderboardEntryResponse>(json);
             _entriesManager.UpsertEntry(internalName, res.entry);
 
             return (res.entry, res.updated);

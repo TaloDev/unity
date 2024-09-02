@@ -10,7 +10,7 @@ namespace TaloGameServices
 
         public SessionManager SessionManager => _sessionManager;
 
-        public PlayerAuthAPI(TaloManager manager) : base(manager, "v1/players/auth") {}
+        public PlayerAuthAPI() : base("v1/players/auth") {}
 
         public async Task Register(string identifier, string password, string email = "", bool verificationEnabled = false)
         {
@@ -19,28 +19,29 @@ namespace TaloGameServices
                 throw new Exception("Email is required when verification is enabled");
             }
 
-            var uri = new Uri(baseUrl + "/register");
+            var uri = new Uri($"{baseUrl}/register");
             string content = JsonUtility.ToJson(new PlayerAuthRegisterRequest {
                 identifier = identifier,
                 password = password,
                 email = email,
                 verificationEnabled = verificationEnabled
             });
+            var json = await Call(uri, "POST", content);
 
-            string json = await Call(uri, "POST", content);
             var res = JsonUtility.FromJson<PlayerAuthSessionResponse>(json);
             _sessionManager.HandleSessionCreated(res);
         }
 
         public async Task<bool> Login(string identifier, string password)
         {
-            var uri = new Uri(baseUrl + "/login");
+            var uri = new Uri($"{baseUrl}/login");
             string content = JsonUtility.ToJson(new PlayerAuthLoginRequest {
                 identifier = identifier,
                 password = password
             });
 
-            string json = await Call(uri, "POST", content);
+            var json = await Call(uri, "POST", content);
+
             var res = JsonUtility.FromJson<PlayerAuthLoginResponse>(json);
 
             if (res.verificationRequired)
@@ -57,20 +58,20 @@ namespace TaloGameServices
 
         public async Task Verify(string code)
         {
-            var uri = new Uri(baseUrl + "/verify");
+            var uri = new Uri($"{baseUrl}/verify");
             string content = JsonUtility.ToJson(new PlayerAuthVerifyRequest {
                 aliasId = _sessionManager.verificationAliasId,
                 code = code
             });
+            var json = await Call(uri, "POST", content);
 
-            string json = await Call(uri, "POST", content);
             var res = JsonUtility.FromJson<PlayerAuthSessionResponse>(json);
             _sessionManager.HandleSessionCreated(res);
         }
 
         public async Task Logout()
         {
-            var uri = new Uri(baseUrl + "/logout");
+            var uri = new Uri($"{baseUrl}/logout");
             await Call(uri, "POST");
 
             _sessionManager.ClearSession();
@@ -79,7 +80,7 @@ namespace TaloGameServices
 
         public async Task ChangePassword(string currentPassword, string newPassword)
         {
-            var uri = new Uri(baseUrl + "/change_password");
+            var uri = new Uri($"{baseUrl}/change_password");
             string content = JsonUtility.ToJson(new PlayerAuthChangePasswordRequest {
                 currentPassword = currentPassword,
                 newPassword = newPassword
@@ -89,7 +90,7 @@ namespace TaloGameServices
 
         public async Task ChangeEmail(string currentPassword, string newEmail)
         {
-            var uri = new Uri(baseUrl + "/change_email");
+            var uri = new Uri($"{baseUrl}/change_email");
             string content = JsonUtility.ToJson(new PlayerAuthChangeEmailRequest {
                 currentPassword = currentPassword,
                 newEmail = newEmail
@@ -99,7 +100,7 @@ namespace TaloGameServices
 
         public async Task ForgotPassword(string email)
         {
-            var uri = new Uri(baseUrl + "/forgot_password");
+            var uri = new Uri($"{baseUrl}/forgot_password");
             string content = JsonUtility.ToJson(new PlayerAuthForgotPasswordRequest {
                 email = email
             });
@@ -108,7 +109,7 @@ namespace TaloGameServices
 
         public async Task ResetPassword(string code, string password)
         {
-            var uri = new Uri(baseUrl + "/reset_password");
+            var uri = new Uri($"{baseUrl}/reset_password");
             string content = JsonUtility.ToJson(new PlayerAuthResetPasswordRequest {
                 code = code,
                 password = password
@@ -118,7 +119,7 @@ namespace TaloGameServices
 
         public async Task ToggleVerification(string currentPassword, bool verificationEnabled, string email = "")
         {
-            var uri = new Uri(baseUrl + "/toggle_verification");
+            var uri = new Uri($"{baseUrl}/toggle_verification");
             string content = JsonUtility.ToJson(new PlayerAuthToggleVerificationRequest {
                 currentPassword = currentPassword,
                 verificationEnabled = verificationEnabled,
