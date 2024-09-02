@@ -7,12 +7,10 @@ using System;
 
 public class UpdateSaveTest
 {
-    private TaloManager tm;
-
     [OneTimeSetUp]
     public void SetUp()
     {
-        tm = new GameObject().AddComponent<TaloManager>();
+        var tm = new GameObject().AddComponent<TaloManager>();
         tm.settings = ScriptableObject.CreateInstance<TaloSettings>();
     }
 
@@ -25,7 +23,7 @@ public class UpdateSaveTest
     [UnityTest]
     public IEnumerator UpdateSave_InOnlineMode_UpdatesTheSaveContent()
     {
-        var api = new SavesAPI(tm);
+        var api = new SavesAPI();
         Talo._saves = api;
 
         api._allSaves.Add(new GameSave() { id = 1, name = "Online Save" });
@@ -51,7 +49,7 @@ public class UpdateSaveTest
     [UnityTest]
     public IEnumerator UpdateSave_InOnlineMode_UpdatesTheSaveName()
     {
-        var api = new SavesAPI(tm);
+        var api = new SavesAPI();
         Talo._saves = api;
 
         api._allSaves.Add(new GameSave() { id = 1, name = "Online Save" });
@@ -77,7 +75,7 @@ public class UpdateSaveTest
     {
         RequestMock.Offline = true;
 
-        var api = new SavesAPI(tm);
+        var api = new SavesAPI();
         Talo._saves = api;
 
         api._allSaves.Add(new GameSave() { id = -1, name = "Offline Save" });
@@ -99,7 +97,7 @@ public class UpdateSaveTest
     {
         RequestMock.Offline = true;
 
-        var api = new SavesAPI(tm);
+        var api = new SavesAPI();
         Talo._saves = api;
 
         api._allSaves.Add(new GameSave() { id = -1, name = "Offline Save" });
