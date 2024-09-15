@@ -22,7 +22,7 @@ namespace TaloAuthenticationDemo
 
         private void OnIdentified(Player player)
         {
-            root.Q<Label>("title").text = root.Q<Label>("title").text.Replace("{username}", Talo.CurrentAlias.identifier);
+            root.Q<Label>("title").text = $"Hi, {Talo.CurrentAlias.identifier}";
         }
 
         private async void OnLogoutClick()
