@@ -173,7 +173,7 @@ namespace TaloGameServices
             };
         }
 
-        private void UpdateOfflineSaves(GameSave incomingSave)
+        private GameSave UpdateOfflineSaves(GameSave incomingSave)
         {
             var offlineIncomingSave = CreateOfflineCopy(incomingSave);
             var offlineContent = GetOfflineSavesContent();
@@ -211,6 +211,7 @@ namespace TaloGameServices
             }
 
             WriteOfflineSavesContent(offlineContent);
+            return offlineIncomingSave;
         }
 
         public async Task<GameSave> CreateSave(string saveName, string content = null)
@@ -244,10 +245,12 @@ namespace TaloGameServices
             }
 
             _allSaves.Add(save);
-            UpdateOfflineSaves(save);
 
-            SetChosenSave(save, false);
-            return save;
+            var offlineSave = UpdateOfflineSaves(save);
+            var chosenSave = Talo.IsOffline() ? offlineSave : save;
+
+            SetChosenSave(chosenSave, false);
+            return chosenSave;
         }
 
         public async Task<GameSave> UpdateCurrentSave(string newName = "")
