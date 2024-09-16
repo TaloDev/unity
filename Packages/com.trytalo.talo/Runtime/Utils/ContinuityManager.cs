@@ -81,6 +81,7 @@ namespace TaloGameServices
             if (!HasRequests() || !await Talo.HealthCheck.Ping()) return;
 
             var queue = new List<Request>(_requests.Take(10));
+            var exceptions = new List<Exception>();
 
             for (var i = 0; i < queue.Count; i++)
             {
@@ -98,7 +99,18 @@ namespace TaloGameServices
                     headers.Add(new HttpHeader("X-Talo-Continuity-Timestamp", request.timestamp.ToString()));
                 }
 
-                await _api.Replay(uri, request.method, request.content, headers);
+                try
+                {
+                    await _api.Replay(uri, request.method, request.content, headers);
+                } catch (Exception e)
+                {
+                    exceptions.Add(e);
+                }
+            }
+
+            if (exceptions.Count > 0)
+            {
+                throw new ContinuityReplayException(exceptions);
             }
         }
     }
