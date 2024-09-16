@@ -12,6 +12,12 @@ public class DeleteSaveTest
     {
         var tm = new GameObject().AddComponent<TaloManager>();
         tm.settings = ScriptableObject.CreateInstance<TaloSettings>();
+
+        Talo.CurrentAlias = new PlayerAlias() {
+            player = new Player() {
+                id = "uuid"
+            }
+        };
     }
 
     [TearDown]

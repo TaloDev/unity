@@ -17,7 +17,6 @@ namespace TaloGameServices
         public event Action<GameSave> OnSaveChosen;
         public event Action OnSaveLoadingCompleted;
 
-        private readonly string _offlineSavesPath = Application.persistentDataPath + "/talo-saves.bin";
         private IFileHandler<OfflineSavesContent> _fileHandler;
 
         public GameSave[] All
@@ -148,18 +147,35 @@ namespace TaloGameServices
             _registeredLoadables.Add(new LoadableData(loadable));
         }
 
+        internal string GetOfflineSavesPath()
+        {
+            return Application.persistentDataPath + $"/ts.{Talo.CurrentPlayer.id}.bin";
+        }
+
         internal OfflineSavesContent GetOfflineSavesContent()
         {
-            return _fileHandler.ReadContent(_offlineSavesPath);
+            return _fileHandler.ReadContent(GetOfflineSavesPath());
         }
 
         internal void WriteOfflineSavesContent(OfflineSavesContent newContent)
         {
-            _fileHandler.WriteContent(_offlineSavesPath, newContent);
+            _fileHandler.WriteContent(GetOfflineSavesPath(), newContent);
         }
 
-        private void UpdateOfflineSaves(GameSave incomingSave)
+        private GameSave CreateOfflineCopy(GameSave originalSave)
         {
+            return new GameSave
+            {
+                id = originalSave.id,
+                name = originalSave.name,
+                content = originalSave.content,
+                updatedAt = originalSave.updatedAt
+            };
+        }
+
+        private GameSave UpdateOfflineSaves(GameSave incomingSave)
+        {
+            var offlineIncomingSave = CreateOfflineCopy(incomingSave);
             var offlineContent = GetOfflineSavesContent();
             var updated = false;
 
@@ -168,10 +184,10 @@ namespace TaloGameServices
                 // updating
                 offlineContent.saves = offlineContent.saves.Select((existingSave) =>
                 {
-                    if (existingSave.id == incomingSave.id)
+                    if (existingSave.id == offlineIncomingSave.id)
                     {
                         updated = true;
-                        return incomingSave;
+                        return offlineIncomingSave;
                     }
                     return existingSave;
                 }).ToArray();
@@ -179,22 +195,23 @@ namespace TaloGameServices
                 // appending
                 if (!updated)
                 {
-                    if (incomingSave.id == 0)
+                    if (offlineIncomingSave.id == 0)
                     {
-                        incomingSave.id = -offlineContent.saves.Length - 1;
+                        offlineIncomingSave.id = -offlineContent.saves.Length - 1;
                     }
 
-                    offlineContent.saves = offlineContent.saves.Concat(new GameSave[] { incomingSave }).ToArray();
+                    offlineContent.saves = offlineContent.saves.Concat(new GameSave[] { offlineIncomingSave }).ToArray();
                 }
             }
             else
             {
                 // first entry into the saves file
-                incomingSave.id = -1;
-                offlineContent = new OfflineSavesContent(new GameSave[] { incomingSave });
+                offlineIncomingSave.id = -1;
+                offlineContent = new OfflineSavesContent(new GameSave[] { offlineIncomingSave });
             }
 
             WriteOfflineSavesContent(offlineContent);
+            return offlineIncomingSave;
         }
 
         public async Task<GameSave> CreateSave(string saveName, string content = null)
@@ -228,10 +245,12 @@ namespace TaloGameServices
             }
 
             _allSaves.Add(save);
-            UpdateOfflineSaves(save);
 
-            SetChosenSave(save, false);
-            return save;
+            var offlineSave = UpdateOfflineSaves(save);
+            var chosenSave = Talo.IsOffline() ? offlineSave : save;
+
+            SetChosenSave(chosenSave, false);
+            return chosenSave;
         }
 
         public async Task<GameSave> UpdateCurrentSave(string newName = "")

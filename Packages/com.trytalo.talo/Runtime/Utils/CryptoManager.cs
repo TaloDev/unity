@@ -8,7 +8,7 @@ namespace TaloGameServices
 {
     public class CryptoManager
     {
-        private readonly string _keyPath = Application.persistentDataPath + "/talo-init.bin";
+        private readonly string _keyPath = Application.persistentDataPath + "/ti.bin";
 
         private IFileHandler<string> _fileHandler;
 
@@ -52,7 +52,7 @@ namespace TaloGameServices
         {
             using (var sha256 = SHA256.Create())
             {
-                return sha256.ComputeHash(Encoding.UTF8.GetBytes(Talo.Settings.accessKey));
+                return sha256.ComputeHash(Encoding.UTF8.GetBytes(SystemInfo.deviceUniqueIdentifier));
             }
         }
 

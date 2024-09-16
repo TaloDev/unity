@@ -26,7 +26,14 @@ namespace TaloGameServices
                 _currentEntries[internalName].RemoveAll(e => e.id == entry.id);
             }
 
-            _currentEntries[internalName].Insert(entry.position, entry);
+            if (entry.position >= _currentEntries[internalName].Count)
+            {
+                _currentEntries[internalName].Add(entry);
+            }
+            else
+            {
+                _currentEntries[internalName].Insert(entry.position, entry);
+            }
 
             for (int idx = entry.position; idx < _currentEntries[internalName].Count; idx++)
             {
