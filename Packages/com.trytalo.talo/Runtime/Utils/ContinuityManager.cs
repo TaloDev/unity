@@ -24,7 +24,7 @@ namespace TaloGameServices
 
     public class ContinuityManager
     {
-        private readonly string _continuityPath = Application.persistentDataPath + "/talo-continuity.bin";
+        private readonly string _continuityPath = Application.persistentDataPath + "/tc.bin";
 
         private List<Request> _requests;
 

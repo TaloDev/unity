@@ -17,7 +17,7 @@ namespace TaloGameServices
         public event Action<GameSave> OnSaveChosen;
         public event Action OnSaveLoadingCompleted;
 
-        private readonly string _offlineSavesPath = Application.persistentDataPath + "/talo-saves.bin";
+        private readonly string _offlineSavesPath = Application.persistentDataPath + "/ts.bin";
         private IFileHandler<OfflineSavesContent> _fileHandler;
 
         public GameSave[] All
