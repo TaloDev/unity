@@ -164,6 +164,7 @@ namespace TaloGameServices
 
         internal static bool CheckTestMode()
         {
+        #if UNITY_EDITOR || DEBUG
             var assembly = AppDomain.CurrentDomain.GetAssemblies()
                 .FirstOrDefault((assembly) => assembly.FullName.ToLowerInvariant().StartsWith("nunit.framework"));
 
@@ -179,7 +180,8 @@ namespace TaloGameServices
                     return false;
                 }
             }
-
+        #endif
+            _testMode = false;
             return _testMode;
         }
     }

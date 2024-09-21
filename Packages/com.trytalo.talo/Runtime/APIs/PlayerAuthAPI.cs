@@ -127,5 +127,17 @@ namespace TaloGameServices
             });
             await Call(uri, "PATCH", content);
         }
+
+        public async Task DeleteAccount(string currentPassword)
+        {
+            var uri = new Uri($"{baseUrl}/");
+            string content = JsonUtility.ToJson(new PlayerAuthDeleteAccountRequest {
+                currentPassword = currentPassword
+            });
+            await Call(uri, "DELETE", content);
+
+            _sessionManager.ClearSession();
+            Talo.CurrentAlias = null;
+        }
     }
 }
