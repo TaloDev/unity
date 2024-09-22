@@ -26,6 +26,18 @@ namespace TaloGameServices
             InvokeIdentifiedEvent();
         }
 
+        public async Task IdentifySteam(string ticket, string identity = "")
+        {
+            if (string.IsNullOrEmpty(identity))
+            {
+                await Identify("steam", ticket);
+            }
+            else
+            {
+                await Identify("steam", $"{identity}:{ticket}");
+            }
+        }
+
         public async Task Update()
         {
             var uri = new Uri($"{baseUrl}/{Talo.CurrentPlayer.id}");
