@@ -6,10 +6,9 @@ using System.Threading.Tasks;
 namespace TaloGameServices
 {
     [Serializable]
-    public class Player
+    public class Player: EntityWithProps
     {
         public string id;
-        public Prop[] props;
         public Group[] groups;
 
         public override string ToString()
@@ -17,40 +16,24 @@ namespace TaloGameServices
             return JsonUtility.ToJson(this);
         }
 
-        public string GetProp(string key, string fallback = null)
+        public async Task SetProp(string key, string value, bool update = true)
         {
-            Prop prop = props.FirstOrDefault((prop) => prop.key == key);
-            return prop?.value ?? fallback;
+            base.SetProp(key, value);
+
+            if (update)
+            {
+                await Talo.Players.Update();
+            }
         }
 
-        public async Task SetProp(string key, string value)
+        public async Task DeleteProp(string key, bool update = true)
         {
-            if (GetProp(key) != null)
+            base.DeleteProp(key);
+
+            if (update)
             {
-                props = props.Select((prop) =>
-                {
-                    if (prop.key == key) prop.value = value;
-                    return prop;
-                }).ToArray();
+                await Talo.Players.Update();
             }
-            else
-            {
-                var propList = props.ToList();
-                propList.Add(new Prop((key, value)));
-                props = propList.ToArray();
-            }
-
-            await Talo.Players.Update();
-        }
-
-        public async Task DeleteProp(string key)
-        {
-            Prop prop = props.FirstOrDefault((prop) => prop.key == key);
-            if (prop == null) throw new Exception($"Prop with key {key} does not exist");
-
-            prop.value = null;
-
-            await Talo.Players.Update();
         }
 
         public bool IsInGroupID(string groupId)

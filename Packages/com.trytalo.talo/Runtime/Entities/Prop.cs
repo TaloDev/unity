@@ -1,4 +1,6 @@
-﻿namespace TaloGameServices
+﻿using System.Text.RegularExpressions;
+
+namespace TaloGameServices
 {
     [System.Serializable]
     public class Prop
@@ -14,6 +16,13 @@
         public override string ToString()
         {
             return $"Key: {key}, Value: {value}";
+        }
+
+        public static string SanitiseJson(string json)
+        {
+            string match = "\"key\":\"(\\w+)\",\"value\":\"\"";
+            string replacement = "\"key\":\"$1\",\"value\":null";
+            return Regex.Replace(json, match, replacement);
         }
     }
 }

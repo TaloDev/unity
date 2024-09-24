@@ -58,13 +58,10 @@ namespace TaloGameServices
                 name = name
             };
 
-            if (props != null)
-            {
-                ev.props = props
-                    .Select((propTuple) => new Prop(propTuple))
-                    .Concat(BuildMetaProps())
-                    .ToArray();
-            }
+            ev.props = props
+                .Select((propTuple) => new Prop(propTuple))
+                .Concat(BuildMetaProps())
+                .ToArray();
 
             ev.timestamp = DateTimeOffset.Now.ToUnixTimeMilliseconds();
             queue.Add(ev);
