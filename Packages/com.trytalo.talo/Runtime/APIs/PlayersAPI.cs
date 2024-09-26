@@ -26,11 +26,23 @@ namespace TaloGameServices
             InvokeIdentifiedEvent();
         }
 
+        public async Task IdentifySteam(string ticket, string identity = "")
+        {
+            if (string.IsNullOrEmpty(identity))
+            {
+                await Identify("steam", ticket);
+            }
+            else
+            {
+                await Identify("steam", $"{identity}:{ticket}");
+            }
+        }
+
         public async Task Update()
         {
             var uri = new Uri($"{baseUrl}/{Talo.CurrentPlayer.id}");
             var content = JsonUtility.ToJson(Talo.CurrentPlayer);
-            var json = await Call(uri, "PATCH", content);
+            var json = await Call(uri, "PATCH", Prop.SanitiseJson(content));
 
             var res = JsonUtility.FromJson<PlayersUpdateResponse>(json);
             Talo.CurrentPlayer = res.player;

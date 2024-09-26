@@ -7,6 +7,7 @@
             <ui:VisualElement style="flex-direction: column; margin-top: 16px;">
                 <ui:TextField picking-mode="Ignore" text="Username" name="username" />
                 <ui:Button text="Add entry" display-tooltip-when-elided="true" name="post-btn" />
+                <ui:Button text="Blue team scores" display-tooltip-when-elided="true" name="filter-btn" />
             </ui:VisualElement>
         </ui:VisualElement>
     </ui:VisualElement>
