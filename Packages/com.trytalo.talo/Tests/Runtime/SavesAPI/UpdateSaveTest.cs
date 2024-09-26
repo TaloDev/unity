@@ -1,122 +1,124 @@
 using System.Collections;
 using NUnit.Framework;
 using UnityEngine.TestTools;
-using TaloGameServices;
 using UnityEngine;
 using System;
 
-public class UpdateSaveTest
+namespace TaloGameServices.Test
 {
-    [OneTimeSetUp]
-    public void SetUp()
+    internal class UpdateSaveTest
     {
-        var tm = new GameObject().AddComponent<TaloManager>();
-        tm.settings = ScriptableObject.CreateInstance<TaloSettings>();
-
-        Talo.CurrentAlias = new PlayerAlias() {
-            player = new Player() {
-                id = "uuid"
-            }
-        };
-    }
-
-    [TearDown]
-    public void TearDown()
-    {
-        RequestMock.Offline = false;
-    }
-
-    [UnityTest]
-    public IEnumerator UpdateSave_InOnlineMode_UpdatesTheSaveContent()
-    {
-        var api = new SavesAPI();
-        Talo._saves = api;
-
-        api._allSaves.Add(new GameSave() { id = 1, name = "Online Save" });
-        api.WriteOfflineSavesContent(new OfflineSavesContent(api._allSaves.ToArray()));
-
-        RequestMock.ReplyOnce(new Uri(api.GetUri() + "/1"), "PATCH", JsonUtility.ToJson(new SavesPostResponse
+        [OneTimeSetUp]
+        public void SetUp()
         {
-            save = new GameSave { id = 1, name = "Online Save", content = "updated", updatedAt = "2022-10-30T21:23:30.977Z" }
-        }));
-        _ = api.UpdateSave(1);
+            var tm = new GameObject().AddComponent<TaloManager>();
+            tm.settings = ScriptableObject.CreateInstance<TaloSettings>();
 
-        Assert.AreEqual(1, api.All.Length);
-        Assert.AreEqual("Online Save", api.All[0].name);
-        Assert.AreEqual("updated", api.All[0].content);
+            Talo.CurrentAlias = new PlayerAlias() {
+                player = new Player() {
+                    id = "uuid"
+                }
+            };
+        }
 
-        Assert.AreEqual(1, api.GetOfflineSavesContent().saves.Length);
-        Assert.AreEqual("Online Save", api.GetOfflineSavesContent().saves[0].name);
-        Assert.AreEqual("updated", api.GetOfflineSavesContent().saves[0].content);
-
-        yield return null;
-    }
-
-    [UnityTest]
-    public IEnumerator UpdateSave_InOnlineMode_UpdatesTheSaveName()
-    {
-        var api = new SavesAPI();
-        Talo._saves = api;
-
-        api._allSaves.Add(new GameSave() { id = 1, name = "Online Save" });
-        api.WriteOfflineSavesContent(new OfflineSavesContent(api._allSaves.ToArray()));
-
-        RequestMock.ReplyOnce(new Uri(api.GetUri() + "/1"), "PATCH", JsonUtility.ToJson(new SavesPostResponse
+        [TearDown]
+        public void TearDown()
         {
-            save = new GameSave { id = 1, name = "New Name", content = "", updatedAt = "2022-10-30T21:23:30.977Z" }
-        }));
-        _ = api.UpdateSave(1);
+            RequestMock.Offline = false;
+        }
 
-        Assert.AreEqual(1, api.All.Length);
-        Assert.AreEqual("New Name", api.All[0].name);
+        [UnityTest]
+        public IEnumerator UpdateSave_InOnlineMode_UpdatesTheSaveContent()
+        {
+            var api = new SavesAPI();
+            Talo._saves = api;
 
-        Assert.AreEqual(1, api.GetOfflineSavesContent().saves.Length);
-        Assert.AreEqual("New Name", api.GetOfflineSavesContent().saves[0].name);
+            api._allSaves.Add(new GameSave() { id = 1, name = "Online Save" });
+            api.WriteOfflineSavesContent(new OfflineSavesContent(api._allSaves.ToArray()));
 
-        yield return null;
-    }
+            RequestMock.ReplyOnce(new Uri(api.GetUri() + "/1"), "PATCH", JsonUtility.ToJson(new SavesPostResponse
+            {
+                save = new GameSave { id = 1, name = "Online Save", content = "updated", updatedAt = "2022-10-30T21:23:30.977Z" }
+            }));
+            _ = api.UpdateSave(1);
 
-    [UnityTest]
-    public IEnumerator UpdateSave_InOfflineMode_UpdatesTheSaveContent()
-    {
-        RequestMock.Offline = true;
+            Assert.AreEqual(1, api.All.Length);
+            Assert.AreEqual("Online Save", api.All[0].name);
+            Assert.AreEqual("updated", api.All[0].content);
 
-        var api = new SavesAPI();
-        Talo._saves = api;
+            Assert.AreEqual(1, api.GetOfflineSavesContent().saves.Length);
+            Assert.AreEqual("Online Save", api.GetOfflineSavesContent().saves[0].name);
+            Assert.AreEqual("updated", api.GetOfflineSavesContent().saves[0].content);
 
-        api._allSaves.Add(new GameSave() { id = -1, name = "Offline Save" });
-        api.WriteOfflineSavesContent(new OfflineSavesContent(api._allSaves.ToArray()));
+            yield return null;
+        }
 
-        _ = api.UpdateSave(-1);
+        [UnityTest]
+        public IEnumerator UpdateSave_InOnlineMode_UpdatesTheSaveName()
+        {
+            var api = new SavesAPI();
+            Talo._saves = api;
 
-        Assert.AreEqual(1, api.All.Length);
-        Assert.AreEqual("Offline Save", api.All[0].name);
+            api._allSaves.Add(new GameSave() { id = 1, name = "Online Save" });
+            api.WriteOfflineSavesContent(new OfflineSavesContent(api._allSaves.ToArray()));
 
-        Assert.AreEqual(1, api.GetOfflineSavesContent().saves.Length);
-        Assert.AreEqual("Offline Save", api.GetOfflineSavesContent().saves[0].name);
+            RequestMock.ReplyOnce(new Uri(api.GetUri() + "/1"), "PATCH", JsonUtility.ToJson(new SavesPostResponse
+            {
+                save = new GameSave { id = 1, name = "New Name", content = "", updatedAt = "2022-10-30T21:23:30.977Z" }
+            }));
+            _ = api.UpdateSave(1);
 
-        yield return null;
-    }
+            Assert.AreEqual(1, api.All.Length);
+            Assert.AreEqual("New Name", api.All[0].name);
 
-    [UnityTest]
-    public IEnumerator UpdateSave_InOfflineMode_UpdatesTheSaveName()
-    {
-        RequestMock.Offline = true;
+            Assert.AreEqual(1, api.GetOfflineSavesContent().saves.Length);
+            Assert.AreEqual("New Name", api.GetOfflineSavesContent().saves[0].name);
 
-        var api = new SavesAPI();
-        Talo._saves = api;
+            yield return null;
+        }
 
-        api._allSaves.Add(new GameSave() { id = -1, name = "Offline Save" });
-        api.WriteOfflineSavesContent(new OfflineSavesContent(api._allSaves.ToArray()));
+        [UnityTest]
+        public IEnumerator UpdateSave_InOfflineMode_UpdatesTheSaveContent()
+        {
+            RequestMock.Offline = true;
 
-        _ = api.UpdateSave(-1, "New Name");
+            var api = new SavesAPI();
+            Talo._saves = api;
 
-        Assert.AreEqual(1, api.All.Length);
-        Assert.AreEqual("New Name", api.All[0].name);
+            api._allSaves.Add(new GameSave() { id = -1, name = "Offline Save" });
+            api.WriteOfflineSavesContent(new OfflineSavesContent(api._allSaves.ToArray()));
 
-        Assert.AreEqual(1, api.GetOfflineSavesContent().saves.Length);
-        Assert.AreEqual("New Name", api.GetOfflineSavesContent().saves[0].name);
+            _ = api.UpdateSave(-1);
 
-        yield return null;
+            Assert.AreEqual(1, api.All.Length);
+            Assert.AreEqual("Offline Save", api.All[0].name);
+
+            Assert.AreEqual(1, api.GetOfflineSavesContent().saves.Length);
+            Assert.AreEqual("Offline Save", api.GetOfflineSavesContent().saves[0].name);
+
+            yield return null;
+        }
+
+        [UnityTest]
+        public IEnumerator UpdateSave_InOfflineMode_UpdatesTheSaveName()
+        {
+            RequestMock.Offline = true;
+
+            var api = new SavesAPI();
+            Talo._saves = api;
+
+            api._allSaves.Add(new GameSave() { id = -1, name = "Offline Save" });
+            api.WriteOfflineSavesContent(new OfflineSavesContent(api._allSaves.ToArray()));
+
+            _ = api.UpdateSave(-1, "New Name");
+
+            Assert.AreEqual(1, api.All.Length);
+            Assert.AreEqual("New Name", api.All[0].name);
+
+            Assert.AreEqual(1, api.GetOfflineSavesContent().saves.Length);
+            Assert.AreEqual("New Name", api.GetOfflineSavesContent().saves[0].name);
+
+            yield return null;
+        }
     }
 }

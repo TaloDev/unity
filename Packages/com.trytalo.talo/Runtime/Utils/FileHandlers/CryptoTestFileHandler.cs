@@ -1,18 +1,21 @@
 ﻿using System.Collections.Generic;
-using UnityEngine;
 
-internal class CryptoTestFileHandler : IFileHandler<string>
+namespace TaloGameServices
 {
-    private Dictionary<string, string> files = new ();
-
-    public string ReadContent(string path)
+    internal class CryptoTestFileHandler : IFileHandler<string>
     {
-        if (!files.ContainsKey(path)) return "";
-        return files[path];
+        private Dictionary<string, string> files = new ();
+
+        public string ReadContent(string path)
+        {
+            if (!files.ContainsKey(path)) return "";
+            return files[path];
+        }
+
+        public void WriteContent(string path, string content)
+        {
+            files[path] = content;
+        }
     }
 
-    public void WriteContent(string path, string content)
-    {
-        files[path] = content;
-    }
 }

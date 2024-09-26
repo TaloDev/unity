@@ -1,14 +1,17 @@
 ﻿using System.IO;
 
-public class CryptoFileHandler : IFileHandler<string>
+namespace TaloGameServices
 {
-    public string ReadContent(string path)
+    public class CryptoFileHandler : IFileHandler<string>
     {
-        return File.ReadAllText(path);
-    }
+        public string ReadContent(string path)
+        {
+            return File.ReadAllText(path);
+        }
 
-    public void WriteContent(string path, string content)
-    {
-        File.WriteAllText(path, content);
+        public void WriteContent(string path, string content)
+        {
+            File.WriteAllText(path, content);
+        }
     }
 }

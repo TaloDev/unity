@@ -1,71 +1,73 @@
 using System.Collections;
 using NUnit.Framework;
 using UnityEngine.TestTools;
-using TaloGameServices;
 using UnityEngine;
 using System.Collections.Generic;
 
-internal class LoadingCompletedEvent
+namespace TaloGameServices.Test
 {
-    public bool wasInvoked;
-
-    public void Invoke()
+    internal class LoadingCompletedEvent
     {
-        wasInvoked = true;
-    }
-}
+        public bool wasInvoked;
 
-public class ChooseSaveTest
-{
-    [OneTimeSetUp]
-    public void SetUp()
-    {
-        var tm = new GameObject().AddComponent<TaloManager>();
-        tm.settings = ScriptableObject.CreateInstance<TaloSettings>();
-
-        Talo.CurrentAlias = new PlayerAlias() {
-            player = new Player() {
-                id = "uuid"
-            }
-        };
+        public void Invoke()
+        {
+            wasInvoked = true;
+        }
     }
 
-    [UnityTest]
-    public IEnumerator ChooseSave_LoadsLoadableData()
+    internal class ChooseSaveTest
     {
-        var api = new SavesAPI();
-        Talo._saves = api;
+        [OneTimeSetUp]
+        public void SetUp()
+        {
+            var tm = new GameObject().AddComponent<TaloManager>();
+            tm.settings = ScriptableObject.CreateInstance<TaloSettings>();
 
-        Vector3 loadable1Pos, loadable2Pos;
+            Talo.CurrentAlias = new PlayerAlias() {
+                player = new Player() {
+                    id = "uuid"
+                }
+            };
+        }
 
-        var loadable1 = new GameObject("First Loadable").AddComponent<PositionedLoadable>();
-        loadable1.transform.position = loadable1Pos = new Vector3(88, -20, 6);
-        var loadable2 = new GameObject("Second Loadable").AddComponent<PositionedLoadable>();
-        loadable2.transform.position = loadable2Pos = new Vector3(-4, 105, 71);
+        [UnityTest]
+        public IEnumerator ChooseSave_LoadsLoadableData()
+        {
+            var api = new SavesAPI();
+            Talo._saves = api;
 
-        var loadables = new List<LoadableData>();
-        loadables.Add(new LoadableData(loadable1));
-        loadables.Add(new LoadableData(loadable2));
+            Vector3 loadable1Pos, loadable2Pos;
 
-        api._allSaves.Add(new GameSave() {
-            id = 1,
-            name = "Save",
-            content = JsonUtility.ToJson(new SaveContent(loadables))
-        });
+            var loadable1 = new GameObject("First Loadable").AddComponent<PositionedLoadable>();
+            loadable1.transform.position = loadable1Pos = new Vector3(88, -20, 6);
+            var loadable2 = new GameObject("Second Loadable").AddComponent<PositionedLoadable>();
+            loadable2.transform.position = loadable2Pos = new Vector3(-4, 105, 71);
 
-        loadable1.transform.position = Vector3.zero;
-        loadable2.transform.position = Vector3.zero;
+            var loadables = new List<LoadableData>();
+            loadables.Add(new LoadableData(loadable1));
+            loadables.Add(new LoadableData(loadable2));
 
-        var eventMock = new LoadingCompletedEvent();
-        api.OnSaveLoadingCompleted += eventMock.Invoke;
+            api._allSaves.Add(new GameSave() {
+                id = 1,
+                name = "Save",
+                content = JsonUtility.ToJson(new SaveContent(loadables))
+            });
 
-        api.ChooseSave(api.All[0].id);
+            loadable1.transform.position = Vector3.zero;
+            loadable2.transform.position = Vector3.zero;
 
-        Assert.AreEqual(loadable1.transform.position, loadable1Pos);
-        Assert.AreEqual(loadable2.transform.position, loadable2Pos);
+            var eventMock = new LoadingCompletedEvent();
+            api.OnSaveLoadingCompleted += eventMock.Invoke;
 
-        api.OnSaveLoadingCompleted -= eventMock.Invoke;
+            api.ChooseSave(api.All[0].id);
 
-        yield return null;
+            Assert.AreEqual(loadable1.transform.position, loadable1Pos);
+            Assert.AreEqual(loadable2.transform.position, loadable2Pos);
+
+            api.OnSaveLoadingCompleted -= eventMock.Invoke;
+
+            yield return null;
+        }
     }
 }

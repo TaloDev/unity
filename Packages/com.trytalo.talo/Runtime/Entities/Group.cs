@@ -1,5 +1,9 @@
-﻿[System.Serializable]
-public class Group
+﻿namespace TaloGameServices
 {
-    public string id, name;
+    [System.Serializable]
+    public class Group
+    {
+        public string id, name;
+    }
+
 }

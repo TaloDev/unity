@@ -3,5 +3,7 @@
     "files.exclude": {
         "**/*.meta": true
     },
-    "dotnet.defaultSolution": "unity.sln"
+    "dotnet.defaultSolution": "unity.sln",
+    "editor.tabSize": 4,
+    "editor.indentSize": "tabSize"
 }
