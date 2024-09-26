@@ -3,7 +3,7 @@
 namespace TaloGameServices
 {
     [Serializable]
-    public class LeaderboardEntry
+    public class LeaderboardEntry: EntityWithProps
     {
         public int id;
         public int position;

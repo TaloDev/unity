@@ -1,9 +1,9 @@
 using UnityEngine;
 using TaloGameServices;
 using UnityEngine.UIElements;
-using System.Collections.Generic;
 using System.Threading.Tasks;
-using System.Linq;
+using System;
+using System.Collections.Generic;
 
 public class LeaderboardUIController : MonoBehaviour
 {
@@ -13,17 +13,21 @@ public class LeaderboardUIController : MonoBehaviour
     private ListView entriesList;
     private Label infoLabel;
 
+    private int filterIdx;
+    private string filter = "All";
+
     private async void Start()
     {
         root = GetComponent<UIDocument>().rootVisualElement;
         root.Q<Button>("post-btn").clicked += OnPostClick;
+        root.Q<Button>("filter-btn").clicked += OnFilterClick;
 
         entriesList = root.Q<ListView>();
         infoLabel = root.Q<Label>("info");
 
         if (string.IsNullOrEmpty(leaderboardName))
         {
-            throw new System.Exception("Please create a leaderboard and set the leaderboard name to its internal name");
+            throw new Exception("Please create a leaderboard and set the leaderboard name to its internal name");
         }
 
         await LoadEntries();
@@ -32,12 +36,17 @@ public class LeaderboardUIController : MonoBehaviour
     private async void OnPostClick()
     {
         var username = root.Q<TextField>().text;
+        var score = UnityEngine.Random.Range(0, 100);
+        var team = UnityEngine.Random.Range(0, 2) == 0 ? "Blue" : "Red";
+
         await Talo.Players.Identify("username", username);
+        (LeaderboardEntry entry, bool updated) = await Talo.Leaderboards.AddEntry(
+            leaderboardName,
+            score,
+            ("team", team)
+        );
 
-        var score = Random.Range(0, 100);
-        (LeaderboardEntry entry, bool updated) = await Talo.Leaderboards.AddEntry(leaderboardName, score);
-
-        infoLabel.text = $"You scored {score}.";
+        infoLabel.text = $"You scored {score} for the {team} team.";
         if (updated) infoLabel.text += " Your highscore was updated!";
 
         entriesList.Rebuild();
@@ -62,9 +71,26 @@ public class LeaderboardUIController : MonoBehaviour
 
         do
         {
-            var res = await Talo.Leaderboards.GetEntries(leaderboardName, page);
-            page++;
-            done = res.isLastPage;
+            try
+            {
+                var res = await Talo.Leaderboards.GetEntries(leaderboardName, page);
+                page++;
+                done = res.isLastPage;
+            }
+            catch (RequestException e)
+            {
+                if (e.responseCode == 404)
+                {
+                    infoLabel.text = $"Failed loading leaderboard {leaderboardName}. Does it exist?";
+                }
+                else
+                {
+                    infoLabel.text = e.Message;
+                    Debug.LogError(e);
+                }
+                return;
+            }
+
         } while (!done);
         
         HandleListVisibility();
@@ -78,13 +104,38 @@ public class LeaderboardUIController : MonoBehaviour
             return label;
         };
 
-        var entries = Talo.Leaderboards.GetCachedEntries(leaderboardName);
-
         entriesList.bindItem = (e, i) =>
         {
-            e.Q<Label>().text = $"{i+1}. {entries[i].playerAlias.identifier} - {entries[i].score}";
+            LeaderboardEntry entry = entriesList.itemsSource[i] as LeaderboardEntry;
+            e.Q<Label>().text = $"{i+1}. {entry.playerAlias.identifier} - {entry.score} ({entry.GetProp("team", "No")} team)";
         };
 
-        entriesList.itemsSource = entries;
+        entriesList.itemsSource = Talo.Leaderboards.GetCachedEntries(leaderboardName);
+    }
+
+    private string GetNextFilter(int idx)
+    {
+        return new [] { "All", "Blue", "Red" } [idx % 3];
+    }
+
+    private void OnFilterClick()
+    {
+        filterIdx++;
+        filter = GetNextFilter(filterIdx);
+
+        infoLabel.text = $"Filtering on {filter.ToLower()}";
+        root.Q<Button>("filter-btn").text = $"{GetNextFilter(filterIdx + 1)} team scores";
+
+        if (filter == "All")
+        {
+            entriesList.itemsSource = Talo.Leaderboards.GetCachedEntries(leaderboardName);
+        }
+        else
+        {
+            entriesList.itemsSource = new List<LeaderboardEntry>(Talo.Leaderboards.GetCachedEntries(leaderboardName)
+                .FindAll((e) => e.GetProp("team", "") == filter));
+        }
+
+        entriesList.Rebuild();
     }
 }

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using UnityEngine;
+using System.Linq;
 
 namespace TaloGameServices
 {
@@ -44,13 +45,15 @@ namespace TaloGameServices
             return await GetEntries(internalName, page, Talo.CurrentAlias.id);
         }
 
-        public async Task<(LeaderboardEntry, bool)> AddEntry(string internalName, float score)
+        public async Task<(LeaderboardEntry, bool)> AddEntry(string internalName, float score, params (string, string)[] propTuples)
         {
             Talo.IdentityCheck();
 
+            var props = propTuples.Select((propTuple) => new Prop(propTuple)).ToArray();
+
             var uri = new Uri($"{baseUrl}/{internalName}/entries");
-            var content = JsonUtility.ToJson(new LeaderboardsPostRequest { score = score });
-            var json = await Call(uri, "POST", content);
+            var content = JsonUtility.ToJson(new LeaderboardsPostRequest { score = score, props = props });
+            var json = await Call(uri, "POST", Prop.SanitiseJson(content));
 
             var res = JsonUtility.FromJson<LeaderboardEntryResponse>(json);
             _entriesManager.UpsertEntry(internalName, res.entry);
