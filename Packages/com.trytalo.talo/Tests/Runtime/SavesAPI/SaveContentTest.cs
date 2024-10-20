@@ -2,130 +2,132 @@ using System.Collections;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
-using TaloGameServices;
 using System.Collections.Generic;
 
-internal class PositionedLoadable : Loadable
+namespace TaloGameServices.Test
 {
-    public override void RegisterFields()
+    internal class PositionedLoadable : Loadable
     {
-        RegisterField("pos.x", transform.position.x);
-        RegisterField("pos.y", transform.position.y);
-        RegisterField("pos.z", transform.position.z);
+        public override void RegisterFields()
+        {
+            RegisterField("pos.x", transform.position.x);
+            RegisterField("pos.y", transform.position.y);
+            RegisterField("pos.z", transform.position.z);
+        }
+
+        public override void OnLoaded(Dictionary<string, object> data)
+        {
+            if (HandleDestroyed(data)) return;
+
+            gameObject.transform.position = new Vector3(
+                (float)data["pos.x"],
+                (float)data["pos.y"],
+                (float)data["pos.z"]
+            );
+        }
     }
 
-    public override void OnLoaded(Dictionary<string, object> data)
+    public class SaveContentTest
     {
-        if (HandleDestroyed(data)) return;
+        [OneTimeSetUp]
+        public void Setup()
+        {
+            var tm = new GameObject().AddComponent<TaloManager>();
+            tm.settings = ScriptableObject.CreateInstance<TaloSettings>();
 
-        gameObject.transform.position = new Vector3(
-            (float)data["pos.x"],
-            (float)data["pos.y"],
-            (float)data["pos.z"]
-        );
-    }
-}
+            Talo.CurrentAlias = new PlayerAlias() {
+                player = new Player() {
+                    id = "uuid"
+                }
+            };
+        }
 
-public class SaveContentTest
-{
-    [OneTimeSetUp]
-    public void Setup()
-    {
-        var tm = new GameObject().AddComponent<TaloManager>();
-        tm.settings = ScriptableObject.CreateInstance<TaloSettings>();
+        [UnityTest]
+        public IEnumerator SaveContent_ActiveObjects_AreSavedCorrectly()
+        {
+            var api = new SavesAPI();
+            Talo._saves = api;
 
-        Talo.CurrentAlias = new PlayerAlias() {
-            player = new Player() {
-                id = "uuid"
-            }
-        };
-    }
+            var loadable = new GameObject("First Loadable").AddComponent<PositionedLoadable>();
+            loadable.transform.position = new Vector3(88, -20, 6);
 
-    [UnityTest]
-    public IEnumerator SaveContent_ActiveObjects_AreSavedCorrectly()
-    {
-        var api = new SavesAPI();
-        Talo._saves = api;
+            var content = new SaveContent(api._registeredLoadables);
+            Assert.AreEqual(1, content.objects.Length);
 
-        var loadable = new GameObject("First Loadable").AddComponent<PositionedLoadable>();
-        loadable.transform.position = new Vector3(88, -20, 6);
+            Assert.AreEqual(loadable.Id, content.objects[0].id);
+            Assert.AreEqual("First Loadable", content.objects[0].name);
 
-        var content = new SaveContent(api._registeredLoadables);
-        Assert.AreEqual(1, content.objects.Length);
+            Assert.AreEqual("pos.x", content.objects[0].data[0].key);
+            Assert.AreEqual("88", content.objects[0].data[0].value);
+            Assert.AreEqual("System.Single", content.objects[0].data[0].type);
 
-        Assert.AreEqual(loadable.Id, content.objects[0].id);
-        Assert.AreEqual("First Loadable", content.objects[0].name);
+            Assert.AreEqual("pos.y", content.objects[0].data[1].key);
+            Assert.AreEqual("-20", content.objects[0].data[1].value);
+            Assert.AreEqual("System.Single", content.objects[0].data[1].type);
 
-        Assert.AreEqual("pos.x", content.objects[0].data[0].key);
-        Assert.AreEqual("88", content.objects[0].data[0].value);
-        Assert.AreEqual("System.Single", content.objects[0].data[0].type);
+            Assert.AreEqual("pos.z", content.objects[0].data[2].key);
+            Assert.AreEqual("6", content.objects[0].data[2].value);
+            Assert.AreEqual("System.Single", content.objects[0].data[2].type);
 
-        Assert.AreEqual("pos.y", content.objects[0].data[1].key);
-        Assert.AreEqual("-20", content.objects[0].data[1].value);
-        Assert.AreEqual("System.Single", content.objects[0].data[1].type);
+            Object.DestroyImmediate(loadable.gameObject);
 
-        Assert.AreEqual("pos.z", content.objects[0].data[2].key);
-        Assert.AreEqual("6", content.objects[0].data[2].value);
-        Assert.AreEqual("System.Single", content.objects[0].data[2].type);
+            yield return null;
+        }
 
-        Object.DestroyImmediate(loadable.gameObject);
+        [UnityTest]
+        public IEnumerator SaveContent_DestroyedObjects_AreSavedCorrectly()
+        {
+            var api = new SavesAPI();
+            Talo._saves = api;
 
-        yield return null;
-    }
+            var activeLoadable = new GameObject("Active Loadable").AddComponent<PositionedLoadable>();
+            var destroyedLoadable = new GameObject("Destroyed Loadable").AddComponent<PositionedLoadable>();
 
-    [UnityTest]
-    public IEnumerator SaveContent_DestroyedObjects_AreSavedCorrectly()
-    {
-        var api = new SavesAPI();
-        Talo._saves = api;
+            Object.DestroyImmediate(destroyedLoadable.gameObject);
 
-        var activeLoadable = new GameObject("Active Loadable").AddComponent<PositionedLoadable>();
-        var destroyedLoadable = new GameObject("Destroyed Loadable").AddComponent<PositionedLoadable>();
+            var content = new SaveContent(api._registeredLoadables);
+            Assert.AreEqual(2, content.objects.Length);
 
-        Object.DestroyImmediate(destroyedLoadable.gameObject);
+            Assert.AreEqual(activeLoadable.Id, content.objects[0].id);
+            Assert.AreEqual("Active Loadable", content.objects[0].name);
+            Assert.AreEqual("pos.x", content.objects[0].data[0].key);
+            Assert.AreEqual("pos.y", content.objects[0].data[1].key);
+            Assert.AreEqual("pos.z", content.objects[0].data[2].key);
 
-        var content = new SaveContent(api._registeredLoadables);
-        Assert.AreEqual(2, content.objects.Length);
+            Assert.AreEqual(destroyedLoadable.Id, content.objects[1].id);
+            Assert.AreEqual("Destroyed Loadable", content.objects[1].name);
+            Assert.AreEqual("meta.destroyed", content.objects[1].data[0].key);
+            Assert.AreEqual("True", content.objects[1].data[0].value);
+            Assert.AreEqual("System.Boolean", content.objects[1].data[0].type);
 
-        Assert.AreEqual(activeLoadable.Id, content.objects[0].id);
-        Assert.AreEqual("Active Loadable", content.objects[0].name);
-        Assert.AreEqual("pos.x", content.objects[0].data[0].key);
-        Assert.AreEqual("pos.y", content.objects[0].data[1].key);
-        Assert.AreEqual("pos.z", content.objects[0].data[2].key);
+            Object.DestroyImmediate(activeLoadable.gameObject);
 
-        Assert.AreEqual(destroyedLoadable.Id, content.objects[1].id);
-        Assert.AreEqual("Destroyed Loadable", content.objects[1].name);
-        Assert.AreEqual("meta.destroyed", content.objects[1].data[0].key);
-        Assert.AreEqual("True", content.objects[1].data[0].value);
-        Assert.AreEqual("System.Boolean", content.objects[1].data[0].type);
+            yield return null;
+        }
 
-        Object.DestroyImmediate(activeLoadable.gameObject);
+        [UnityTest]
+        public IEnumerator SaveContent_NestedObjects_AreNamedCorrectly()
+        {
+            var api = new SavesAPI();
+            Talo._saves = api;
 
-        yield return null;
-    }
+            var grandParent = new GameObject("Grandparent");
+            var parent = new GameObject("Parent");
+            parent.transform.parent = grandParent.transform;
 
-    [UnityTest]
-    public IEnumerator SaveContent_NestedObjects_AreNamedCorrectly()
-    {
-        var api = new SavesAPI();
-        Talo._saves = api;
+            var loadable = new GameObject("First Loadable");
+            loadable.transform.parent = parent.transform;
+            var id = loadable.AddComponent<PositionedLoadable>().Id;
 
-        var grandParent = new GameObject("Grandparent");
-        var parent = new GameObject("Parent");
-        parent.transform.parent = grandParent.transform;
+            var content = new SaveContent(api._registeredLoadables);
+            Assert.AreEqual(1, content.objects.Length);
 
-        var loadable = new GameObject("First Loadable");
-        loadable.transform.parent = parent.transform;
-        var id = loadable.AddComponent<PositionedLoadable>().Id;
+            Assert.AreEqual(id, content.objects[0].id);
+            Assert.AreEqual("Grandparent.Parent.First Loadable", content.objects[0].name);
 
-        var content = new SaveContent(api._registeredLoadables);
-        Assert.AreEqual(1, content.objects.Length);
+            Object.DestroyImmediate(loadable.gameObject);
 
-        Assert.AreEqual(id, content.objects[0].id);
-        Assert.AreEqual("Grandparent.Parent.First Loadable", content.objects[0].name);
-
-        Object.DestroyImmediate(loadable.gameObject);
-
-        yield return null;
+            yield return null;
+        }
     }
 }

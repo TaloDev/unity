@@ -1,18 +1,20 @@
-﻿using TaloGameServices;
-using UnityEngine;
+﻿using UnityEngine;
 
-internal class SavesTestFileHandler : IFileHandler<OfflineSavesContent>
+namespace TaloGameServices
 {
-    private string content;
-
-    public OfflineSavesContent ReadContent(string path)
+    internal class SavesTestFileHandler : IFileHandler<OfflineSavesContent>
     {
-        if (content == default) return null;
-        return JsonUtility.FromJson<OfflineSavesContent>(content);
-    }
+        private string content;
 
-    public void WriteContent(string path, OfflineSavesContent content)
-    {
-        this.content = JsonUtility.ToJson(content);
+        public OfflineSavesContent ReadContent(string path)
+        {
+            if (content == default) return null;
+            return JsonUtility.FromJson<OfflineSavesContent>(content);
+        }
+
+        public void WriteContent(string path, OfflineSavesContent content)
+        {
+            this.content = JsonUtility.ToJson(content);
+        }
     }
 }
