@@ -9,7 +9,7 @@ namespace TaloGameServices
     public class Player: EntityWithProps
     {
         public string id;
-        public Group[] groups;
+        public GroupStub[] groups;
 
         public override string ToString()
         {

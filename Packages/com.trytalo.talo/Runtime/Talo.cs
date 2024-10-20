@@ -20,6 +20,7 @@ namespace TaloGameServices
         internal static FeedbackAPI _feedback;
         internal static PlayerAuthAPI _playerAuth;
         internal static HealthCheckAPI _healthCheck;
+        internal static PlayerGroupsAPI _playerGroups;
 
         private static PlayerAlias _currentAlias;
 
@@ -106,6 +107,11 @@ namespace TaloGameServices
             get => _healthCheck;
         }
 
+        public static PlayerGroupsAPI PlayerGroups
+        {
+            get => _playerGroups;
+        }
+
         static Talo()
         {
             TaloManager tm;
@@ -139,6 +145,7 @@ namespace TaloGameServices
             _feedback = new FeedbackAPI();
             _playerAuth = new PlayerAuthAPI();
             _healthCheck = new HealthCheckAPI();
+            _playerGroups = new PlayerGroupsAPI();
 
             tm.OnReady();
         }
