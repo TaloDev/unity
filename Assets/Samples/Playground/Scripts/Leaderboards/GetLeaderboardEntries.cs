@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 
 public class GetLeaderboardEntries : MonoBehaviour
 {
-    public string internalName;
-    public int page;
+    public string leaderboardInternalName;
+    public int page = 0;
 
     public async void OnButtonClick()
     {
@@ -16,10 +16,16 @@ public class GetLeaderboardEntries : MonoBehaviour
 
     private async Task FetchEntries()
     {
+        if (string.IsNullOrEmpty(leaderboardInternalName))
+        {
+            ResponseMessage.SetText("leaderboardInternalName not set on GetLeaderboardEntriesButton");
+            return;
+        }
+
         try
         {
             int score = UnityEngine.Random.Range(0, 10000);
-            LeaderboardEntriesResponse res = await Talo.Leaderboards.GetEntries(internalName, page);
+            LeaderboardEntriesResponse res = await Talo.Leaderboards.GetEntries(leaderboardInternalName, page);
             LeaderboardEntry[] entries = res.entries;
 
             if (entries.Length == 0)

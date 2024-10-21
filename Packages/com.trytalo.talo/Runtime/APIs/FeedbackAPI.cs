@@ -17,11 +17,11 @@ namespace TaloGameServices
             return res.feedbackCategories;
         }
 
-        public async Task Send(string internalName, string comment)
+        public async Task Send(string categoryInternalName, string comment)
         {
             Talo.IdentityCheck();
 
-            var uri = new Uri($"{baseUrl}/categories/{internalName}");
+            var uri = new Uri($"{baseUrl}/categories/{categoryInternalName}");
             var content = JsonUtility.ToJson(new FeedbackPostRequest { comment = comment });
 
             await Call(uri, "POST", content);
