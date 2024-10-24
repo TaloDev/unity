@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class PostLeaderboardEntry : MonoBehaviour
 {
-    public string internalName;
+    public string leaderboardInternalName;
 
     public async void OnButtonClick()
     {
@@ -14,10 +14,16 @@ public class PostLeaderboardEntry : MonoBehaviour
 
     private async Task PostEntry()
     {
+        if (string.IsNullOrEmpty(leaderboardInternalName))
+        {
+            ResponseMessage.SetText("leaderboardInternalName not set on AddEntryButton");
+            return;
+        }
+
         try
         {
             int score = UnityEngine.Random.Range(0, 10000);
-            (LeaderboardEntry entry, bool updated) = await Talo.Leaderboards.AddEntry(internalName, score);
+            (LeaderboardEntry entry, bool updated) = await Talo.Leaderboards.AddEntry(leaderboardInternalName, score);
 
             ResponseMessage.SetText($"Entry with score {score} added, position is {entry.position}, it was {(updated ? "" : "not")} updated");
         }

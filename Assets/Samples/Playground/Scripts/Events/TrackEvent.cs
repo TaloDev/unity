@@ -17,6 +17,12 @@ public class TrackEvent : MonoBehaviour
 
     private async Task Track()
     {
+        if (string.IsNullOrEmpty(eventName))
+        {
+            ResponseMessage.SetText("eventName not set on TrackEventButton");
+            return;
+        }
+
         try
         {
             await Talo.Events.Track(eventName, props.Select((prop) => (prop.key, prop.value)).ToArray());

@@ -14,6 +14,12 @@ public class TrackStat : MonoBehaviour
 
     private async void Track()
     {
+        if (string.IsNullOrEmpty(statInternalName))
+        {
+            ResponseMessage.SetText("statInternalName not set on TrackStatButton");
+            return;
+        }
+
         try
         {
             await Talo.Stats.Track(statInternalName, change);
