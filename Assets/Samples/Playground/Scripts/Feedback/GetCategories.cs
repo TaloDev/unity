@@ -21,7 +21,7 @@ public class GetCategories : MonoBehaviour
         else
         {
             var mapped = categories.Select((c) => $"{c.name} ({c.internalName})");
-            ResponseMessage.SetText($"Categories: " + string.Join(',', mapped));
+            ResponseMessage.SetText($"Categories: " + string.Join(", ", mapped));
         }
     }
 }

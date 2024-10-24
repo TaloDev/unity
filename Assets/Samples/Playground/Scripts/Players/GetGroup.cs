@@ -10,19 +10,18 @@ public class GetGroup : MonoBehaviour
     {
         if (string.IsNullOrEmpty(groupId))
         {
-            ResponseMessage.SetText("groupId not set on 'Get group' button");
+            ResponseMessage.SetText("groupId not set on GetGroupButton");
+            return;
         }
-        else
+
+        try
         {
-            try
-            {
-                var group = await Talo.PlayerGroups.Get(groupId);
-                ResponseMessage.SetText($"{group.name} has {group.count} player(s)");
-            }
-            catch (Exception e)
-            {
-                ResponseMessage.SetText(e.Message);
-            }
+            var group = await Talo.PlayerGroups.Get(groupId);
+            ResponseMessage.SetText($"{group.name} has {group.count} player(s)");
+        }
+        catch (Exception e)
+        {
+            ResponseMessage.SetText(e.Message);
         }
     }
 }
