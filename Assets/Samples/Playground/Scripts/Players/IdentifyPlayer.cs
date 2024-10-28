@@ -20,6 +20,12 @@ public class IdentifyPlayer : MonoBehaviour
 
     private async Task Identify()
     {
+        if (string.IsNullOrEmpty(service) || string.IsNullOrEmpty(identifier))
+        {
+            ResponseMessage.SetText("service or identifier not set on IdentifyButton");
+            return;
+        }
+
         try
         {
             await Talo.Players.Identify(service, identifier);
@@ -37,7 +43,7 @@ public class IdentifyPlayer : MonoBehaviour
         if (panel != null)
         {
             ResponseMessage.SetText("Identified!");
-            panel.GetComponent<Image>().color = new Color(135 / 255f, 1f, 135 / 255f);
+            panel.GetComponent<Image>().color = new Color(120 / 255f, 230 / 255f, 160 / 255f);
         }
     }
 }
