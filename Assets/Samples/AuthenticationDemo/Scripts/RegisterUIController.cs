@@ -51,6 +51,7 @@ namespace TaloAuthenticationDemo
                 validationLabel.text = e.GetErrorCode() switch
                 {
                     PlayerAuthErrorCode.IDENTIFIER_TAKEN => "Username is already taken",
+                    PlayerAuthErrorCode.INVALID_EMAIL => "Invalid email address",
                     _ => e.Message
                 };
             }
