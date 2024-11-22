@@ -46,7 +46,7 @@ namespace TaloGameServices
         private static ContinuityManager _continuity;
         public static ContinuityManager Continuity => _continuity;
 
-        public static TaloSettings Settings => UnityEngine.Object.FindObjectOfType<TaloManager>().settings;
+        public static TaloSettings Settings => UnityEngine.Object.FindFirstObjectByType<TaloManager>().settings;
 
         private static LiveConfig _liveConfig;
 
@@ -130,7 +130,7 @@ namespace TaloGameServices
             }
             else
             {
-                tm = UnityEngine.Object.FindObjectOfType<TaloManager>();
+                tm = UnityEngine.Object.FindFirstObjectByType<TaloManager>();
             }
 
             _crypto = new CryptoManager();

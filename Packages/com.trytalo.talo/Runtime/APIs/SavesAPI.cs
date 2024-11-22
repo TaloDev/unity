@@ -206,7 +206,10 @@ namespace TaloGameServices
             else
             {
                 // first entry into the saves file
-                offlineIncomingSave.id = -1;
+                if (offlineIncomingSave.id == 0)
+                {
+                    offlineIncomingSave.id = -1;
+                }
                 offlineContent = new OfflineSavesContent(new GameSave[] { offlineIncomingSave });
             }
 

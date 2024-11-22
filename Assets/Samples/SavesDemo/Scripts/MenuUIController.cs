@@ -1,6 +1,7 @@
 using UnityEngine;
 using TaloGameServices;
 using UnityEngine.UIElements;
+using System;
 
 namespace TaloSavesDemo
 {
@@ -49,12 +50,13 @@ namespace TaloSavesDemo
 
         private async void OnNewGameClick()
         {
-            foreach (var cube in FindObjectsOfType<LoadableCube>())
+            foreach (var cube in FindObjectsByType<LoadableCube>(FindObjectsSortMode.None))
             {
                 cube.MoveToOriginalPos();
             }
 
-            var save = await Talo.Saves.CreateSave($"Save {(Talo.Saves.Latest?.id ?? 0) + 1}");
+            var date = DateTime.Now.ToString("ddd dd MMM HH:mm:ss");
+            var save = await Talo.Saves.CreateSave($"Save created {date}");
             Talo.Saves.ChooseSave(save.id);
 
             SendMessageUpwards("AddNewSaveToList", SendMessageOptions.RequireReceiver);
