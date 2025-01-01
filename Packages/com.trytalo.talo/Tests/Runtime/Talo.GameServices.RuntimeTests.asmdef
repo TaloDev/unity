@@ -4,7 +4,8 @@
     "references": [
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner",
-        "Talo.GameServices.Runtime"
+        "Talo.GameServices.Runtime",
+        "MikeSchweitzer.WebSocket"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
