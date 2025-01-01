@@ -183,8 +183,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 45b976c638ac54836bdc684992ef7fa0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  playerUsername: tudor
-  channelId: 5
+  playerUsername: 
 --- !u!1 &1446344620
 GameObject:
   m_ObjectHideFlags: 0
