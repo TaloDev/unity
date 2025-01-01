@@ -1,5 +1,12 @@
 {
   "dependencies": {
+    "com.mikeschweitzer.websocket": {
+      "version": "https://github.com/mikerochip/unity-websocket.git",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "a84c0d0ee9a6f5c5b9f150b0c7c5cb8eadea0442"
+    },
     "com.trytalo.talo": {
       "version": "file:com.trytalo.talo",
       "depth": 0,
