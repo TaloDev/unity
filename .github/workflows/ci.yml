@@ -29,3 +29,5 @@ jobs:
           packageMode: true
           projectPath: Packages/com.trytalo.talo
           unityVersion: 6000.0.28f1
+          scopedRegistryUrl: https://package.openupm.com
+          registryScopes: 'com.mikeschweitzer.websocket'

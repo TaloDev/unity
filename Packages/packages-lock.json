@@ -1,11 +1,11 @@
 {
   "dependencies": {
     "com.mikeschweitzer.websocket": {
-      "version": "https://github.com/mikerochip/unity-websocket.git",
+      "version": "3.0.1",
       "depth": 0,
-      "source": "git",
+      "source": "registry",
       "dependencies": {},
-      "hash": "a84c0d0ee9a6f5c5b9f150b0c7c5cb8eadea0442"
+      "url": "https://package.openupm.com"
     },
     "com.trytalo.talo": {
       "version": "file:com.trytalo.talo",
