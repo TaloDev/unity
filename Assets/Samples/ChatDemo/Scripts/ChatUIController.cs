@@ -107,6 +107,7 @@ public class ChatUIController : MonoBehaviour
         var message = messageField.text;
         if (string.IsNullOrEmpty(message))
         {
+            AddMessage("[SYSTEM] Message cannot be empty");
             return;
         }
 
@@ -116,7 +117,19 @@ public class ChatUIController : MonoBehaviour
 
     private async void OnCreateChannelClick()
     {
+        if (Talo.CurrentPlayer == null)
+        {
+            AddMessage("[SYSTEM] No player username set, please set one in the UI game object");
+            return;
+        }
+
         var channelName = channelNameField.text;
+        if (string.IsNullOrEmpty(channelName))
+        {
+            AddMessage("[SYSTEM] Channel name cannot be empty");
+            return;
+        }
+
         var channel = await Talo.Channels.Create(channelName);
         AddChannelToList(channel);
         channelNameField.value = "";
