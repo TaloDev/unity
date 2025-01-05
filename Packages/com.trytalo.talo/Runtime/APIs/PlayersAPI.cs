@@ -23,6 +23,7 @@ namespace TaloGameServices
             var res = JsonUtility.FromJson<PlayersIdentifyResponse>(json);
 
             Talo.CurrentAlias = res.alias;
+            Talo.Socket.SetSocketToken(res.socketToken);
             InvokeIdentifiedEvent();
         }
 

@@ -23,6 +23,7 @@ namespace TaloGameServices.Test
         {
             var tm = new GameObject().AddComponent<TaloManager>();
             tm.settings = ScriptableObject.CreateInstance<TaloSettings>();
+            tm.settings.autoConnectSocket = false;
 
             Talo.CurrentAlias = new PlayerAlias() {
                 player = new Player() {
@@ -44,9 +45,11 @@ namespace TaloGameServices.Test
             var loadable2 = new GameObject("Second Loadable").AddComponent<PositionedLoadable>();
             loadable2.transform.position = loadable2Pos = new Vector3(-4, 105, 71);
 
-            var loadables = new List<LoadableData>();
-            loadables.Add(new LoadableData(loadable1));
-            loadables.Add(new LoadableData(loadable2));
+            var loadables = new List<LoadableData>
+            {
+                new LoadableData(loadable1),
+                new LoadableData(loadable2)
+            };
 
             api._allSaves.Add(new GameSave() {
                 id = 1,

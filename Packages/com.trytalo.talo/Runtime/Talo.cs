@@ -21,6 +21,8 @@ namespace TaloGameServices
         internal static PlayerAuthAPI _playerAuth;
         internal static HealthCheckAPI _healthCheck;
         internal static PlayerGroupsAPI _playerGroups;
+        internal static SocketTicketsAPI _socketTickets;
+        internal static ChannelsAPI _channels;
 
         private static PlayerAlias _currentAlias;
 
@@ -45,6 +47,9 @@ namespace TaloGameServices
 
         private static ContinuityManager _continuity;
         public static ContinuityManager Continuity => _continuity;
+
+        private static TaloSocket _socket;
+        public static TaloSocket Socket => _socket;
 
         public static TaloSettings Settings => UnityEngine.Object.FindFirstObjectByType<TaloManager>().settings;
 
@@ -112,6 +117,16 @@ namespace TaloGameServices
             get => _playerGroups;
         }
 
+        public static SocketTicketsAPI SocketTickets
+        {
+            get => _socketTickets;
+        }
+
+        public static ChannelsAPI Channels
+        {
+            get => _channels;
+        }
+
         static Talo()
         {
             TaloManager tm;
@@ -135,6 +150,7 @@ namespace TaloGameServices
 
             _crypto = new CryptoManager();
             _continuity = new ContinuityManager();
+            _socket = tm.gameObject.AddComponent<TaloSocket>();
 
             _events = new EventsAPI();
             _players = new PlayersAPI();
@@ -146,6 +162,8 @@ namespace TaloGameServices
             _playerAuth = new PlayerAuthAPI();
             _healthCheck = new HealthCheckAPI();
             _playerGroups = new PlayerGroupsAPI();
+            _socketTickets = new SocketTicketsAPI();
+            _channels = new ChannelsAPI();
 
             tm.OnReady();
         }

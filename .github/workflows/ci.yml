@@ -28,4 +28,6 @@ jobs:
           githubToken: ${{ secrets.GITHUB_TOKEN }}
           packageMode: true
           projectPath: Packages/com.trytalo.talo
-          unityVersion: 2022.3.25f1
+          unityVersion: 6000.0.28f1
+          scopedRegistryUrl: https://package.openupm.com
+          registryScopes: 'com.mikeschweitzer.websocket'

@@ -69,7 +69,7 @@ namespace TaloGameServices
                 uri = uri.ToString(),
                 method = method,
                 content = content,
-                headers = headers.Where((h) => h.key != "Authorization").ToList(),
+                headers = (headers ?? new List<HttpHeader>()).Where((h) => h.key != "Authorization").ToList(),
                 timestamp = timestamp
             });
 
