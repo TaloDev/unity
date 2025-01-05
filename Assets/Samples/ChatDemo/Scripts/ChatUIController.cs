@@ -81,10 +81,10 @@ public class ChatUIController : MonoBehaviour
 
     private async void InitChannelsList()
     {
-        var channels = await Talo.Channels.GetChannels(0);
+        var res = await Talo.Channels.GetChannels(0);
 
         channelsList = root.Q<VisualElement>("channels");
-        foreach (var channel in channels)
+        foreach (var channel in res.channels)
         {
             AddChannelToList(channel);
         }

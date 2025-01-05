@@ -1,10 +1,8 @@
 ﻿namespace TaloGameServices
 {
     [System.Serializable]
-    public class ChannelsIndexResponse
+    public class ChannelsSubscriptionsResponse
     {
         public Channel[] channels;
-        public int count;
-        public bool isLastPage;
     }
 }

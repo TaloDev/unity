@@ -9,13 +9,13 @@ namespace TaloGameServices
     {
         public ChannelsAPI() : base("v1/game-channels") { }
 
-        public async Task<Channel[]> GetChannels(int page)
+        public async Task<ChannelsIndexResponse> GetChannels(int page)
         {
             var uri = new Uri($"{baseUrl}?page={page}");
             var json = await Call(uri, "GET");
 
             var res = JsonUtility.FromJson<ChannelsIndexResponse>(json);
-            return res.channels;
+            return res;
         }
 
         public async Task<Channel[]> GetSubscribedChannels()
@@ -25,7 +25,7 @@ namespace TaloGameServices
             var uri = new Uri($"{baseUrl}/subscriptions");
             var json = await Call(uri, "GET");
 
-            var res = JsonUtility.FromJson<ChannelsIndexResponse>(json);
+            var res = JsonUtility.FromJson<ChannelsSubscriptionsResponse>(json);
             return res.channels;
         }
 
