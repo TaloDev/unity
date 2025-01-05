@@ -12,8 +12,8 @@ namespace TaloGameServices
 
         private WebSocketConnection socket;
         private string tempSocketToken;
-        private bool socketAuthenticated = false;
-        private bool identified = false;
+        private bool socketAuthenticated;
+        private bool identified;
 
         private void Awake()
         {

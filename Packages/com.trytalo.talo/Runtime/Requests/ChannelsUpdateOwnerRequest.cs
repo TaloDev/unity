@@ -1,9 +1,10 @@
 namespace TaloGameServices
 {
     [System.Serializable]
-    public class ChannelsUpdateRequest
+    public class ChannelsUpdateOwnerRequest
     {
         public string name;
+        public int newOwnerAliasId;
         public Prop[] props;
     }
 }

@@ -69,7 +69,16 @@ namespace TaloGameServices
             var props = propTuples.Select((propTuple) => new Prop(propTuple)).ToArray();
 
             var uri = new Uri($"{baseUrl}/{channelId}");
-            var content = JsonUtility.ToJson(new ChannelsUpdateRequest { name = name, newOwnerAliasId = newOwnerAliasId, props = props });
+
+            var content = "";
+            if (newOwnerAliasId == -1)
+            {
+                content = JsonUtility.ToJson(new ChannelsUpdateRequest { name = name, props = props });
+            }
+            else
+            {
+                content = JsonUtility.ToJson(new ChannelsUpdateOwnerRequest { name = name, newOwnerAliasId = newOwnerAliasId, props = props });
+            }
             var json = await Call(uri, "PUT", content);
 
             var res = JsonUtility.FromJson<ChannelResponse>(json);
