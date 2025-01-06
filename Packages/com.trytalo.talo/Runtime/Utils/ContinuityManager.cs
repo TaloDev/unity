@@ -33,7 +33,8 @@ namespace TaloGameServices
         private string[] _excludedEndpoints = {
             "/health-check",
             "/players/auth",
-            "/players/identify"
+            "/players/identify",
+            "/socket-tickets"
         };
 
         public ContinuityManager()
