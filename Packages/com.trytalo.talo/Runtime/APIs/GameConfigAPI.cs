@@ -7,8 +7,17 @@ namespace TaloGameServices
     public class GameConfigAPI : BaseAPI
     {
         public event Action<LiveConfig> OnLiveConfigLoaded;
+        public event Action<LiveConfig> OnLiveConfigUpdated;
 
-        public GameConfigAPI() : base("v1/game-config") { }
+        public GameConfigAPI() : base("v1/game-config") {
+            Talo.Socket.OnMessageReceived += (response) => {
+                if (response.GetResponseType() == "v1.live-config.updated")
+                {
+                    var data = response.GetData<GameConfigResponse>();
+                    OnLiveConfigUpdated?.Invoke(new LiveConfig(data.config));
+                }
+            };
+        }
 
         public async Task Get()
         {
