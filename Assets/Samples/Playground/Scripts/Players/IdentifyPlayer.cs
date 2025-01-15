@@ -39,7 +39,7 @@ public class IdentifyPlayer : MonoBehaviour
 
     private void OnIdentified(Player player)
     {
-        var panel = GameObject.Find("Panel");
+        var panel = GameObject.Find("APIs");
         if (panel != null)
         {
             ResponseMessage.SetText("Identified!");
