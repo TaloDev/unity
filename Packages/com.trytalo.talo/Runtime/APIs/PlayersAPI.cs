@@ -58,5 +58,14 @@ namespace TaloGameServices
             var res = JsonUtility.FromJson<PlayersUpdateResponse>(json);
             return res.player;
         }
+
+        public async Task<Player> Find(string playerId)
+        {
+            var uri = new Uri($"{baseUrl}/{playerId}");
+            var json = await Call(uri, "GET");
+
+            var res = JsonUtility.FromJson<PlayersFindResponse>(json);
+            return res.player;
+        }
     }
 }
