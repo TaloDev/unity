@@ -105,5 +105,14 @@ namespace TaloGameServices
 
             Talo.Socket.Send(new SocketRequest<ChannelMessageRequest>("v1.channels.message", payload));
         }
+
+        public async Task<Channel> Find(int channelId)
+        {
+            var uri = new Uri($"{baseUrl}/{channelId}");
+            var json = await Call(uri, "GET");
+
+            var res = JsonUtility.FromJson<ChannelResponse>(json);
+            return res.channel;
+        }
     }
 }
