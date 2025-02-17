@@ -23,6 +23,7 @@ namespace TaloGameServices
         internal static PlayerGroupsAPI _playerGroups;
         internal static SocketTicketsAPI _socketTickets;
         internal static ChannelsAPI _channels;
+        internal static PlayerPresenceAPI _playerPresence;
 
         private static PlayerAlias _currentAlias;
 
@@ -127,6 +128,11 @@ namespace TaloGameServices
             get => _channels;
         }
 
+        public static PlayerPresenceAPI PlayerPresence
+        {
+            get => _playerPresence;
+        }
+
         static Talo()
         {
             TaloManager tm;
@@ -164,6 +170,7 @@ namespace TaloGameServices
             _playerGroups = new PlayerGroupsAPI();
             _socketTickets = new SocketTicketsAPI();
             _channels = new ChannelsAPI();
+            _playerPresence = new PlayerPresenceAPI();
 
             tm.OnReady();
         }

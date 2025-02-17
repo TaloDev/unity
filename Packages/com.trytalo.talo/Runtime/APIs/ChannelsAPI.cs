@@ -9,7 +9,6 @@ namespace TaloGameServices
     {
         public event Action<Channel, PlayerAlias, string> OnMessageReceived;
 
-
         public ChannelsAPI() : base("v1/game-channels") {
             Talo.Socket.OnMessageReceived += (response) => {
                 if (response.GetResponseType() == "v1.channels.message")

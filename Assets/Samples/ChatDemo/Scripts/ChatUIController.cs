@@ -27,6 +27,7 @@ public class ChatUIController : MonoBehaviour
         sendButton.clicked += OnSendClick;
 
         Talo.Channels.OnMessageReceived += OnMessageReceived;
+        Talo.PlayerPresence.OnPresenceChanged += OnPresenceChanged;
 
         if (string.IsNullOrEmpty(playerUsername))
         {
@@ -149,6 +150,14 @@ public class ChatUIController : MonoBehaviour
         if (channel.id == activeChannelId)
         {
             AddMessage($"[{channel.name}] {playerAlias.identifier}: {message}");
+        }
+    }
+
+    private void OnPresenceChanged(PlayerPresence presence, bool onlineChanged, bool customStatusChanged)
+    {
+        if (onlineChanged)
+        {
+            AddMessage($"[SYSTEM] {presence.playerAlias.identifier} is now {(presence.online ? "online" : "offline")}");
         }
     }
 }
