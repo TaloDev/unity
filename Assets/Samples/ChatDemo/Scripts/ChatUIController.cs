@@ -26,7 +26,8 @@ public class ChatUIController : MonoBehaviour
         sendButton = root.Q<Button>("post-btn");
         sendButton.clicked += OnSendClick;
 
-        Talo.Socket.OnMessageReceived += OnMessageReceived;
+        Talo.Channels.OnMessageReceived += OnMessageReceived;
+        Talo.PlayerPresence.OnPresenceChanged += OnPresenceChanged;
 
         if (string.IsNullOrEmpty(playerUsername))
         {
@@ -144,15 +145,19 @@ public class ChatUIController : MonoBehaviour
         messagesList.Rebuild();
     }
 
-    private void OnMessageReceived(SocketResponse response)
+    private void OnMessageReceived(Channel channel, PlayerAlias playerAlias, string message)
     {
-        if (response.GetResponseType() == "v1.channels.message")
+        if (channel.id == activeChannelId)
         {
-            var data = response.GetData<ChannelMessageResponse>();
-            if (data.channel.id == activeChannelId)
-            {
-                AddMessage($"[{data.channel.name}] {data.playerAlias.identifier}: {data.message}");
-            }
+            AddMessage($"[{channel.name}] {playerAlias.identifier}: {message}");
+        }
+    }
+
+    private void OnPresenceChanged(PlayerPresence presence, bool onlineChanged, bool customStatusChanged)
+    {
+        if (onlineChanged)
+        {
+            AddMessage($"[SYSTEM] {presence.playerAlias.identifier} is now {(presence.online ? "online" : "offline")}");
         }
     }
 }
