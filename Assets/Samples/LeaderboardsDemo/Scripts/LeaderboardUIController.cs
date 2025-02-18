@@ -8,6 +8,7 @@ using System.Collections.Generic;
 public class LeaderboardUIController : MonoBehaviour
 {
     public string leaderboardName;
+    public bool includeArchived;
 
     private VisualElement root;
     private ListView entriesList;
@@ -73,7 +74,7 @@ public class LeaderboardUIController : MonoBehaviour
         {
             try
             {
-                var res = await Talo.Leaderboards.GetEntries(leaderboardName, page);
+                var res = await Talo.Leaderboards.GetEntries(leaderboardName, page, includeArchived: includeArchived);
                 page++;
                 done = res.isLastPage;
             }
@@ -107,7 +108,9 @@ public class LeaderboardUIController : MonoBehaviour
         entriesList.bindItem = (e, i) =>
         {
             LeaderboardEntry entry = entriesList.itemsSource[i] as LeaderboardEntry;
-            e.Q<Label>().text = $"{i+1}. {entry.playerAlias.identifier} - {entry.score} ({entry.GetProp("team", "No")} team)";
+            var teamText = entry.GetProp("team", "No");
+            var archivedText = !string.IsNullOrEmpty(entry.deletedAt) ? " (archived)" : "";
+            e.Q<Label>().text = $"{i+1}. {entry.playerAlias.identifier} - {entry.score} ({teamText} team){archivedText}";
         };
 
         entriesList.itemsSource = Talo.Leaderboards.GetCachedEntries(leaderboardName);
