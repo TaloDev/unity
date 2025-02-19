@@ -7,7 +7,17 @@ namespace TaloGameServices
 {
     public class ChannelsAPI: BaseAPI
     {
-        public ChannelsAPI() : base("v1/game-channels") { }
+        public event Action<Channel, PlayerAlias, string> OnMessageReceived;
+
+        public ChannelsAPI() : base("v1/game-channels") {
+            Talo.Socket.OnMessageReceived += (response) => {
+                if (response.GetResponseType() == "v1.channels.message")
+                {
+                    var data = response.GetData<ChannelMessageResponse>();
+                    OnMessageReceived?.Invoke(data.channel, data.playerAlias, data.message);
+                }
+            };
+        }
 
         public async Task<ChannelsIndexResponse> GetChannels(int page)
         {

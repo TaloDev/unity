@@ -10,6 +10,7 @@ namespace TaloGameServices
         public float score;
         public PlayerAlias playerAlias;
         public string updatedAt;
+        public string deletedAt;
 
         public override string ToString()
         {
