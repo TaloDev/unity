@@ -15,7 +15,7 @@ namespace TaloGameServices
             OnIdentified?.Invoke(Talo.CurrentPlayer);
         }
 
-        public async Task Identify(string service, string identifier)
+        public async Task<Player> Identify(string service, string identifier)
         {
             var uri = new Uri($"{baseUrl}/identify?service={service}&identifier={identifier}");
             var json = await Call(uri, "GET");
@@ -25,9 +25,11 @@ namespace TaloGameServices
             Talo.CurrentAlias = res.alias;
             Talo.Socket.SetSocketToken(res.socketToken);
             InvokeIdentifiedEvent();
+
+            return Talo.CurrentPlayer;
         }
 
-        public async Task IdentifySteam(string ticket, string identity = "")
+        public async Task<Player> IdentifySteam(string ticket, string identity = "")
         {
             if (string.IsNullOrEmpty(identity))
             {
@@ -37,9 +39,11 @@ namespace TaloGameServices
             {
                 await Identify("steam", $"{identity}:{ticket}");
             }
+
+            return Talo.CurrentPlayer;
         }
 
-        public async Task Update()
+        public async Task<Player> Update()
         {
             var uri = new Uri($"{baseUrl}/{Talo.CurrentPlayer.id}");
             var content = JsonUtility.ToJson(Talo.CurrentPlayer);
@@ -47,6 +51,8 @@ namespace TaloGameServices
 
             var res = JsonUtility.FromJson<PlayersUpdateResponse>(json);
             Talo.CurrentPlayer = res.player;
+
+            return Talo.CurrentPlayer;
         }
 
         public async Task<Player> Merge(string playerId1, string playerId2)

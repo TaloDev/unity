@@ -19,7 +19,7 @@ namespace TaloGameServices
             };
         }
 
-        public async Task Get()
+        public async Task<LiveConfig> Get()
         {
             var uri = new Uri(baseUrl);
             var json = await Call(uri, "GET");
@@ -27,6 +27,8 @@ namespace TaloGameServices
             var res = JsonUtility.FromJson<GameConfigResponse>(json);
             Talo.LiveConfig = new LiveConfig(res.config);
             OnLiveConfigLoaded?.Invoke(Talo.LiveConfig);
+
+            return Talo.LiveConfig;
         }
     }
 }
