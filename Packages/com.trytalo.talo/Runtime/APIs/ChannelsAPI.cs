@@ -8,6 +8,10 @@ namespace TaloGameServices
     public class ChannelsAPI: BaseAPI
     {
         public event Action<Channel, PlayerAlias, string> OnMessageReceived;
+        public event Action<Channel, PlayerAlias> OnChannelJoined;
+        public event Action<Channel, PlayerAlias> OnChannelLeft;
+        public event Action<Channel, PlayerAlias> OnOwnershipTransferred;
+        public event Action<Channel> OnChannelDeleted;
 
         public ChannelsAPI() : base("v1/game-channels") {
             Talo.Socket.OnMessageReceived += (response) => {
@@ -15,6 +19,26 @@ namespace TaloGameServices
                 {
                     var data = response.GetData<ChannelMessageResponse>();
                     OnMessageReceived?.Invoke(data.channel, data.playerAlias, data.message);
+                }
+                else if (response.GetResponseType() == "v1.channels.joined")
+                {
+                    var data = response.GetData<ChannelJoinedResponse>();
+                    OnChannelJoined?.Invoke(data.channel, data.playerAlias);
+                }
+                else if (response.GetResponseType() == "v1.channels.left")
+                {
+                    var data = response.GetData<ChannelLeftResponse>();
+                    OnChannelLeft?.Invoke(data.channel, data.playerAlias);
+                }
+                else if (response.GetResponseType() == "v1.channels.ownership-transferred")
+                {
+                    var data = response.GetData<ChannelOwnershipTransferredResponse>();
+                    OnOwnershipTransferred?.Invoke(data.channel, data.newOwner);
+                }
+                else if (response.GetResponseType() == "v1.channels.deleted")
+                {
+                    var data = response.GetData<ChannelDeletedResponse>();
+                    OnChannelDeleted?.Invoke(data.channel);
                 }
             };
         }

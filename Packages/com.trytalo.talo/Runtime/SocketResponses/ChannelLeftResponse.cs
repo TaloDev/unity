@@ -1,10 +1,9 @@
 namespace TaloGameServices
 {
     [System.Serializable]
-    public class ChannelMessageResponse
+    public class ChannelLeftResponse
     {
         public Channel channel;
-        public string message;
         public PlayerAlias playerAlias;
     }
 }
