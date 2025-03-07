@@ -51,6 +51,17 @@ jobs:
       - name: Create artifact
         run: |
           cd Release
+
+          SCOPED_PACKAGES='{
+            "com.mikeschweitzer.websocket": "https://github.com/mikerochip/unity-websocket.git"
+          }'
+
+          echo "$SCOPED_PACKAGES" | jq -r 'to_entries | .[] | .key + " " + .value' | while read -r package url; do
+            jq --arg pkg "$package" --arg url "$url" \
+              '.dependencies[$pkg] = $url + "#" + .dependencies[$pkg]' \
+              package.json > temp.json && mv temp.json package.json
+          done
+
           npm pack
 
       - name: Remove the version from the artifact name
