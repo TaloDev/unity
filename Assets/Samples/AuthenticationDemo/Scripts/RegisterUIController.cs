@@ -48,7 +48,7 @@ namespace TaloAuthenticationDemo
             }
             catch (PlayerAuthException e)
             {
-                validationLabel.text = e.GetErrorCode() switch
+                validationLabel.text = e.ErrorCode switch
                 {
                     PlayerAuthErrorCode.IDENTIFIER_TAKEN => "Username is already taken",
                     PlayerAuthErrorCode.INVALID_EMAIL => "Invalid email address",
