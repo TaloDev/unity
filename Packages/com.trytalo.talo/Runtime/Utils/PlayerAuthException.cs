@@ -3,6 +3,7 @@ using System;
 namespace TaloGameServices
 {
     public enum PlayerAuthErrorCode {
+        API_ERROR,
         INVALID_CREDENTIALS,
         VERIFICATION_ALIAS_NOT_FOUND,
         VERIFICATION_CODE_INVALID,
@@ -18,6 +19,8 @@ namespace TaloGameServices
 
     public class PlayerAuthException : Exception
     {
+        public PlayerAuthErrorCode ErrorCode => GetErrorCode();
+
         public PlayerAuthException()
         {
         }
@@ -32,9 +35,10 @@ namespace TaloGameServices
         {
         }
 
-        public PlayerAuthErrorCode GetErrorCode()
+        private PlayerAuthErrorCode GetErrorCode()
         {
-            return (PlayerAuthErrorCode)Enum.Parse(typeof(PlayerAuthErrorCode), Message);
+            var errorCode = string.IsNullOrEmpty(Message) ? "API_ERROR" : Message;
+            return (PlayerAuthErrorCode)Enum.Parse(typeof(PlayerAuthErrorCode), errorCode);
         }
     }
 }

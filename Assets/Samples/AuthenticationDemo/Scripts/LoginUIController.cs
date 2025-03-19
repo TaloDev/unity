@@ -52,7 +52,7 @@ namespace TaloAuthenticationDemo
             }
             catch (PlayerAuthException e)
             {
-                validationLabel.text = e.GetErrorCode() switch
+                validationLabel.text = e.ErrorCode switch
                 {
                     PlayerAuthErrorCode.INVALID_CREDENTIALS => "Username or password is incorrect",
                     _ => e.Message

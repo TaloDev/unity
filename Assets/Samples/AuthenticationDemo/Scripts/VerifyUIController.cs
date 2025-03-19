@@ -35,7 +35,7 @@ namespace TaloAuthenticationDemo
             }
             catch (PlayerAuthException e)
             {
-                validationLabel.text = e.GetErrorCode() switch
+                validationLabel.text = e.ErrorCode switch
                 {
                     PlayerAuthErrorCode.VERIFICATION_CODE_INVALID => "Verification code is incorrect",
                     _ => e.Message

@@ -9,6 +9,7 @@ namespace TaloGameServices
     {
         public event Action<SocketResponse> OnMessageReceived;
         public event Action OnConnectionClosed;
+        public event Action<SocketError> OnErrorReceived;
 
         private WebSocketConnection socket;
         private string tempSocketToken;
@@ -56,8 +57,8 @@ namespace TaloGameServices
                     tempSocketToken = "";
                     break;
                 case "v1.error":
-                    var error = response.GetData<SocketError>();
-                    throw new Exception($"Socket error: {error.req} - {error.errorCode}{(string.IsNullOrEmpty(error.cause) ? "" : " - " + error.cause)}");
+                    OnErrorReceived?.Invoke(response.GetData<SocketError>());
+                    break;
             }
         }
 
