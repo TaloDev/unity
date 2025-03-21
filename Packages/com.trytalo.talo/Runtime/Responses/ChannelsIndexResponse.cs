@@ -5,6 +5,7 @@
     {
         public Channel[] channels;
         public int count;
+        public int itemsPerPage;
         public bool isLastPage;
     }
 }
