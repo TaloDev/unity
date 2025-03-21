@@ -22,9 +22,9 @@ public class TrackStat : MonoBehaviour
 
         try
         {
-            await Talo.Stats.Track(statInternalName, change);
+            var res = await Talo.Stats.Track(statInternalName, change);
 
-            ResponseMessage.SetText($"{statInternalName} changed by {change}");
+            ResponseMessage.SetText($"{statInternalName} changed by {change}, new value is {res.playerStat.value}");
         }
         catch (Exception err)
         {
