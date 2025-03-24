@@ -6,7 +6,6 @@ namespace TaloGameServices
         public PlayerStatSnapshot[] history;
         public int count;
         public int itemsPerPage;
-
         public bool isLastPage;
     }
 }

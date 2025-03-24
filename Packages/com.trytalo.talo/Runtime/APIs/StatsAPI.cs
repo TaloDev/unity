@@ -40,5 +40,28 @@ namespace TaloGameServices
             var json = await Call(uri, "GET");
             return JsonUtility.FromJson<StatsHistoryResponse>(json);
         }
+
+        public async Task<StatsGlobalHistoryResponse> GetGlobalHistory(string internalName, int page = 0, string playerId = "", DateTime? startDate = null, DateTime? endDate = null)
+        {
+            var queryParams = new List<string> { $"page={page}" };
+            if (!string.IsNullOrEmpty(playerId))
+            {
+                queryParams.Add($"playerId={playerId}");
+            }
+            if (startDate.HasValue)
+            {
+                queryParams.Add($"startDate={Uri.EscapeDataString(startDate.Value.ToString("O"))}");
+            }
+            if (endDate.HasValue)
+            {
+                queryParams.Add($"endDate={Uri.EscapeDataString(endDate.Value.ToString("O"))}");
+            }
+
+            var queryString = string.Join("&", queryParams);
+            var uri = new Uri($"{baseUrl}/{internalName}/global-history?{queryString}");
+
+            var json = await Call(uri, "GET");
+            return JsonUtility.FromJson<StatsGlobalHistoryResponse>(json);
+        }
     }
 }

@@ -23,8 +23,9 @@ public class GetStatHistory : MonoBehaviour
         try
         {
             var res = await Talo.Stats.GetHistory(statInternalName);
+            var changeString = res.count > 0 ? string.Join(", ", res.history.Select((item) => item.change)) : "no changes";
 
-            ResponseMessage.SetText($"{statInternalName} changed by: {string.Join(", ", res.history.Select((item) => item.change))}");
+            ResponseMessage.SetText($"{statInternalName} changed by: {changeString}");
         }
         catch (Exception err)
         {
