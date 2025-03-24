@@ -9,6 +9,24 @@ namespace TaloGameServices
     {
         public StatsAPI() : base("v1/game-stats") { }
 
+        public async Task<Stat[]> GetStats()
+        {
+            var uri = new Uri(baseUrl);
+            var json = await Call(uri, "GET");
+
+            var res = JsonUtility.FromJson<StatsIndexResponse>(json);
+            return res.stats;
+        }
+
+        public async Task<Stat> GetStat(string internalName)
+        {
+            var uri = new Uri($"{baseUrl}/{internalName}");
+            var json = await Call(uri, "GET");
+
+            var res = JsonUtility.FromJson<StatResponse>(json);
+            return res.stat;
+        }
+
         public async Task<StatsPutResponse> Track(string internalName, float change = 1f)
         {
             Talo.IdentityCheck();
