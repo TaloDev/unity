@@ -1,9 +1,9 @@
-﻿namespace TaloGameServices
+namespace TaloGameServices
 {
     [System.Serializable]
-    public class LeaderboardEntriesResponse
+    public class StatsHistoryResponse
     {
-        public LeaderboardEntry[] entries;
+        public PlayerStatSnapshot[] history;
         public int count;
         public int itemsPerPage;
         public bool isLastPage;
