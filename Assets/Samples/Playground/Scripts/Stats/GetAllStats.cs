@@ -16,7 +16,7 @@ public class GetAllStats : MonoBehaviour
         {
             var res = await Talo.Stats.GetStats();
             var internalNames = res.Length > 0 ? string.Join(", ", res.Select((item) => item.internalName)) : "no stats";
-	        ResponseMessage.SetText($"Stats: {internalNames}");
+            ResponseMessage.SetText($"Stats: {internalNames}");
         }
         catch (Exception err)
         {

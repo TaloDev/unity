@@ -22,8 +22,7 @@ public class GetStat : MonoBehaviour
         try
         {
             var res = await Talo.Stats.GetStat(statInternalName);
-
-	        ResponseMessage.SetText($"{res.name} is{(res.global ? "" : " not")} a global stat, with a default value of {res.defaultValue}");
+            ResponseMessage.SetText($"{res.name} is{(res.global ? "" : " not")} a global stat, with a default value of {res.defaultValue}");
         }
         catch (Exception err)
         {
