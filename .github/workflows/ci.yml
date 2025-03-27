@@ -26,8 +26,4 @@ jobs:
           UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
         with:
           githubToken: ${{ secrets.GITHUB_TOKEN }}
-          # packageMode: true
-          # projectPath: 'Assets/Talo Game Services/Talo'
           unityVersion: 6000.0.28f1
-          # scopedRegistryUrl: https://package.openupm.com
-          # registryScopes: 'com.mikeschweitzer.websocket'
