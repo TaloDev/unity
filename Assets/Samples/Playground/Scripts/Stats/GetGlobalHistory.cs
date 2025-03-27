@@ -25,14 +25,14 @@ public class GetGlobalHistory : MonoBehaviour
             var globalMetrics = res.globalValue;
             var playerMetrics = res.playerValue;
 
-            ResponseMessage.SetText($@"
-                Min: {globalMetrics.minValue}, 
-                max: {globalMetrics.maxValue}, 
-                median: {globalMetrics.medianValue}, 
-                average: {globalMetrics.averageValue}, 
-                average change: {globalMetrics.averageChange}, 
-                average player value: {playerMetrics.averageValue}
-            ");
+            ResponseMessage.SetText(
+                $"Min: {globalMetrics.minValue}, " +
+                $"max: {globalMetrics.maxValue}, " +
+                $"median: {globalMetrics.medianValue}, " +
+                $"average: {globalMetrics.averageValue}, " +
+                $"average change: {globalMetrics.averageChange}, " +
+                $"average player value: {playerMetrics.averageValue}"
+            );
         }
         catch (Exception err)
         {
