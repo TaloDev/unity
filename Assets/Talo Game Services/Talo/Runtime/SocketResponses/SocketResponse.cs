@@ -1,29 +1,32 @@
 using UnityEngine;
 
-[System.Serializable]
-public class SocketResponse
+namespace TaloGameServices
 {
-    private class SocketMessage<T>
+    [System.Serializable]
+    public class SocketResponse
     {
-        public string res;
-        public T data;
-    }
+        private class SocketMessage<T>
+        {
+            public string res;
+            public T data;
+        }
 
-    public string message;
+        public string message;
 
-    public SocketResponse(string message) 
-    {
-        this.message = message;
-    }
+        public SocketResponse(string message) 
+        {
+            this.message = message;
+        }
 
-    public string GetResponseType()
-    {
-        var message = JsonUtility.FromJson<SocketMessage<object>>(this.message);
-        return message.res;
-    }
+        public string GetResponseType()
+        {
+            var message = JsonUtility.FromJson<SocketMessage<object>>(this.message);
+            return message.res;
+        }
 
-    public T GetData<T>()
-    {
-        return JsonUtility.FromJson<SocketMessage<T>>(message).data;
+        public T GetData<T>()
+        {
+            return JsonUtility.FromJson<SocketMessage<T>>(message).data;
+        }
     }
 }
