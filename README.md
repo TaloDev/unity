@@ -6,10 +6,19 @@ From essentials like player management, stats and leaderboards to advanced APIs 
 
 The Talo Unity Package is a lightweight wrapper around the [REST API](https://docs.trytalo.com/docs/http/authentication). It also includes handy utilities and a collection of ready-to-use samples.
 
-This repo is a Unity game (the Talo Playground) that lets you try out and preview functionality from a UI. Within that, Talo is installed as a local package.
+## Project structure
+
+You can find the code, samples and tests in the `Assets/Talo Game Services/Talo` folder.
+
+## Submodules
+
+This project uses git submodules to manage dependencies (Unity's dependency management is a [nightmare](https://trytalo.com/blog/building-unity-packages)).
+
+You'll need to init the submodules after cloning: `git submodule update --init`.
 
 ## Get the package
 
+- [Unity Asset Store](https://assetstore.unity.com/packages/slug/292832)
 - [GitHub releases](https://github.com/TaloDev/unity/releases)
 - [itch.io](https://sleepystudios.itch.io/talo-unity)
 
@@ -33,6 +42,7 @@ This repo is a Unity game (the Talo Playground) that lets you try out and previe
 - 💾 Game saves: a basic saves UI, allowing you to load, create and update saves.
 - 🔒 Authentication: a registration/login flow, showing how to create player accounts and authenticate them.
 - 🎮 Playground: a text-based playground allowing you to test identifying, events, stats and leaderboards.
+- 💬 Chat: showing how to send messages between channels in a chat room.
 
 ## Documentation
 
