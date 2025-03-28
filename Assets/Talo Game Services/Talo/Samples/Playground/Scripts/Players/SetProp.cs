@@ -1,33 +1,35 @@
 using UnityEngine;
-using TaloGameServices;
 using System.Threading.Tasks;
 
-public class SetProp : MonoBehaviour
+namespace TaloGameServices.Sample.Playground
 {
-    public string key, value;
-
-    public async void OnButtonClick()
+    public class SetProp : MonoBehaviour
     {
-        await UpdateProp();
-    }
+        public string key, value;
 
-    private async Task UpdateProp()
-    {
-        if (string.IsNullOrEmpty(key) || string.IsNullOrEmpty(value))
+        public async void OnButtonClick()
         {
-            ResponseMessage.SetText("key or value not set on SetPropButton");
-            return;
+            await UpdateProp();
         }
 
-        try
+        private async Task UpdateProp()
         {
-            await Talo.CurrentPlayer.SetProp(key, value);
-            ResponseMessage.SetText($"{key} set to {value}");
-        }
-        catch (System.Exception err)
-        {
-            ResponseMessage.SetText(err.Message);
-            throw err;
+            if (string.IsNullOrEmpty(key) || string.IsNullOrEmpty(value))
+            {
+                ResponseMessage.SetText("key or value not set on SetPropButton");
+                return;
+            }
+
+            try
+            {
+                await Talo.CurrentPlayer.SetProp(key, value);
+                ResponseMessage.SetText($"{key} set to {value}");
+            }
+            catch (System.Exception err)
+            {
+                ResponseMessage.SetText(err.Message);
+                throw err;
+            }
         }
     }
 }

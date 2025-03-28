@@ -1,36 +1,38 @@
 using System;
 using UnityEngine;
-using TaloGameServices;
 using System.Linq;
 
-public class GetStatHistory : MonoBehaviour
+namespace TaloGameServices.Sample.Playground
 {
-    public string statInternalName;
-
-    public void OnButtonClick()
+    public class GetStatHistory : MonoBehaviour
     {
-        FetchHistory();
-    }
+        public string statInternalName;
 
-    private async void FetchHistory()
-    {
-        if (string.IsNullOrEmpty(statInternalName))
+        public void OnButtonClick()
         {
-            ResponseMessage.SetText("statInternalName not set on GetStatHistoryButton");
-            return;
+            FetchHistory();
         }
 
-        try
+        private async void FetchHistory()
         {
-            var res = await Talo.Stats.GetHistory(statInternalName);
-            var changeString = res.count > 0 ? string.Join(", ", res.history.Select((item) => item.change)) : "no changes";
+            if (string.IsNullOrEmpty(statInternalName))
+            {
+                ResponseMessage.SetText("statInternalName not set on GetStatHistoryButton");
+                return;
+            }
 
-            ResponseMessage.SetText($"{statInternalName} changed by: {changeString}");
-        }
-        catch (Exception err)
-        {
-            ResponseMessage.SetText(err.Message);
-            throw err;
+            try
+            {
+                var res = await Talo.Stats.GetHistory(statInternalName);
+                var changeString = res.count > 0 ? string.Join(", ", res.history.Select((item) => item.change)) : "no changes";
+
+                ResponseMessage.SetText($"{statInternalName} changed by: {changeString}");
+            }
+            catch (Exception err)
+            {
+                ResponseMessage.SetText(err.Message);
+                throw err;
+            }
         }
     }
 }

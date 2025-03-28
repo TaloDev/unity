@@ -1,8 +1,7 @@
 using UnityEngine;
 using UnityEngine.UIElements;
-using TaloGameServices;
 
-namespace TaloAuthenticationDemo
+namespace TaloGameServices.Sample.AuthenticationDemo
 {
     public class GlobalUIController : MonoBehaviour
     {

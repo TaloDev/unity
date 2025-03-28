@@ -1,43 +1,45 @@
 using System;
 using UnityEngine;
-using TaloGameServices;
 
-public class GetGlobalHistory : MonoBehaviour
+namespace TaloGameServices.Sample.Playground
 {
-    public string statInternalName;
-
-    public void OnButtonClick()
+    public class GetGlobalHistory : MonoBehaviour
     {
-        FetchGlobalHistory();
-    }
+        public string statInternalName;
 
-    private async void FetchGlobalHistory()
-    {
-        if (string.IsNullOrEmpty(statInternalName))
+        public void OnButtonClick()
         {
-            ResponseMessage.SetText("statInternalName not set on GetGlobalHistoryButton");
-            return;
+            FetchGlobalHistory();
         }
 
-        try
+        private async void FetchGlobalHistory()
         {
-            var res = await Talo.Stats.GetGlobalHistory(statInternalName);
-            var globalMetrics = res.globalValue;
-            var playerMetrics = res.playerValue;
+            if (string.IsNullOrEmpty(statInternalName))
+            {
+                ResponseMessage.SetText("statInternalName not set on GetGlobalHistoryButton");
+                return;
+            }
 
-            ResponseMessage.SetText(
-                $"Min: {globalMetrics.minValue}, " +
-                $"max: {globalMetrics.maxValue}, " +
-                $"median: {globalMetrics.medianValue}, " +
-                $"average: {globalMetrics.averageValue}, " +
-                $"average change: {globalMetrics.averageChange}, " +
-                $"average player value: {playerMetrics.averageValue}"
-            );
-        }
-        catch (Exception err)
-        {
-            ResponseMessage.SetText(err.Message);
-            throw err;
+            try
+            {
+                var res = await Talo.Stats.GetGlobalHistory(statInternalName);
+                var globalMetrics = res.globalValue;
+                var playerMetrics = res.playerValue;
+
+                ResponseMessage.SetText(
+                    $"Min: {globalMetrics.minValue}, " +
+                    $"max: {globalMetrics.maxValue}, " +
+                    $"median: {globalMetrics.medianValue}, " +
+                    $"average: {globalMetrics.averageValue}, " +
+                    $"average change: {globalMetrics.averageChange}, " +
+                    $"average player value: {playerMetrics.averageValue}"
+                );
+            }
+            catch (Exception err)
+            {
+                ResponseMessage.SetText(err.Message);
+                throw err;
+            }
         }
     }
 }

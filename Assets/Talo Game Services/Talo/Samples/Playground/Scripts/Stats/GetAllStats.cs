@@ -1,27 +1,29 @@
 using System;
 using System.Linq;
 using UnityEngine;
-using TaloGameServices;
 
-public class GetAllStats : MonoBehaviour
+namespace TaloGameServices.Sample.Playground
 {
-    public void OnButtonClick()
+    public class GetAllStats : MonoBehaviour
     {
-        FetchStats();
-    }
-
-    private async void FetchStats()
-    {
-        try
+        public void OnButtonClick()
         {
-            var res = await Talo.Stats.GetStats();
-            var internalNames = res.Length > 0 ? string.Join(", ", res.Select((item) => item.internalName)) : "no stats";
-            ResponseMessage.SetText($"Stats: {internalNames}");
+            FetchStats();
         }
-        catch (Exception err)
+
+        private async void FetchStats()
         {
-            ResponseMessage.SetText(err.Message);
-            throw err;
+            try
+            {
+                var res = await Talo.Stats.GetStats();
+                var internalNames = res.Length > 0 ? string.Join(", ", res.Select((item) => item.internalName)) : "no stats";
+                ResponseMessage.SetText($"Stats: {internalNames}");
+            }
+            catch (Exception err)
+            {
+                ResponseMessage.SetText(err.Message);
+                throw err;
+            }
         }
     }
 }

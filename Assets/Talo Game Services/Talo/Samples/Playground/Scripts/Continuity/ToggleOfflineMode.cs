@@ -1,29 +1,31 @@
 using UnityEngine;
-using TaloGameServices;
 using UnityEngine.UI;
 
-public class ToggleOfflineMode : MonoBehaviour
+namespace TaloGameServices.Sample.Playground
 {
-    private void Start()
+    public class ToggleOfflineMode : MonoBehaviour
     {
-        SetText();
-    }
+        private void Start()
+        {
+            SetText();
+        }
 
-    private bool GetValue()
-    {
-        return Talo.Settings.offlineMode;
-    }
+        private bool GetValue()
+        {
+            return Talo.Settings.offlineMode;
+        }
 
-    private void SetText()
-    {
-        GetComponentInChildren<Text>().text = GetValue() ? "Go online" : "Go offline";
-    }
+        private void SetText()
+        {
+            GetComponentInChildren<Text>().text = GetValue() ? "Go online" : "Go offline";
+        }
 
-    public void OnButtonClick()
-    {
-        Talo.Settings.offlineMode = !Talo.Settings.offlineMode;
-        SetText();
+        public void OnButtonClick()
+        {
+            Talo.Settings.offlineMode = !Talo.Settings.offlineMode;
+            SetText();
 
-        ResponseMessage.SetText($"You are now now {(Talo.Settings.offlineMode ? "offline" : "online")}");
+            ResponseMessage.SetText($"You are now now {(Talo.Settings.offlineMode ? "offline" : "online")}");
+        }
     }
 }

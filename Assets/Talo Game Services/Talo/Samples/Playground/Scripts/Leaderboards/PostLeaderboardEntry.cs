@@ -1,36 +1,38 @@
 ﻿using System;
 using System.Threading.Tasks;
-using TaloGameServices;
 using UnityEngine;
 
-public class PostLeaderboardEntry : MonoBehaviour
+namespace TaloGameServices.Sample.Playground
 {
-    public string leaderboardInternalName;
-
-    public async void OnButtonClick()
+    public class PostLeaderboardEntry : MonoBehaviour
     {
-        await PostEntry();
-    }
+        public string leaderboardInternalName;
 
-    private async Task PostEntry()
-    {
-        if (string.IsNullOrEmpty(leaderboardInternalName))
+        public async void OnButtonClick()
         {
-            ResponseMessage.SetText("leaderboardInternalName not set on AddEntryButton");
-            return;
+            await PostEntry();
         }
 
-        try
+        private async Task PostEntry()
         {
-            int score = UnityEngine.Random.Range(0, 10000);
-            (LeaderboardEntry entry, bool updated) = await Talo.Leaderboards.AddEntry(leaderboardInternalName, score);
+            if (string.IsNullOrEmpty(leaderboardInternalName))
+            {
+                ResponseMessage.SetText("leaderboardInternalName not set on AddEntryButton");
+                return;
+            }
 
-            ResponseMessage.SetText($"Entry with score {score} added, position is {entry.position}, it was {(updated ? "" : "not")} updated");
-        }
-        catch (Exception err)
-        {
-            ResponseMessage.SetText(err.Message);
-            throw err;
+            try
+            {
+                int score = UnityEngine.Random.Range(0, 10000);
+                (LeaderboardEntry entry, bool updated) = await Talo.Leaderboards.AddEntry(leaderboardInternalName, score);
+
+                ResponseMessage.SetText($"Entry with score {score} added, position is {entry.position}, it was {(updated ? "" : "not")} updated");
+            }
+            catch (Exception err)
+            {
+                ResponseMessage.SetText(err.Message);
+                throw err;
+            }
         }
     }
 }

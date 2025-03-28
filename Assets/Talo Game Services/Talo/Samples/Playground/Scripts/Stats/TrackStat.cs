@@ -1,35 +1,37 @@
 using System;
 using UnityEngine;
-using TaloGameServices;
 
-public class TrackStat : MonoBehaviour
+namespace TaloGameServices.Sample.Playground
 {
-    public string statInternalName;
-    public float change = 1;
-
-    public void OnButtonClick()
+    public class TrackStat : MonoBehaviour
     {
-        Track();
-    }
+        public string statInternalName;
+        public float change = 1;
 
-    private async void Track()
-    {
-        if (string.IsNullOrEmpty(statInternalName))
+        public void OnButtonClick()
         {
-            ResponseMessage.SetText("statInternalName not set on TrackStatButton");
-            return;
+            Track();
         }
 
-        try
+        private async void Track()
         {
-            var res = await Talo.Stats.Track(statInternalName, change);
+            if (string.IsNullOrEmpty(statInternalName))
+            {
+                ResponseMessage.SetText("statInternalName not set on TrackStatButton");
+                return;
+            }
 
-            ResponseMessage.SetText($"{statInternalName} changed by {change}, new value is {res.playerStat.value}");
-        }
-        catch (Exception err)
-        {
-            ResponseMessage.SetText(err.Message);
-            throw err;
+            try
+            {
+                var res = await Talo.Stats.Track(statInternalName, change);
+
+                ResponseMessage.SetText($"{statInternalName} changed by {change}, new value is {res.playerStat.value}");
+            }
+            catch (Exception err)
+            {
+                ResponseMessage.SetText(err.Message);
+                throw err;
+            }
         }
     }
 }

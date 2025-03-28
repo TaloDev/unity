@@ -1,49 +1,51 @@
 using System;
 using UnityEngine;
 using UnityEngine.UI;
-using TaloGameServices;
 using System.Threading.Tasks;
 
-public class IdentifyPlayer : MonoBehaviour
+namespace TaloGameServices.Sample.Playground
 {
-    public string service, identifier;
-
-    private void Start()
+    public class IdentifyPlayer : MonoBehaviour
     {
-        Talo.Players.OnIdentified += OnIdentified;
-    }
+        public string service, identifier;
 
-    public async void OnButtonClick()
-    {
-        await Identify();
-    }
-
-    private async Task Identify()
-    {
-        if (string.IsNullOrEmpty(service) || string.IsNullOrEmpty(identifier))
+        private void Start()
         {
-            ResponseMessage.SetText("service or identifier not set on IdentifyButton");
-            return;
+            Talo.Players.OnIdentified += OnIdentified;
         }
 
-        try
+        public async void OnButtonClick()
         {
-            await Talo.Players.Identify(service, identifier);
+            await Identify();
         }
-        catch (Exception err)
-        {
-            ResponseMessage.SetText(err.Message);
-            throw err;
-        }
-    }
 
-    private void OnIdentified(Player player)
-    {
-        var panel = GameObject.Find("APIs");
-        if (panel != null)
+        private async Task Identify()
         {
-            ResponseMessage.SetText("Identified!");
-            panel.GetComponent<Image>().color = new Color(120 / 255f, 230 / 255f, 160 / 255f);
+            if (string.IsNullOrEmpty(service) || string.IsNullOrEmpty(identifier))
+            {
+                ResponseMessage.SetText("service or identifier not set on IdentifyButton");
+                return;
+            }
+
+            try
+            {
+                await Talo.Players.Identify(service, identifier);
+            }
+            catch (Exception err)
+            {
+                ResponseMessage.SetText(err.Message);
+                throw err;
+            }
+        }
+
+        private void OnIdentified(Player player)
+        {
+            var panel = GameObject.Find("APIs");
+            if (panel != null)
+            {
+                ResponseMessage.SetText("Identified!");
+                panel.GetComponent<Image>().color = new Color(120 / 255f, 230 / 255f, 160 / 255f);
+            }
         }
     }
 }

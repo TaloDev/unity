@@ -1,8 +1,7 @@
 using UnityEngine;
 using UnityEngine.UIElements;
-using TaloGameServices;
 
-namespace TaloSavesDemo
+namespace TaloGameServices.Sample.SavesDemo
 {
     public class GlobalUIController : MonoBehaviour
     {
