@@ -26,7 +26,7 @@ jobs:
           mkdir -p Release
           unity-editor -batchmode -nographics -quit \
             -projectPath "$(pwd)" \
-            -exportPackage "Assets/Talo Game Services" "Release/TaloGameServices.unitypackage"
+            -exportPackage "Assets/Talo Game Services" "Release/talo.unitypackage"
 
       - name: Upload to itch
         uses: manleydev/butler-publish-itchio-action@master
@@ -35,7 +35,7 @@ jobs:
           CHANNEL: package
           ITCH_GAME: talo-unity
           ITCH_USER: sleepystudios
-          PACKAGE: Release/TaloGameServices.unitypackage
+          PACKAGE: Release/talo.unitypackage
           VERSION: ${{ github.ref_name }}
 
       - name: Create release
@@ -44,20 +44,4 @@ jobs:
         with:
           generate_release_notes: true
           prerelease: ${{ contains(github.event.head_commit.message, 'pre.') }}
-          files: Release/TaloGameServices.unitypackage
-
-      - name: Install Unity CLI
-        run: |
-          npm install -g unitypackage-cli
-
-      - name: Upload to Unity Asset Store
-        env:
-          UNITY_PUBLISHER_ID: ${{ secrets.UNITY_PUBLISHER_ID }}
-          UNITY_PACKAGE_ID: ${{ secrets.UNITY_PACKAGE_ID }}
-          UNITY_ACCESS_TOKEN: ${{ secrets.UNITY_ACCESS_TOKEN }}
-        run: |
-          unitypackage upload \
-            --package "Release/TaloGameServices.unitypackage" \
-            --publisher-id "$UNITY_PUBLISHER_ID" \
-            --package-id "$UNITY_PACKAGE_ID" \
-            --access-token "$UNITY_ACCESS_TOKEN"
+          files: Release/talo.unitypackage
