@@ -7,57 +7,26 @@ jobs:
   release:
     runs-on: ubuntu-latest
 
-    env:
-      COMMIT_EMAIL: 7089284+tudddorrr@users.noreply.github.com
-      COMMIT_MESSAGE: "Release https://github.com/TaloDev/unity/releases/tag/${{ github.ref_name }}"
-
     steps:
       - uses: actions/checkout@v4
+        with:
+          submodules: recursive
 
       - uses: actions/setup-node@v4
         with:
           node-version: 20
 
-      - name: Copy files
-        run: |
-          mkdir -p Release/Samples~
-          cp -a Packages/com.trytalo.talo/. Release
-          cp -a Assets/Samples/. Release/Samples~
-
-      - name: Copy to package repo (main branch)
-        uses: tudddorrr/github-action-push-to-another-repository@main
-        if: "!contains(github.event.head_commit.message, '--no-release') && !contains(github.event.head_commit.message, 'pre.')"
-        env:
-          SSH_DEPLOY_KEY: ${{ secrets.SSH_DEPLOY_KEY }}
+      - name: Install Unity
+        uses: game-ci/unity-builder@v3
         with:
-          source-directory: Release
-          destination-github-username: TaloDev
-          destination-repository-name: unity-package
-          user-email: ${{ env.COMMIT_EMAIL }}
-          commit-message: ${{ env.COMMIT_MESSAGE }}
+          unityVersion: 6000.0.28f1
 
-      - name: Copy to package repo (version branch)
-        uses: tudddorrr/github-action-push-to-another-repository@main
-        env:
-          SSH_DEPLOY_KEY: ${{ secrets.SSH_DEPLOY_KEY }}
-        with:
-          source-directory: Release
-          destination-github-username: TaloDev
-          destination-repository-name: unity-package
-          user-email: ${{ env.COMMIT_EMAIL }}
-          commit-message: ${{ env.COMMIT_MESSAGE }}
-          target-branch: ${{ github.ref_name }}
-
-      - name: Create artifact
+      - name: Create Unity Package
         run: |
-          cd Release
-          npm pack
-
-      - name: Remove the version from the artifact name
-        run: |
-          filepath=$(ls Release/*.tgz)
-          new_filepath=$(echo "$filepath" | sed -E 's/-[0-9]+\.[0-9]+\.[0-9]+\.tgz$/.tgz/')
-          mv "$filepath" "$new_filepath"
+          mkdir -p Release
+          unity-editor -batchmode -nographics -quit \
+            -projectPath "$(pwd)" \
+            -exportPackage "Assets/Talo Game Services" "Release/talo.unitypackage"
 
       - name: Upload to itch
         uses: manleydev/butler-publish-itchio-action@master
@@ -66,7 +35,7 @@ jobs:
           CHANNEL: package
           ITCH_GAME: talo-unity
           ITCH_USER: sleepystudios
-          PACKAGE: Release/com.trytalo.talo.tgz
+          PACKAGE: Release/talo.unitypackage
           VERSION: ${{ github.ref_name }}
 
       - name: Create release
@@ -75,4 +44,4 @@ jobs:
         with:
           generate_release_notes: true
           prerelease: ${{ contains(github.event.head_commit.message, 'pre.') }}
-          files: Release/*.tgz
+          files: Release/talo.unitypackage
