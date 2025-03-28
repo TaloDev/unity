@@ -1,3 +1,3 @@
 using System.Runtime.CompilerServices;
 
-[assembly: InternalsVisibleTo("TaloTests")]
+[assembly: InternalsVisibleTo("Talo.Tests")]
