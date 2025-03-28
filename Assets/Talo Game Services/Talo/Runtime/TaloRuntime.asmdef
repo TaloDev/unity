@@ -1,5 +1,5 @@
 {
-    "name": "TaloRuntime",
+    "name": "Talo.Runtime",
     "rootNamespace": "",
     "references": [
         "GUID:ec04f0f3ab74a4ab6a7355917322ba3e"

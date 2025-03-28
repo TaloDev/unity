@@ -1,12 +1,5 @@
 {
   "dependencies": {
-    "com.mikeschweitzer.websocket": {
-      "version": "3.0.3",
-      "depth": 0,
-      "source": "registry",
-      "dependencies": {},
-      "url": "https://package.openupm.com"
-    },
     "com.unity.asset-store-tools": {
       "version": "file:com.unity.asset-store-tools",
       "depth": 0,
