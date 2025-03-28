@@ -1,9 +1,12 @@
 using UnityEngine;
 
-public class OpenDocs : MonoBehaviour
+namespace TaloGameServices.Sample.Playground
 {
-    public void OnButtonClick()
+    public class OpenDocs : MonoBehaviour
     {
-        Application.OpenURL("https://docs.trytalo.com/docs/unity/install?utm_source=unity-playground");
+        public void OnButtonClick()
+        {
+            Application.OpenURL("https://docs.trytalo.com/docs/unity/install?utm_source=unity-playground");
+        }
     }
 }

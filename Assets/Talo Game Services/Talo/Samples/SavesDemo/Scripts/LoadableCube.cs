@@ -1,8 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
-using TaloGameServices;
 
-namespace TaloSavesDemo
+namespace TaloGameServices.Sample.SavesDemo
 {
     public class LoadableCube : Loadable
     {

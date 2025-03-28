@@ -61,7 +61,7 @@ namespace TaloGameServices
             get {
                 if (_liveConfig == null)
                 {
-                    throw new Exception("Live config needs to be inited first - use Talo.GameConfig.Get() to fetch it");
+                    throw new Exception("Live config needs to be initialised first - use Talo.GameConfig.Get() to fetch it.");
                 }
                 return _liveConfig;
             }
@@ -142,7 +142,7 @@ namespace TaloGameServices
                 var settings = Resources.Load<TaloSettings>("Talo Settings");
                 if (!settings)
                 {
-                    Debug.LogError("A 'Talo Settings' asset was not found in the Resources folder. Create one using the Create menu > Talo > Settings Asset");
+                    Debug.LogError("A 'Talo Settings' asset was not found in the Resources folder. Create one using the Create menu > Talo > Settings Asset.");
                     return;
                 }
 

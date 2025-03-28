@@ -1,27 +1,30 @@
 using UnityEngine;
-using TaloGameServices;
 using System.Threading.Tasks;
 using System.Linq;
 
-public class GetCategories : MonoBehaviour
+namespace TaloGameServices.Sample.Playground
 {
-    public async void OnButtonClick()
-    {
-        await FetchCategories();
-    }
 
-    private async Task FetchCategories()
+    public class GetCategories : MonoBehaviour
     {
-        var categories = await Talo.Feedback.GetCategories();
-
-        if (categories.Length == 0)
+        public async void OnButtonClick()
         {
-            ResponseMessage.SetText("No categories found. Create some in the Talo dashboard!");
+            await FetchCategories();
         }
-        else
+
+        private async Task FetchCategories()
         {
-            var mapped = categories.Select((c) => $"{c.name} ({c.internalName})");
-            ResponseMessage.SetText($"Categories: " + string.Join(", ", mapped));
+            var categories = await Talo.Feedback.GetCategories();
+
+            if (categories.Length == 0)
+            {
+                ResponseMessage.SetText("No categories found. Create some in the Talo dashboard!");
+            }
+            else
+            {
+                var mapped = categories.Select((c) => $"{c.name} ({c.internalName})");
+                ResponseMessage.SetText($"Categories: " + string.Join(", ", mapped));
+            }
         }
     }
 }

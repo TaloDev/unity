@@ -1,33 +1,35 @@
 using System;
 using UnityEngine;
-using TaloGameServices;
 
-public class GetStat : MonoBehaviour
+namespace TaloGameServices.Sample.Playground
 {
-    public string statInternalName;
-
-    public void OnButtonClick()
+    public class GetStat : MonoBehaviour
     {
-        FetchStat();
-    }
+        public string statInternalName;
 
-    private async void FetchStat()
-    {
-        if (string.IsNullOrEmpty(statInternalName))
+        public void OnButtonClick()
         {
-            ResponseMessage.SetText("statInternalName not set on GetStatButton");
-            return;
+            FetchStat();
         }
 
-        try
+        private async void FetchStat()
         {
-            var res = await Talo.Stats.GetStat(statInternalName);
-            ResponseMessage.SetText($"{res.name} is{(res.global ? "" : " not")} a global stat, with a default value of {res.defaultValue}");
-        }
-        catch (Exception err)
-        {
-            ResponseMessage.SetText(err.Message);
-            throw err;
+            if (string.IsNullOrEmpty(statInternalName))
+            {
+                ResponseMessage.SetText("statInternalName not set on GetStatButton");
+                return;
+            }
+
+            try
+            {
+                var res = await Talo.Stats.GetStat(statInternalName);
+                ResponseMessage.SetText($"{res.name} is{(res.global ? "" : " not")} a global stat, with a default value of {res.defaultValue}");
+            }
+            catch (Exception err)
+            {
+                ResponseMessage.SetText(err.Message);
+                throw err;
+            }
         }
     }
 }

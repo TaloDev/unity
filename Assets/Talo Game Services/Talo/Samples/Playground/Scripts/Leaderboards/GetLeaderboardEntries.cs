@@ -1,46 +1,48 @@
 ﻿using System;
-using TaloGameServices;
 using UnityEngine;
 using System.Linq;
 using System.Threading.Tasks;
 
-public class GetLeaderboardEntries : MonoBehaviour
+namespace TaloGameServices.Sample.Playground
 {
-    public string leaderboardInternalName;
-    public int page = 0;
-
-    public async void OnButtonClick()
+    public class GetLeaderboardEntries : MonoBehaviour
     {
-        await FetchEntries();
-    }
+        public string leaderboardInternalName;
+        public int page = 0;
 
-    private async Task FetchEntries()
-    {
-        if (string.IsNullOrEmpty(leaderboardInternalName))
+        public async void OnButtonClick()
         {
-            ResponseMessage.SetText("leaderboardInternalName not set on GetLeaderboardEntriesButton");
-            return;
+            await FetchEntries();
         }
 
-        try
+        private async Task FetchEntries()
         {
-            int score = UnityEngine.Random.Range(0, 10000);
-            LeaderboardEntriesResponse res = await Talo.Leaderboards.GetEntries(leaderboardInternalName, page);
-            LeaderboardEntry[] entries = res.entries;
+            if (string.IsNullOrEmpty(leaderboardInternalName))
+            {
+                ResponseMessage.SetText("leaderboardInternalName not set on GetLeaderboardEntriesButton");
+                return;
+            }
 
-            if (entries.Length == 0)
+            try
             {
-                ResponseMessage.SetText($"No entries for page {page}");
+                int score = UnityEngine.Random.Range(0, 10000);
+                LeaderboardEntriesResponse res = await Talo.Leaderboards.GetEntries(leaderboardInternalName, page);
+                LeaderboardEntry[] entries = res.entries;
+
+                if (entries.Length == 0)
+                {
+                    ResponseMessage.SetText($"No entries for page {page}");
+                }
+                else
+                {
+                    ResponseMessage.SetText(string.Join(", ", entries.Select((e) => e.ToString()).ToArray()));
+                }
             }
-            else
+            catch (Exception err)
             {
-                ResponseMessage.SetText(string.Join(", ", entries.Select((e) => e.ToString()).ToArray()));
+                ResponseMessage.SetText(err.Message);
+                throw err;
             }
-        }
-        catch (Exception err)
-        {
-            ResponseMessage.SetText(err.Message);
-            throw err;
         }
     }
 }

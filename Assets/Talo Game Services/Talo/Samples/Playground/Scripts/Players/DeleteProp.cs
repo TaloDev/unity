@@ -1,34 +1,36 @@
 using UnityEngine;
-using TaloGameServices;
 using System.Threading.Tasks;
 using System;
 
-public class DeleteHealthProp : MonoBehaviour
+namespace TaloGameServices.Sample.Playground
 {
-    public string key;
-
-    public async void OnButtonClick()
+    public class DeleteHealthProp : MonoBehaviour
     {
-        await DeleteProp();
-    }
+        public string key;
 
-    private async Task DeleteProp()
-    {
-        if (string.IsNullOrEmpty(key))
+        public async void OnButtonClick()
         {
-            ResponseMessage.SetText("key not set on DeletePropButton");
-            return;
+            await DeleteProp();
         }
 
-        try
+        private async Task DeleteProp()
         {
-            await Talo.CurrentPlayer.DeleteProp(key);
-            ResponseMessage.SetText($"{key} deleted");
-        }
-        catch (Exception err)
-        {
-            ResponseMessage.SetText(err.Message);
-            throw err;
+            if (string.IsNullOrEmpty(key))
+            {
+                ResponseMessage.SetText("key not set on DeletePropButton");
+                return;
+            }
+
+            try
+            {
+                await Talo.CurrentPlayer.DeleteProp(key);
+                ResponseMessage.SetText($"{key} deleted");
+            }
+            catch (Exception err)
+            {
+                ResponseMessage.SetText(err.Message);
+                throw err;
+            }
         }
     }
 }

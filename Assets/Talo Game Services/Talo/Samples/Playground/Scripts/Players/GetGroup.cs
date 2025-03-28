@@ -1,27 +1,29 @@
 using System;
-using TaloGameServices;
 using UnityEngine;
 
-public class GetGroup : MonoBehaviour
+namespace TaloGameServices.Sample.Playground
 {
-    public string groupId;
-
-    public async void OnButtonClick()
+    public class GetGroup : MonoBehaviour
     {
-        if (string.IsNullOrEmpty(groupId))
-        {
-            ResponseMessage.SetText("groupId not set on GetGroupButton");
-            return;
-        }
+        public string groupId;
 
-        try
+        public async void OnButtonClick()
         {
-            var group = await Talo.PlayerGroups.Get(groupId);
-            ResponseMessage.SetText($"{group.name} has {group.count} player(s)");
-        }
-        catch (Exception e)
-        {
-            ResponseMessage.SetText(e.Message);
+            if (string.IsNullOrEmpty(groupId))
+            {
+                ResponseMessage.SetText("groupId not set on GetGroupButton");
+                return;
+            }
+
+            try
+            {
+                var group = await Talo.PlayerGroups.Get(groupId);
+                ResponseMessage.SetText($"{group.name} has {group.count} player(s)");
+            }
+            catch (Exception e)
+            {
+                ResponseMessage.SetText(e.Message);
+            }
         }
     }
 }

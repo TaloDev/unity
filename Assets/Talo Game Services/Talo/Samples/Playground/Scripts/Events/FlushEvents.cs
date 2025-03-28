@@ -1,27 +1,29 @@
 using System;
 using UnityEngine;
-using TaloGameServices;
 using System.Threading.Tasks;
 
-public class FlushEvents : MonoBehaviour
+namespace TaloGameServices.Sample.Playground
 {
-    public async void OnButtonClick()
+    public class FlushEvents : MonoBehaviour
     {
-        await Flush();
-    }
-
-    private async Task Flush()
-    {
-        try
+        public async void OnButtonClick()
         {
-            await Talo.Events.Flush();
-
-            ResponseMessage.SetText("Flushed events");
+            await Flush();
         }
-        catch (Exception err)
+
+        private async Task Flush()
         {
-            ResponseMessage.SetText(err.Message);
-            throw err;
+            try
+            {
+                await Talo.Events.Flush();
+
+                ResponseMessage.SetText("Flushed events");
+            }
+            catch (Exception err)
+            {
+                ResponseMessage.SetText(err.Message);
+                throw err;
+            }
         }
     }
 }

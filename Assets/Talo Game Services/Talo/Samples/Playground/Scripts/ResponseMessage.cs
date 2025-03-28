@@ -2,10 +2,13 @@ using System;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class ResponseMessage : MonoBehaviour
+namespace TaloGameServices.Sample.Playground
 {
-    public static void SetText(string text)
+    public class ResponseMessage : MonoBehaviour
     {
-        GameObject.Find("Response Message").GetComponent<Text>().text = $"{DateTime.Now.TimeOfDay}: {text}";
+        public static void SetText(string text)
+        {
+            GameObject.Find("Response Message").GetComponent<Text>().text = $"{DateTime.Now.TimeOfDay}: {text}";
+        }
     }
 }

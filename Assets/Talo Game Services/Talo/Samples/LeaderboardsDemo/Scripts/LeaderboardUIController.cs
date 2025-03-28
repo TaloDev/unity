@@ -1,144 +1,146 @@
 using UnityEngine;
-using TaloGameServices;
 using UnityEngine.UIElements;
 using System.Threading.Tasks;
 using System;
 using System.Collections.Generic;
 
-public class LeaderboardUIController : MonoBehaviour
+namespace TaloGameServices.Sample.LeaderboardsDemo
 {
-    public string leaderboardName;
-    public bool includeArchived;
-
-    private VisualElement root;
-    private ListView entriesList;
-    private Label infoLabel;
-
-    private int filterIdx;
-    private string filter = "All";
-
-    private async void Start()
+    public class LeaderboardUIController : MonoBehaviour
     {
-        root = GetComponent<UIDocument>().rootVisualElement;
-        root.Q<Button>("post-btn").clicked += OnPostClick;
-        root.Q<Button>("filter-btn").clicked += OnFilterClick;
+        public string leaderboardName;
+        public bool includeArchived;
 
-        entriesList = root.Q<ListView>();
-        infoLabel = root.Q<Label>("info");
+        private VisualElement root;
+        private ListView entriesList;
+        private Label infoLabel;
 
-        if (string.IsNullOrEmpty(leaderboardName))
+        private int filterIdx;
+        private string filter = "All";
+
+        private async void Start()
         {
-            throw new Exception("Please create a leaderboard and set the leaderboard name to its internal name");
-        }
+            root = GetComponent<UIDocument>().rootVisualElement;
+            root.Q<Button>("post-btn").clicked += OnPostClick;
+            root.Q<Button>("filter-btn").clicked += OnFilterClick;
 
-        await LoadEntries();
-    }
+            entriesList = root.Q<ListView>();
+            infoLabel = root.Q<Label>("info");
 
-    private async void OnPostClick()
-    {
-        var username = root.Q<TextField>().text;
-        var score = UnityEngine.Random.Range(0, 100);
-        var team = UnityEngine.Random.Range(0, 2) == 0 ? "Blue" : "Red";
-
-        await Talo.Players.Identify("username", username);
-        (LeaderboardEntry entry, bool updated) = await Talo.Leaderboards.AddEntry(
-            leaderboardName,
-            score,
-            ("team", team)
-        );
-
-        infoLabel.text = $"You scored {score} for the {team} team.";
-        if (updated) infoLabel.text += " Your highscore was updated!";
-
-        entriesList.Rebuild();
-    }
-
-    private void HandleListVisibility()
-    {
-        if (Talo.Leaderboards.GetCachedEntries(leaderboardName).Count == 0)
-        {
-            infoLabel.text = "There are currently no entries";
-        }
-        else
-        {
-            infoLabel.text = "";
-        }
-    }
-
-    private async Task LoadEntries()
-    {
-        var page = 0;
-        var done = false;
-
-        do
-        {
-            try
+            if (string.IsNullOrEmpty(leaderboardName))
             {
-                var res = await Talo.Leaderboards.GetEntries(leaderboardName, page, includeArchived: includeArchived);
-                page++;
-                done = res.isLastPage;
-            }
-            catch (RequestException e)
-            {
-                if (e.responseCode == 404)
-                {
-                    infoLabel.text = $"Failed loading leaderboard {leaderboardName}. Does it exist?";
-                }
-                else
-                {
-                    infoLabel.text = e.Message;
-                    Debug.LogError(e);
-                }
-                return;
+                throw new Exception("Please create a leaderboard and set the leaderboard name to its internal name");
             }
 
-        } while (!done);
-        
-        HandleListVisibility();
+            await LoadEntries();
+        }
 
-        entriesList.makeItem = () =>
+        private async void OnPostClick()
         {
-            var label = new Label();
-            label.style.color = new StyleColor(Color.white);
-            label.style.fontSize = 22;
+            var username = root.Q<TextField>().text;
+            var score = UnityEngine.Random.Range(0, 100);
+            var team = UnityEngine.Random.Range(0, 2) == 0 ? "Blue" : "Red";
 
-            return label;
-        };
+            await Talo.Players.Identify("username", username);
+            (LeaderboardEntry entry, bool updated) = await Talo.Leaderboards.AddEntry(
+                leaderboardName,
+                score,
+                ("team", team)
+            );
 
-        entriesList.bindItem = (e, i) =>
+            infoLabel.text = $"You scored {score} for the {team} team.";
+            if (updated) infoLabel.text += " Your highscore was updated!";
+
+            entriesList.Rebuild();
+        }
+
+        private void HandleListVisibility()
         {
-            LeaderboardEntry entry = entriesList.itemsSource[i] as LeaderboardEntry;
-            var teamText = entry.GetProp("team", "No");
-            var archivedText = !string.IsNullOrEmpty(entry.deletedAt) ? " (archived)" : "";
-            e.Q<Label>().text = $"{i+1}. {entry.playerAlias.identifier} - {entry.score} ({teamText} team){archivedText}";
-        };
+            if (Talo.Leaderboards.GetCachedEntries(leaderboardName).Count == 0)
+            {
+                infoLabel.text = "There are currently no entries";
+            }
+            else
+            {
+                infoLabel.text = "";
+            }
+        }
 
-        entriesList.itemsSource = Talo.Leaderboards.GetCachedEntries(leaderboardName);
-    }
-
-    private string GetNextFilter(int idx)
-    {
-        return new [] { "All", "Blue", "Red" } [idx % 3];
-    }
-
-    private void OnFilterClick()
-    {
-        filterIdx++;
-        filter = GetNextFilter(filterIdx);
-
-        infoLabel.text = $"Filtering on {filter.ToLower()}";
-        root.Q<Button>("filter-btn").text = $"{GetNextFilter(filterIdx + 1)} team scores";
-
-        if (filter == "All")
+        private async Task LoadEntries()
         {
+            var page = 0;
+            var done = false;
+
+            do
+            {
+                try
+                {
+                    var res = await Talo.Leaderboards.GetEntries(leaderboardName, page, includeArchived: includeArchived);
+                    page++;
+                    done = res.isLastPage;
+                }
+                catch (RequestException e)
+                {
+                    if (e.responseCode == 404)
+                    {
+                        infoLabel.text = $"Failed loading leaderboard {leaderboardName}. Does it exist?";
+                    }
+                    else
+                    {
+                        infoLabel.text = e.Message;
+                        Debug.LogError(e);
+                    }
+                    return;
+                }
+
+            } while (!done);
+            
+            HandleListVisibility();
+
+            entriesList.makeItem = () =>
+            {
+                var label = new Label();
+                label.style.color = new StyleColor(Color.white);
+                label.style.fontSize = 22;
+
+                return label;
+            };
+
+            entriesList.bindItem = (e, i) =>
+            {
+                LeaderboardEntry entry = entriesList.itemsSource[i] as LeaderboardEntry;
+                var teamText = entry.GetProp("team", "No");
+                var archivedText = !string.IsNullOrEmpty(entry.deletedAt) ? " (archived)" : "";
+                e.Q<Label>().text = $"{i+1}. {entry.playerAlias.identifier} - {entry.score} ({teamText} team){archivedText}";
+            };
+
             entriesList.itemsSource = Talo.Leaderboards.GetCachedEntries(leaderboardName);
         }
-        else
+
+        private string GetNextFilter(int idx)
         {
-            entriesList.itemsSource = new List<LeaderboardEntry>(Talo.Leaderboards.GetCachedEntries(leaderboardName)
-                .FindAll((e) => e.GetProp("team", "") == filter));
+            return new [] { "All", "Blue", "Red" } [idx % 3];
         }
 
-        entriesList.Rebuild();
+        private void OnFilterClick()
+        {
+            filterIdx++;
+            filter = GetNextFilter(filterIdx);
+
+            infoLabel.text = $"Filtering on {filter.ToLower()}";
+            root.Q<Button>("filter-btn").text = $"{GetNextFilter(filterIdx + 1)} team scores";
+
+            if (filter == "All")
+            {
+                entriesList.itemsSource = Talo.Leaderboards.GetCachedEntries(leaderboardName);
+            }
+            else
+            {
+                entriesList.itemsSource = new List<LeaderboardEntry>(Talo.Leaderboards.GetCachedEntries(leaderboardName)
+                    .FindAll((e) => e.GetProp("team", "") == filter));
+            }
+
+            entriesList.Rebuild();
+        }
     }
 }
