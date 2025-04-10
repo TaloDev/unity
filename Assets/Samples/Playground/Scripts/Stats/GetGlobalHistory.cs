@@ -22,8 +22,17 @@ public class GetGlobalHistory : MonoBehaviour
         try
         {
             var res = await Talo.Stats.GetGlobalHistory(statInternalName);
+            var globalMetrics = res.globalValue;
+            var playerMetrics = res.playerValue;
 
-            ResponseMessage.SetText($"Min: {res.globalValue.minValue}, max: {res.globalValue.maxValue}, median: {res.globalValue.medianValue}, average: {res.globalValue.averageValue}, average change: {res.globalValue.averageChange}");
+            ResponseMessage.SetText(
+                $"Min: {globalMetrics.minValue}, " +
+                $"max: {globalMetrics.maxValue}, " +
+                $"median: {globalMetrics.medianValue}, " +
+                $"average: {globalMetrics.averageValue}, " +
+                $"average change: {globalMetrics.averageChange}, " +
+                $"average player value: {playerMetrics.averageValue}"
+            );
         }
         catch (Exception err)
         {
