@@ -8,11 +8,11 @@ namespace TaloGameServices
 
         public List<LeaderboardEntry> GetEntries(string internalName)
         {
-            if (_currentEntries.ContainsKey(internalName))
+         if (!_currentEntries.ContainsKey(internalName))
             {
-                return _currentEntries[internalName];
+                _currentEntries[internalName] = new List<LeaderboardEntry>();
             }
-            return new List<LeaderboardEntry>();
+            return _currentEntries[internalName];
         }
 
         public void UpsertEntry(string internalName, LeaderboardEntry entry)
