@@ -12,6 +12,7 @@ namespace TaloGameServices
         public event Action<Channel, PlayerAlias> OnChannelLeft;
         public event Action<Channel, PlayerAlias> OnOwnershipTransferred;
         public event Action<Channel> OnChannelDeleted;
+        public event Action<Channel, string[]> OnChannelUpdated;
 
         public ChannelsAPI() : base("v1/game-channels") {
             Talo.Socket.OnMessageReceived += (response) => {
@@ -39,6 +40,11 @@ namespace TaloGameServices
                 {
                     var data = response.GetData<ChannelDeletedResponse>();
                     OnChannelDeleted?.Invoke(data.channel);
+                }
+                else if (response.GetResponseType() == "v1.channels.updated")
+                {
+                    var data = response.GetData<ChannelUpdatedResponse>();
+                    OnChannelUpdated?.Invoke(data.channel, data.changedProperties);
                 }
             };
         }
