@@ -69,18 +69,38 @@ namespace TaloGameServices
             return res.channels;
         }
 
-        public async Task<Channel> Create(string name, bool autoCleanup = false, params (string, string)[] propTuples)
+        private async Task<Channel> SendCreateChannelRequest(
+            string name,
+            bool autoCleanup = false,
+            bool isPrivate = false,
+            params (string, string)[] propTuples
+        )
         {
             Talo.IdentityCheck();
 
             var props = propTuples.Select((propTuple) => new Prop(propTuple)).ToArray();
 
             var uri = new Uri(baseUrl);
-            var content = JsonUtility.ToJson(new ChannelsCreateRequest { name = name, autoCleanup = autoCleanup, props = props });
+            var content = JsonUtility.ToJson(new ChannelsCreateRequest {
+                name = name,
+                autoCleanup = autoCleanup,
+                props = props,
+                @private = isPrivate
+            });
             var json = await Call(uri, "POST", content);
 
             var res = JsonUtility.FromJson<ChannelResponse>(json);
             return res.channel;
+        }
+
+        public async Task<Channel> Create(string name, bool autoCleanup = false, params (string, string)[] propTuples)
+        {
+            return await SendCreateChannelRequest(name, autoCleanup, false, propTuples);
+        }
+
+        public async Task<Channel> CreatePrivate(string name, bool autoCleanup = false, params (string, string)[] propTuples)
+        {
+            return await SendCreateChannelRequest(name, autoCleanup, true, propTuples);
         }
 
         public async Task<Channel> Join(int channelId)
@@ -153,6 +173,15 @@ namespace TaloGameServices
 
             var res = JsonUtility.FromJson<ChannelResponse>(json);
             return res.channel;
+        }
+
+        public async Task Invite(int channelId, int playerAliasId)
+        {
+            Talo.IdentityCheck();
+
+            var uri = new Uri($"{baseUrl}/{channelId}/invite");
+            var content = JsonUtility.ToJson(new ChannelsInviteRequest { inviteeAliasId = playerAliasId });
+            await Call(uri, "POST", content);
         }
     }
 }

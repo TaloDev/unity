@@ -10,6 +10,8 @@ namespace TaloGameServices
         public PlayerAlias ownerAlias;
         public int totalMessages;
         public int memberCount;
+        public bool autoCleanup;
+        public bool @private;
         public string createdAt;
         public string updatedAt;
     }
