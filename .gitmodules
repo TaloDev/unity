@@ -1,0 +1,3 @@
+[submodule "Assets/Talo Game Services/Talo/Runtime/Vendor/com.mikeschweitzer.websocket"]
+	path = Assets/Talo Game Services/Talo/Runtime/Vendor/com.mikeschweitzer.websocket
+	url = https://github.com/mikerochip/unity-websocket.git

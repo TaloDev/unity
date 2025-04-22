@@ -1,0 +1,16 @@
+{
+    "name": "Talo.Runtime",
+    "rootNamespace": "",
+    "references": [
+        "GUID:ec04f0f3ab74a4ab6a7355917322ba3e"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
