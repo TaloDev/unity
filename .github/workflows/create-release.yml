@@ -3,6 +3,9 @@ name: Release
 on:
   workflow_dispatch:
 
+env:
+  OUTPUT_DIR: Talo
+
 jobs:
   release:
     runs-on: ubuntu-latest
@@ -16,21 +19,21 @@ jobs:
         with:
           node-version: 20
 
-      - name: Install Unity
-        uses: game-ci/unity-builder@v4
-        env:
-          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
-          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
-          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
-        with:
-          unityVersion: 6000.0.28f1
+      - name: Create output directory
+        run: mkdir -p "${{ env.OUTPUT_DIR }}"
 
       - name: Create Unity Package
+        uses: natsuneko-laboratory/create-unitypackage@v3
+        with:
+          files-glob: ./Assets/Talo Game Services/**/*
+          dest: ${{ env.OUTPUT_DIR }}/talo.unitypackage
+
+      - name: Zip package
+        id: zip-package
         run: |
-          mkdir -p Release
-          unity-editor -batchmode -nographics -quit \
-            -projectPath "$(pwd)" \
-            -exportPackage "Assets/Talo Game Services" "Release/talo.unitypackage"
+          filepath=${{ env.OUTPUT_DIR }}/talo-unity-${{ github.ref_name }}.zip
+          echo "filepath=$filepath" >> $GITHUB_OUTPUT
+          zip $filepath "${{ env.OUTPUT_DIR }}/talo.unitypackage"
 
       - name: Upload to itch
         uses: manleydev/butler-publish-itchio-action@master
@@ -39,7 +42,7 @@ jobs:
           CHANNEL: package
           ITCH_GAME: talo-unity
           ITCH_USER: sleepystudios
-          PACKAGE: Release/talo.unitypackage
+          PACKAGE: ${{ steps.zip-package.outputs.filepath }}
           VERSION: ${{ github.ref_name }}
 
       - name: Create release
@@ -48,4 +51,4 @@ jobs:
         with:
           generate_release_notes: true
           prerelease: ${{ contains(github.event.head_commit.message, 'pre.') }}
-          files: Release/talo.unitypackage
+          files: ${{ env.OUTPUT_DIR }}/talo.unitypackage
