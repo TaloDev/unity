@@ -17,7 +17,7 @@ jobs:
           node-version: 20
 
       - name: Install Unity
-        uses: game-ci/unity-builder@v3
+        uses: game-ci/unity-builder@v4
         with:
           unityVersion: 6000.0.28f1
 
