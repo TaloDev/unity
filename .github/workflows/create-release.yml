@@ -4,7 +4,8 @@ on:
   workflow_dispatch:
 
 env:
-  OUTPUT_DIR: Talo
+  OUTPUT_DIR: Release
+  OUTPUT_FILE: talo.unitypackage
 
 jobs:
   release:
@@ -26,14 +27,7 @@ jobs:
         uses: natsuneko-laboratory/create-unitypackage@v3
         with:
           files-glob: ./Assets/Talo Game Services/**/*
-          dest: ${{ env.OUTPUT_DIR }}/talo.unitypackage
-
-      - name: Zip package
-        id: zip-package
-        run: |
-          filepath=${{ env.OUTPUT_DIR }}/talo-unity-${{ github.ref_name }}.zip
-          echo "filepath=$filepath" >> $GITHUB_OUTPUT
-          zip $filepath "${{ env.OUTPUT_DIR }}/talo.unitypackage"
+          dest: ${{ env.OUTPUT_DIR }}/${{ env.OUTPUT_FILE }}
 
       - name: Upload to itch
         uses: manleydev/butler-publish-itchio-action@master
@@ -42,7 +36,7 @@ jobs:
           CHANNEL: package
           ITCH_GAME: talo-unity
           ITCH_USER: sleepystudios
-          PACKAGE: ${{ steps.zip-package.outputs.filepath }}
+          PACKAGE: ${{ env.OUTPUT_DIR }}
           VERSION: ${{ github.ref_name }}
 
       - name: Create release
@@ -51,4 +45,4 @@ jobs:
         with:
           generate_release_notes: true
           prerelease: ${{ contains(github.event.head_commit.message, 'pre.') }}
-          files: ${{ env.OUTPUT_DIR }}/talo.unitypackage
+          files: ${{ env.OUTPUT_DIR }}/${{ env.OUTPUT_FILE }}
