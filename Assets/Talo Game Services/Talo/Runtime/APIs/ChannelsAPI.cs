@@ -183,5 +183,16 @@ namespace TaloGameServices
             var content = JsonUtility.ToJson(new ChannelsInviteRequest { inviteeAliasId = playerAliasId });
             await Call(uri, "POST", content);
         }
+
+        public async Task<PlayerAlias[]> GetMembers(int channelId)
+        {
+            Talo.IdentityCheck();
+
+            var uri = new Uri($"{baseUrl}/{channelId}/members");
+            var json = await Call(uri, "GET");
+
+            var res = JsonUtility.FromJson<ChannelsMembersResponse>(json);
+            return res.members;
+        }
     }
 }
