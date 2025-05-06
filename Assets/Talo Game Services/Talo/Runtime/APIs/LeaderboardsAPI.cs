@@ -6,6 +6,15 @@ using System.Linq;
 
 namespace TaloGameServices
 {
+    public class GetEntriesOptions
+    {
+        public int page = 0;
+        public int aliasId = -1;
+        public bool includeArchived = false;
+        public string propKey = "";
+        public string propValue = "";
+    }
+
     public class LeaderboardsAPI : BaseAPI
     {
         private LeaderboardEntriesManager _entriesManager = new();
@@ -24,9 +33,22 @@ namespace TaloGameServices
             return _entriesManager.GetEntries(internalName).FindAll(e => e.playerAlias.id == Talo.CurrentAlias.id);
         }
 
-        public async Task<LeaderboardEntriesResponse> GetEntries(string internalName, int page, int aliasId = -1, bool includeArchived = false)
+        private string BuildGetEntriesQueryParams(GetEntriesOptions options)
         {
-            var uri = new Uri($"{baseUrl}/{internalName}/entries?page={page}" + (aliasId != -1 ? $"&aliasId={aliasId}" : "") + (includeArchived ? "&withDeleted=1" : ""));
+            options ??= new GetEntriesOptions();
+
+            var query = new Dictionary<string, string> { ["page"] = options.page.ToString() };
+            if (options.aliasId != -1) query["aliasId"] = options.aliasId.ToString();
+            if (options.includeArchived) query["withDeleted"] = "1";
+            if (!string.IsNullOrEmpty(options.propKey)) query["propKey"] = options.propKey;
+            if (!string.IsNullOrEmpty(options.propValue)) query["propValue"] = options.propValue;
+
+            return string.Join("&", query.Select(x => $"{x.Key}={x.Value}"));
+        }
+
+        public async Task<LeaderboardEntriesResponse> GetEntries(string internalName, GetEntriesOptions options = null)
+        {
+            var uri = new Uri($"{baseUrl}/{internalName}/entries?{BuildGetEntriesQueryParams(options)}");
             var json = await Call(uri, "GET");
 
             var res = JsonUtility.FromJson<LeaderboardEntriesResponse>(json);
@@ -39,10 +61,28 @@ namespace TaloGameServices
             return res;
         }
 
+        [Obsolete("Use GetEntries(string internalName, GetEntriesOptions options) instead.")]
+        public async Task<LeaderboardEntriesResponse> GetEntries(string internalName, int page, int aliasId = -1, bool includeArchived = false)
+        {
+            return await GetEntries(internalName, new GetEntriesOptions
+            {
+                page = page,
+                aliasId = aliasId,
+                includeArchived = includeArchived
+            });
+        }
+
+        [Obsolete("Use GetEntries(string internalName, GetEntriesOptions options) and set options.aliasId = Talo.CurrentAlias.id instead.")]
         public async Task<LeaderboardEntriesResponse> GetEntriesForCurrentPlayer(string internalName, int page, bool includeArchived = false)
         {
             Talo.IdentityCheck();
-            return await GetEntries(internalName, page, Talo.CurrentAlias.id, includeArchived);
+
+            return await GetEntries(internalName, new GetEntriesOptions
+            {
+                page = page,
+                aliasId = Talo.CurrentAlias.id,
+                includeArchived = includeArchived
+            }); 
         }
 
         public async Task<(LeaderboardEntry, bool)> AddEntry(string internalName, float score, params (string, string)[] propTuples)
