@@ -75,7 +75,11 @@ namespace TaloGameServices.Sample.LeaderboardsDemo
             {
                 try
                 {
-                    var res = await Talo.Leaderboards.GetEntries(leaderboardName, page, includeArchived: includeArchived);
+                    var res = await Talo.Leaderboards.GetEntries(leaderboardName, new GetEntriesOptions() {
+                        page = page,
+                        includeArchived = includeArchived
+                    });
+
                     page++;
                     done = res.isLastPage;
                 }
