@@ -26,7 +26,7 @@ namespace TaloGameServices.Sample.Playground
             try
             {
                 int score = UnityEngine.Random.Range(0, 10000);
-                LeaderboardEntriesResponse res = await Talo.Leaderboards.GetEntries(leaderboardInternalName, page);
+                LeaderboardEntriesResponse res = await Talo.Leaderboards.GetEntries(leaderboardInternalName, new GetEntriesOptions() { page = page });
                 LeaderboardEntry[] entries = res.entries;
 
                 if (entries.Length == 0)
