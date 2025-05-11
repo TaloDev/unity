@@ -61,6 +61,16 @@ namespace TaloGameServices
             return res;
         }
 
+        public async Task<LeaderboardEntriesResponse> GetEntriesForCurrentPlayer(string internalName, GetEntriesOptions options = null)
+        {
+            Talo.IdentityCheck();
+
+            options ??= new GetEntriesOptions();
+            options.aliasId = Talo.CurrentAlias.id;
+
+            return await GetEntries(internalName, options);
+        }
+
         [Obsolete("Use GetEntries(string internalName, GetEntriesOptions options) instead.")]
         public async Task<LeaderboardEntriesResponse> GetEntries(string internalName, int page, int aliasId = -1, bool includeArchived = false)
         {
@@ -72,7 +82,7 @@ namespace TaloGameServices
             });
         }
 
-        [Obsolete("Use GetEntries(string internalName, GetEntriesOptions options) and set options.aliasId = Talo.CurrentAlias.id instead.")]
+        [Obsolete("Use GetEntriesForCurrentPlayer(string internalName, GetEntriesOptions options) instead.")]
         public async Task<LeaderboardEntriesResponse> GetEntriesForCurrentPlayer(string internalName, int page, bool includeArchived = false)
         {
             Talo.IdentityCheck();
