@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Threading.Tasks;
+using UnityEngine;
 
 namespace TaloGameServices
 {
@@ -20,9 +21,11 @@ namespace TaloGameServices
             PlayerPrefs.SetString("TaloSessionIdentifier", Talo.CurrentAlias.identifier);
         }
 
-        public void ClearSession()
+        public async Task ClearSession()
         {
+            Talo.CurrentAlias = null;
             PlayerPrefs.DeleteKey("TaloSessionToken");
+            await Talo.Socket.ResetConnection();
         }
 
         public string GetSessionToken()

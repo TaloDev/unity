@@ -116,5 +116,18 @@ namespace TaloGameServices
                 IdentifyPlayer();
             }
         }
+
+        public async Task ResetConnection()
+        {
+            if (!identified)
+            {
+                return;
+            }
+
+            CloseConnection();
+            socketAuthenticated = false;
+            identified = false;
+            await OpenConnection();
+        }
     }
 }
