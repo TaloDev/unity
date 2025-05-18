@@ -74,8 +74,7 @@ namespace TaloGameServices
             var uri = new Uri($"{baseUrl}/logout");
             await Call(uri, "POST");
 
-            _sessionManager.ClearSession();
-            Talo.CurrentAlias = null;
+            await _sessionManager.ClearSession();
         }
 
         public async Task ChangePassword(string currentPassword, string newPassword)
@@ -136,8 +135,7 @@ namespace TaloGameServices
             });
             await Call(uri, "DELETE", content);
 
-            _sessionManager.ClearSession();
-            Talo.CurrentAlias = null;
+            await _sessionManager.ClearSession();
         }
     }
 }

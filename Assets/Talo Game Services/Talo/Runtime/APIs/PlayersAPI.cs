@@ -21,6 +21,7 @@ namespace TaloGameServices
             var json = await Call(uri, "GET");
 
             var res = JsonUtility.FromJson<PlayersIdentifyResponse>(json);
+            await Talo.Socket.ResetConnection();
 
             Talo.CurrentAlias = res.alias;
             Talo.Socket.SetSocketToken(res.socketToken);
