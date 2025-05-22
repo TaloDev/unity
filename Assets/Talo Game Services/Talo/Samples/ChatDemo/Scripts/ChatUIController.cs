@@ -83,7 +83,7 @@ namespace TaloGameServices.Sample.ChatDemo
 
         private async void InitChannelsList()
         {
-            var res = await Talo.Channels.GetChannels(0);
+            var res = await Talo.Channels.GetChannels(new GetChannelsOptions { page = 0 });
 
             channelsList = root.Q<VisualElement>("channels");
             foreach (var channel in res.channels)

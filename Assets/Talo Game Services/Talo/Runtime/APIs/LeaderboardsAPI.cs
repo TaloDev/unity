@@ -13,6 +13,17 @@ namespace TaloGameServices
         public bool includeArchived = false;
         public string propKey = "";
         public string propValue = "";
+
+        public string ToQueryString()
+        {
+            var query = new Dictionary<string, string> { ["page"] = page.ToString() };
+            if (aliasId != -1) query["aliasId"] = aliasId.ToString();
+            if (includeArchived) query["withDeleted"] = "1";
+            if (!string.IsNullOrEmpty(propKey)) query["propKey"] = propKey;
+            if (!string.IsNullOrEmpty(propValue)) query["propValue"] = propValue;
+
+            return string.Join("&", query.Select((param) => $"{param.Key}={param.Value}"));
+        }
     }
 
     public class LeaderboardsAPI : BaseAPI
@@ -33,22 +44,11 @@ namespace TaloGameServices
             return _entriesManager.GetEntries(internalName).FindAll(e => e.playerAlias.id == Talo.CurrentAlias.id);
         }
 
-        private string BuildGetEntriesQueryParams(GetEntriesOptions options)
+        public async Task<LeaderboardEntriesResponse> GetEntries(string internalName, GetEntriesOptions options = null)
         {
             options ??= new GetEntriesOptions();
 
-            var query = new Dictionary<string, string> { ["page"] = options.page.ToString() };
-            if (options.aliasId != -1) query["aliasId"] = options.aliasId.ToString();
-            if (options.includeArchived) query["withDeleted"] = "1";
-            if (!string.IsNullOrEmpty(options.propKey)) query["propKey"] = options.propKey;
-            if (!string.IsNullOrEmpty(options.propValue)) query["propValue"] = options.propValue;
-
-            return string.Join("&", query.Select(x => $"{x.Key}={x.Value}"));
-        }
-
-        public async Task<LeaderboardEntriesResponse> GetEntries(string internalName, GetEntriesOptions options = null)
-        {
-            var uri = new Uri($"{baseUrl}/{internalName}/entries?{BuildGetEntriesQueryParams(options)}");
+            var uri = new Uri($"{baseUrl}/{internalName}/entries?{options.ToQueryString()}");
             var json = await Call(uri, "GET");
 
             var res = JsonUtility.FromJson<LeaderboardEntriesResponse>(json);

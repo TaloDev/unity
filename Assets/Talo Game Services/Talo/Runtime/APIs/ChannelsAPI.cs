@@ -1,11 +1,43 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using UnityEngine;
 
 namespace TaloGameServices
 {
-    public class ChannelsAPI: BaseAPI
+    public class GetChannelsOptions
+    {
+        public int page = 0;
+        public string propKey = "";
+        public string propValue = "";
+
+        public string ToQueryString()
+        {
+            var query = new Dictionary<string, string> { ["page"] = page.ToString() };
+            if (!string.IsNullOrEmpty(propKey)) query["propKey"] = propKey;
+            if (!string.IsNullOrEmpty(propValue)) query["propValue"] = propValue;
+
+            return string.Join("&", query.Select((param) => $"{param.Key}={param.Value}"));
+        }
+    }
+
+    public class GetSubscribedChannelsOptions
+    {
+        public string propKey = "";
+        public string propValue = "";
+
+        public string ToQueryString()
+        {
+            var query = new Dictionary<string, string>();
+            if (!string.IsNullOrEmpty(propKey)) query["propKey"] = propKey;
+            if (!string.IsNullOrEmpty(propValue)) query["propValue"] = propValue;
+
+            return string.Join("&", query.Select((param) => $"{param.Key}={param.Value}"));
+        }
+    }
+
+    public class ChannelsAPI : BaseAPI
     {
         public event Action<Channel, PlayerAlias, string> OnMessageReceived;
         public event Action<Channel, PlayerAlias> OnChannelJoined;
@@ -14,8 +46,10 @@ namespace TaloGameServices
         public event Action<Channel> OnChannelDeleted;
         public event Action<Channel, string[]> OnChannelUpdated;
 
-        public ChannelsAPI() : base("v1/game-channels") {
-            Talo.Socket.OnMessageReceived += (response) => {
+        public ChannelsAPI() : base("v1/game-channels")
+        {
+            Talo.Socket.OnMessageReceived += (response) =>
+            {
                 if (response.GetResponseType() == "v1.channels.message")
                 {
                     var data = response.GetData<ChannelMessageResponse>();
@@ -49,20 +83,30 @@ namespace TaloGameServices
             };
         }
 
-        public async Task<ChannelsIndexResponse> GetChannels(int page)
+        public async Task<ChannelsIndexResponse> GetChannels(GetChannelsOptions options = null)
         {
-            var uri = new Uri($"{baseUrl}?page={page}");
+            options ??= new GetChannelsOptions();
+
+            var uri = new Uri($"{baseUrl}?{options.ToQueryString()}");
             var json = await Call(uri, "GET");
 
             var res = JsonUtility.FromJson<ChannelsIndexResponse>(json);
             return res;
         }
 
-        public async Task<Channel[]> GetSubscribedChannels()
+        [Obsolete("Use GetChannels(GetChannelsOptions options) instead.")]
+        public async Task<ChannelsIndexResponse> GetChannels(int page)
+        {
+            return await GetChannels(new GetChannelsOptions { page = page });
+        }
+
+        public async Task<Channel[]> GetSubscribedChannels(GetSubscribedChannelsOptions options = null)
         {
             Talo.IdentityCheck();
 
-            var uri = new Uri($"{baseUrl}/subscriptions");
+            options ??= new GetSubscribedChannelsOptions();
+
+            var uri = new Uri($"{baseUrl}/subscriptions?{options.ToQueryString()}");
             var json = await Call(uri, "GET");
 
             var res = JsonUtility.FromJson<ChannelsSubscriptionsResponse>(json);
@@ -81,7 +125,8 @@ namespace TaloGameServices
             var props = propTuples.Select((propTuple) => new Prop(propTuple)).ToArray();
 
             var uri = new Uri(baseUrl);
-            var content = JsonUtility.ToJson(new ChannelsCreateRequest {
+            var content = JsonUtility.ToJson(new ChannelsCreateRequest
+            {
                 name = name,
                 autoCleanup = autoCleanup,
                 props = props,
