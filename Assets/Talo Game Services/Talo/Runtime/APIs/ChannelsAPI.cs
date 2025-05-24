@@ -37,6 +37,16 @@ namespace TaloGameServices
         }
     }
 
+    public class CreateChannelOptions
+    {
+        public string name;
+        public (string, string)[] props = Array.Empty<(string, string)>();
+
+        public bool autoCleanup = false;
+        public bool isPrivate = false;
+        public bool temporaryMembership = false;
+    }
+
     public class ChannelsAPI : BaseAPI
     {
         public event Action<Channel, PlayerAlias, string> OnMessageReceived;
@@ -113,24 +123,20 @@ namespace TaloGameServices
             return res.channels;
         }
 
-        private async Task<Channel> SendCreateChannelRequest(
-            string name,
-            bool autoCleanup = false,
-            bool isPrivate = false,
-            params (string, string)[] propTuples
-        )
+        private async Task<Channel> SendCreateChannelRequest(CreateChannelOptions options)
         {
             Talo.IdentityCheck();
 
-            var props = propTuples.Select((propTuple) => new Prop(propTuple)).ToArray();
+            var props = options.props.Select((propTuple) => new Prop(propTuple)).ToArray();
 
             var uri = new Uri(baseUrl);
             var content = JsonUtility.ToJson(new ChannelsCreateRequest
             {
-                name = name,
-                autoCleanup = autoCleanup,
+                name = options.name,
+                autoCleanup = options.autoCleanup,
                 props = props,
-                @private = isPrivate
+                @private = options.isPrivate,
+                temporaryMembership = options.temporaryMembership
             });
             var json = await Call(uri, "POST", content);
 
@@ -138,14 +144,36 @@ namespace TaloGameServices
             return res.channel;
         }
 
-        public async Task<Channel> Create(string name, bool autoCleanup = false, params (string, string)[] propTuples)
+        public async Task<Channel> Create(CreateChannelOptions options)
         {
-            return await SendCreateChannelRequest(name, autoCleanup, false, propTuples);
+            options ??= new CreateChannelOptions();
+            return await SendCreateChannelRequest(options);
         }
 
+        [Obsolete("Use Create(CreateChannelOptions options) instead.")]
+        public async Task<Channel> Create(string name, bool autoCleanup = false, params (string, string)[] propTuples)
+        {
+            var options = new CreateChannelOptions
+            {
+                name = name,
+                autoCleanup = autoCleanup,
+                props = propTuples,
+                isPrivate = false
+            };
+            return await SendCreateChannelRequest(options);
+        }
+
+        [Obsolete("Use Create(CreateChannelOptions options) instead.")]
         public async Task<Channel> CreatePrivate(string name, bool autoCleanup = false, params (string, string)[] propTuples)
         {
-            return await SendCreateChannelRequest(name, autoCleanup, true, propTuples);
+            var options = new CreateChannelOptions
+            {
+                name = name,
+                autoCleanup = autoCleanup,
+                props = propTuples,
+                isPrivate = true
+            };
+            return await SendCreateChannelRequest(options);
         }
 
         public async Task<Channel> Join(int channelId)
