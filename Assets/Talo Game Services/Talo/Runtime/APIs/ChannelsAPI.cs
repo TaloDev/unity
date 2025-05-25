@@ -41,7 +41,6 @@ namespace TaloGameServices
     {
         public string name;
         public (string, string)[] props = Array.Empty<(string, string)>();
-
         public bool autoCleanup = false;
         public bool isPrivate = false;
         public bool temporaryMembership = false;
