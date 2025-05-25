@@ -5,5 +5,12 @@ namespace TaloGameServices
     {
         public Channel channel;
         public PlayerAlias playerAlias;
+        public ChannelLeftResponseMetadata meta;
+    }
+
+    [System.Serializable]
+    public class ChannelLeftResponseMetadata
+    {
+        public ChannelLeavingReason reason;
     }
 }
