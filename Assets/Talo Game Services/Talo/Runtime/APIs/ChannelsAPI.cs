@@ -47,11 +47,17 @@ namespace TaloGameServices
         public bool temporaryMembership = false;
     }
 
+    public enum ChannelLeavingReason
+    {
+        Default,
+        TemporaryMembership
+    }
+
     public class ChannelsAPI : BaseAPI
     {
         public event Action<Channel, PlayerAlias, string> OnMessageReceived;
         public event Action<Channel, PlayerAlias> OnChannelJoined;
-        public event Action<Channel, PlayerAlias> OnChannelLeft;
+        public event Action<Channel, PlayerAlias, ChannelLeavingReason> OnChannelLeft;
         public event Action<Channel, PlayerAlias> OnOwnershipTransferred;
         public event Action<Channel> OnChannelDeleted;
         public event Action<Channel, string[]> OnChannelUpdated;
@@ -73,7 +79,7 @@ namespace TaloGameServices
                 else if (response.GetResponseType() == "v1.channels.left")
                 {
                     var data = response.GetData<ChannelLeftResponse>();
-                    OnChannelLeft?.Invoke(data.channel, data.playerAlias);
+                    OnChannelLeft?.Invoke(data.channel, data.playerAlias, data.meta.reason);
                 }
                 else if (response.GetResponseType() == "v1.channels.ownership-transferred")
                 {
