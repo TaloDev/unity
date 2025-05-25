@@ -7,5 +7,6 @@ namespace TaloGameServices
         public bool autoCleanup;
         public Prop[] props;
         public bool @private;
+        public bool temporaryMembership;
     }
 }
