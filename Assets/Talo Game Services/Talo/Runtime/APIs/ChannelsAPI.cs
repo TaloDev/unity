@@ -60,6 +60,10 @@ namespace TaloGameServices
         public event Action<Channel, PlayerAlias> OnOwnershipTransferred;
         public event Action<Channel> OnChannelDeleted;
         public event Action<Channel, string[]> OnChannelUpdated;
+        public event Action<Channel, ChannelStoragePropError[]> OnChannelStoragePropsFailedToSet;
+        public event Action<Channel, ChannelStorageProp[], ChannelStorageProp[]> OnChannelStoragePropsUpdated;
+
+        private ChannelStorageManager _storageManager = new ChannelStorageManager();
 
         public ChannelsAPI() : base("v1/game-channels")
         {
@@ -95,7 +99,14 @@ namespace TaloGameServices
                     var data = response.GetData<ChannelUpdatedResponse>();
                     OnChannelUpdated?.Invoke(data.channel, data.changedProperties);
                 }
+                else if (response.GetResponseType() == "v1.channels.storage.updated")
+                {
+                    var data = response.GetData<ChannelStorageUpdatedResponse>();
+                    OnChannelStoragePropsUpdated?.Invoke(data.channel, data.upsertedProps, data.deletedProps);
+                }
             };
+
+            OnChannelStoragePropsUpdated += _storageManager.OnPropsUpdated;
         }
 
         public async Task<ChannelsIndexResponse> GetChannels(GetChannelsOptions options = null)
@@ -271,6 +282,45 @@ namespace TaloGameServices
 
             var res = JsonUtility.FromJson<ChannelsMembersResponse>(json);
             return res.members;
+        }
+
+        public async Task<ChannelStorageProp> GetStorageProp(int channelId, string propKey, bool bustCache = false)
+        {
+            Talo.IdentityCheck();
+
+            if (!bustCache)
+            {
+                return await _storageManager.GetProp(channelId, propKey);
+            }
+
+            var uri = new Uri($"{baseUrl}/{channelId}/storage?propKey={propKey}");
+            var json = await Call(uri, "GET");
+
+            var res = JsonUtility.FromJson<ChannelStoragePropGetResponse>(json);
+            if (res.prop == null)
+            {
+                return null;
+            }
+
+            _storageManager.UpsertProp(channelId, res.prop);
+            return res.prop;
+        }
+
+        public async Task SetStorageProps(int channelId, params (string, string)[] propTuples)
+        {
+            Talo.IdentityCheck();
+
+            var props = propTuples.Select((propTuple) => new Prop(propTuple)).ToArray();
+            var content = JsonUtility.ToJson(new ChannelStoragePropsSetRequest { props = props });
+
+            var uri = new Uri($"{baseUrl}/{channelId}/storage");
+            var json = await Call(uri, "PUT", content);
+
+            var res = JsonUtility.FromJson<ChannelStoragePropsSetResponse>(json);
+            if (res.failedProps.Length > 0)
+            {
+                OnChannelStoragePropsFailedToSet?.Invoke(res.channel, res.failedProps);
+            }
         }
     }
 }

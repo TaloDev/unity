@@ -10,7 +10,7 @@ namespace TaloGameServices
         [SerializeField]
         private string _id = Guid.NewGuid().ToString();
 
-        private Dictionary<string, object> _savedFields = new Dictionary<string, object>();
+        private Dictionary<string, object> _savedFields = new ();
 
         public string Id => _id;
 
