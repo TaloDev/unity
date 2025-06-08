@@ -66,7 +66,7 @@ public class ChannelStorageDemoUIController : MonoBehaviour
             demoChannel = await Talo.Channels.Create(createOptions);
         }
 
-        await Talo.Players.Identify("temp", Guid.NewGuid().ToString());
+        await Talo.Players.Identify("temp_username", Guid.NewGuid().ToString());
         await Talo.Channels.Join(demoChannel.id);
 
         if (!string.IsNullOrEmpty(propKey))
