@@ -22,6 +22,7 @@ public class ChannelStorageDemoUIController : MonoBehaviour
     async void Start()
     {
         Talo.Channels.OnChannelStoragePropsUpdated += OnChannelStoragePropsUpdated;
+        Talo.Channels.OnChannelStoragePropsFailedToSet += OnChannelStoragePropsFailedToSet;
 
         SetupUI();
         await SetupDemoChannel();
@@ -101,6 +102,13 @@ public class ChannelStorageDemoUIController : MonoBehaviour
                 propLiveValueLabel.text = $"{prop.key} live value is: (deleted)";
                 propUpdatedLabel.text = $"{prop.key} was deleted by {(prop.lastUpdatedBy.id == Talo.CurrentAlias.id ? "you" : prop.lastUpdatedBy.identifier)} at {prop.updatedAt}.";
             }
+        }
+    }
+
+    private void OnChannelStoragePropsFailedToSet(Channel channel, ChannelStoragePropError[] errors) {
+        foreach (var prop in errors)
+        {
+            Debug.Log($"{prop.key}: {prop.error}");
         }
     }
 
