@@ -47,6 +47,7 @@ public class ChannelStorageDemoUIController : MonoBehaviour
     {
         propLiveValueLabel.text = "Set a prop to see live updates";
         propUpdatedLabel.text = "No prop key set";
+        await Talo.Players.Identify("temp_username", Guid.NewGuid().ToString());
 
         var res = await Talo.Channels.GetChannels(new GetChannelsOptions() { propKey = "channel-storage-demo" });
         if (res.channels.Count() > 0)
@@ -66,7 +67,6 @@ public class ChannelStorageDemoUIController : MonoBehaviour
             demoChannel = await Talo.Channels.Create(createOptions);
         }
 
-        await Talo.Players.Identify("temp_username", Guid.NewGuid().ToString());
         await Talo.Channels.Join(demoChannel.id);
 
         if (!string.IsNullOrEmpty(propKey))
