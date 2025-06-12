@@ -8,6 +8,8 @@ namespace TaloGameServices
 {
     public class BaseAPI
     {
+        private const string ClientVersion = "0.40.0";
+
         protected string baseUrl;
 
         public BaseAPI(string service)
@@ -28,7 +30,8 @@ namespace TaloGameServices
                 new HttpHeader("Content-Type", "application/json"),
                 new HttpHeader("Accept", "application/json"),
                 new HttpHeader("X-Talo-Dev-Build", Debug.isDebugBuild ? "1" : "0"),
-                new HttpHeader("X-Talo-Include-Dev-Data", Debug.isDebugBuild ? "1" : "0")
+                new HttpHeader("X-Talo-Include-Dev-Data", Debug.isDebugBuild ? "1" : "0"),
+                new HttpHeader("X-Talo-Client", $"unity:{ClientVersion}")
             };
 
             if (Talo.CurrentAlias != null)
