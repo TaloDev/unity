@@ -1,0 +1,42 @@
+#!/bin/bash
+
+cd "Assets/Talo Game Services/Talo"
+
+VERSION_FILE="VERSION"
+BASE_API_CS="Runtime/APIs/BaseAPI.cs"
+
+if [ ! -f "$VERSION_FILE" ]; then
+    echo "Error: $VERSION_FILE not found."
+    exit 1
+fi
+
+if [ ! -f "$BASE_API_CS" ]; then
+    echo "Error: $BASE_API_CS not found."
+    exit 1
+fi
+
+NEW_VERSION=$(head -n 1 "$VERSION_FILE")
+
+if [ -z "$NEW_VERSION" ]; then
+    echo "Error: could not extract version from $VERSION_FILE."
+    exit 1
+fi
+
+echo "Detected new version from $BASE_DIR/$VERSION_FILE: $NEW_VERSION"
+
+sed -i.bak -E "s/(ClientVersion[[:space:]]*=[[:space:]]*\")[^\"]+(\";)/\1$NEW_VERSION\2/" "$BASE_API_CS"
+
+if [ $? -ne 0 ]; then
+    echo "Error: Failed to update version in $BASE_API_CS."
+    rm -f "$BASE_API_CS.bak"
+    exit 1
+fi
+
+rm -f "$BASE_API_CS.bak"
+
+git add "$BASE_API_CS"
+
+echo "Successfully updated $BASE_API_CS with version $NEW_VERSION."
+echo "Pre-commit hook finished."
+
+exit 0
