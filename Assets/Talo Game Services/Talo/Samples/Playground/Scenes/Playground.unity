@@ -2006,9 +2006,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: 'Identify
-
-'
+  m_Text: Identify
 --- !u!222 &828856313
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -5067,7 +5065,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 97878412af55348cd93fdd4ef8ecf7e5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  statInternalName: 
 --- !u!1 &1989410050
 GameObject:
   m_ObjectHideFlags: 0
