@@ -97,7 +97,7 @@ namespace TaloGameServices
                 }
                 else
                 {
-                    if (www.responseCode >= 500 || www.result != UnityWebRequest.Result.ProtocolError)
+                    if (www.responseCode > 500 || www.result != UnityWebRequest.Result.ProtocolError)
                     {
                         Talo.Continuity.PushRequest(uri, method, content, headers, continuityTimestamp);
                     }
