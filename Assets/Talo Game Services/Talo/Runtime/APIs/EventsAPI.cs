@@ -10,8 +10,12 @@ namespace TaloGameServices
     {
         public event Action OnFlushed;
 
-        private List<Event> queue = new List<Event>();
+        private List<Event> queue = new ();
         private readonly int minQueueSize = 10;
+
+        private List<Event> eventsToFlush = new ();
+        private bool lockFlushes;
+        private bool flushAttemptedDuringLock;
 
         public EventsAPI() : base("v1/events") { }
 
@@ -77,23 +81,41 @@ namespace TaloGameServices
             Talo.IdentityCheck();
 
             var eventsToSend = queue.ToArray();
-            
-            if (eventsToSend.Length > 0)
+            if (eventsToSend.Length == 0)
             {
+                return;
+            }
+
+            if (lockFlushes)
+            {
+                flushAttemptedDuringLock = true;
+                return;
+            }
+
+            var uri = new Uri(baseUrl);
+            var content = JsonUtility.ToJson(new EventsPostRequest(eventsToSend));
+
+            try
+            {
+                lockFlushes = true;
+                eventsToFlush.AddRange(eventsToSend);
                 queue.Clear();
 
-                var uri = new Uri(baseUrl);
-                var content = JsonUtility.ToJson(new EventsPostRequest(eventsToSend));
+                await Call(uri, "POST", content);
+                OnFlushed.Invoke();
 
-                try
-                {
-                    await Call(uri, "POST", content);
-                    OnFlushed.Invoke();
-                }
-                catch (Exception err)
-                {
-                    Debug.LogError(err.Message);
-                }
+                eventsToFlush.Clear();
+                lockFlushes = false;
+            }
+            catch (Exception err)
+            {
+                Debug.LogError(err.Message);
+            }
+            
+            if (flushAttemptedDuringLock)
+            {
+                flushAttemptedDuringLock = false;
+                await Flush();
             }
         }
     }
