@@ -3,27 +3,27 @@ using UnityEngine;
 
 namespace TaloGameServices.Sample.Playground
 {
-    public class GetStat : MonoBehaviour
+    public class GetPlayerStat : MonoBehaviour
     {
         public string statInternalName;
 
         public void OnButtonClick()
         {
-            FetchStat();
+            FetchPlayerStat();
         }
 
-        private async void FetchStat()
+        private async void FetchPlayerStat()
         {
             if (string.IsNullOrEmpty(statInternalName))
             {
-                ResponseMessage.SetText("statInternalName not set on GetStatButton");
+                ResponseMessage.SetText("statInternalName not set on GetPlayerStatButton");
                 return;
             }
 
             try
             {
-                var res = await Talo.Stats.Find(statInternalName);
-                ResponseMessage.SetText($"{res.name} is{(res.global ? "" : " not")} a global stat, with a default value of {res.defaultValue}");
+                var res = await Talo.Stats.FindPlayerStat(statInternalName);
+                ResponseMessage.SetText($"{statInternalName} value: {(res == null ? "not set" : res.value)}, last updated: {res?.updatedAt ?? "never"}");
             }
             catch (Exception err)
             {

@@ -18,13 +18,30 @@ namespace TaloGameServices
             return res.stats;
         }
 
+        [Obsolete("Use Find(string internalName) instead.")]
         public async Task<Stat> GetStat(string internalName)
+        {
+            return await Find(internalName);
+        }
+
+        public async Task<Stat> Find(string internalName)
         {
             var uri = new Uri($"{baseUrl}/{internalName}");
             var json = await Call(uri, "GET");
 
             var res = JsonUtility.FromJson<StatResponse>(json);
             return res.stat;
+        }
+
+        public async Task<PlayerStat> FindPlayerStat(string internalName)
+        {
+            Talo.IdentityCheck();
+
+            var uri = new Uri($"{baseUrl}/{internalName}/player-stat");
+
+            var json = await Call(uri, "GET");
+            var res = JsonUtility.FromJson<PlayerStatResponse>(json);
+            return res.playerStat;
         }
 
         public async Task<StatsPutResponse> Track(string internalName, float change = 1f)
