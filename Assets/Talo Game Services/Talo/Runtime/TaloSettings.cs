@@ -16,5 +16,9 @@ namespace TaloGameServices
         public bool offlineMode = false;
         [Tooltip("Whether to automatically connect to the Talo socket when the game starts")]
         public bool autoConnectSocket = true;
+        [Tooltip("Enable request logs in Debug builds")]
+        public bool logRequests = true;
+        [Tooltip("Enable response logs in Debug builds")]
+        public bool logResponses = true;
     }
 }

@@ -67,6 +67,11 @@ namespace TaloGameServices
 
             var allHeaders = continuity ? headers : BuildHeaders();
 
+            if (Talo.Settings.logRequests && Debug.isDebugBuild)
+            {
+                Debug.Log($"<-- {method} {uri}{(continuity ? " [CONTINUITY]" : "")} {content}");
+            }
+
             if (Talo.Settings.offlineMode)
             {
                 return HandleOfflineRequest(uri, method, content, allHeaders);
@@ -89,6 +94,11 @@ namespace TaloGameServices
                 while (!op.isDone)
                 {
                     await Task.Yield();
+                }
+
+                if (Talo.Settings.logResponses && Debug.isDebugBuild)
+                {
+                    Debug.Log($"--> {method} {uri} [{www.responseCode}] {www.downloadHandler.text}");
                 }
 
                 if (www.result == UnityWebRequest.Result.Success)
