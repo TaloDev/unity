@@ -8,11 +8,6 @@ namespace TaloGameServices.Sample.AuthenticationDemo
     {
         private VisualElement root;
 
-        private void Awake()
-        {
-            Talo.PlayerAuth.SessionManager.CheckForSession();
-        }
-
         private void OnEnable()
         {
             root = GetComponent<UIDocument>().rootVisualElement;

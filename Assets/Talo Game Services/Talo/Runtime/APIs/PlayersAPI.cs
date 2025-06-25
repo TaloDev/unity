@@ -7,6 +7,8 @@ namespace TaloGameServices
     public class PlayersAPI : BaseAPI
     {
         public event Action<Player> OnIdentified;
+        public event Action OnIdentificationStarted;
+        public event Action OnIdentificationFailed;
 
         public PlayersAPI() : base("v1/players") { }
 
@@ -17,17 +19,32 @@ namespace TaloGameServices
 
         public async Task<Player> Identify(string service, string identifier)
         {
+            OnIdentificationStarted?.Invoke();
             var uri = new Uri($"{baseUrl}/identify?service={service}&identifier={identifier}");
-            var json = await Call(uri, "GET");
 
-            var res = JsonUtility.FromJson<PlayersIdentifyResponse>(json);
-            await Talo.Socket.ResetConnection();
+            try
+            {
+                var json = await Call(uri, "GET");
 
-            Talo.CurrentAlias = res.alias;
-            Talo.Socket.SetSocketToken(res.socketToken);
-            InvokeIdentifiedEvent();
+                var res = JsonUtility.FromJson<PlayersIdentifyResponse>(json);
+                await Talo.Socket.ResetConnection();
 
-            return Talo.CurrentPlayer;
+                Talo.CurrentAlias = res.alias;
+                Talo.Socket.SetSocketToken(res.socketToken);
+                InvokeIdentifiedEvent();
+
+                return Talo.CurrentPlayer;
+            }
+            catch (Exception err)
+            {
+                if (!Talo.IsOffline())
+                {
+                    await Talo.PlayerAuth.SessionManager.ClearSession();
+                }
+
+                OnIdentificationFailed?.Invoke();
+                throw err;
+            }
         }
 
         public async Task<Player> IdentifySteam(string ticket, string identity = "")

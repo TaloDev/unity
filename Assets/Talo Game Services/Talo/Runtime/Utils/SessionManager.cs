@@ -38,12 +38,9 @@ namespace TaloGameServices
             return PlayerPrefs.GetString("TaloSessionIdentifier");
         }
 
-        public async void CheckForSession()
+        public bool CheckForSession()
         {
-            if (!string.IsNullOrEmpty(GetSessionToken()))
-            {
-                await Talo.Players.Identify("talo", GetSessionIdentifier());
-            }
+            return !string.IsNullOrEmpty(GetSessionToken());
         }
     }
 }
