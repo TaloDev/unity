@@ -35,7 +35,7 @@ namespace TaloGameServices
 
                 return Talo.CurrentPlayer;
             }
-            catch (Exception err)
+            catch
             {
                 if (!Talo.IsOffline())
                 {
@@ -43,7 +43,7 @@ namespace TaloGameServices
                 }
 
                 OnIdentificationFailed?.Invoke();
-                throw err;
+                throw;
             }
         }
 
