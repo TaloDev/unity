@@ -62,8 +62,10 @@ namespace TaloGameServices
         public void PushRequest(Uri uri, string method, string content, List<HttpHeader> headers, long timestamp)
         {
             if (!Talo.Settings.continuityEnabled) return;
-
             if (Array.Exists(_excludedEndpoints, (e) => uri.AbsolutePath.Contains(e))) return;
+
+            var allowedMethods = new[] { "POST", "PUT", "PATCH", "DELETE" };
+            if (!Array.Exists(allowedMethods, (m) => m == method)) return;
 
             _requests.Add(new Request
             {

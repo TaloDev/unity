@@ -173,6 +173,11 @@ namespace TaloGameServices
             _playerPresence = new PlayerPresenceAPI();
 
             tm.OnReady();
+
+            if (Settings.autoStartSession)
+            {
+                _playerAuth.StartSession();
+            }
         }
 
         public static bool HasIdentity()

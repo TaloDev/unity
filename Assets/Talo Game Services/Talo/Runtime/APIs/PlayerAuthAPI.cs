@@ -9,8 +9,24 @@ namespace TaloGameServices
         private SessionManager _sessionManager = new();
 
         public SessionManager SessionManager => _sessionManager;
+        
+        public event Action OnSessionFound;
+        public event Action OnSessionNotFound;
 
         public PlayerAuthAPI() : base("v1/players/auth") {}
+
+        public void StartSession()
+        {
+            if (_sessionManager.CheckForSession())
+            {
+                OnSessionFound?.Invoke();
+                _ = Talo.Players.Identify("talo", _sessionManager.GetSessionIdentifier());
+            }
+            else
+            {
+                OnSessionNotFound?.Invoke();
+            }
+        }
 
         public async Task Register(string identifier, string password, string email = "", bool verificationEnabled = false)
         {
@@ -20,7 +36,8 @@ namespace TaloGameServices
             }
 
             var uri = new Uri($"{baseUrl}/register");
-            string content = JsonUtility.ToJson(new PlayerAuthRegisterRequest {
+            string content = JsonUtility.ToJson(new PlayerAuthRegisterRequest
+            {
                 identifier = identifier,
                 password = password,
                 email = email,

@@ -9,7 +9,7 @@ namespace TaloGameServices
     public class BaseAPI
     {
         // automatically updated with a pre-commit hook
-        private const string ClientVersion = "0.41.0";
+        private const string ClientVersion = "0.42.0";
 
         protected string baseUrl;
 
@@ -67,6 +67,11 @@ namespace TaloGameServices
 
             var allHeaders = continuity ? headers : BuildHeaders();
 
+            if (Talo.Settings.logRequests && Debug.isDebugBuild)
+            {
+                Debug.Log($"<-- {method} {uri}{(continuity ? " [CONTINUITY]" : "")} {content}");
+            }
+
             if (Talo.Settings.offlineMode)
             {
                 return HandleOfflineRequest(uri, method, content, allHeaders);
@@ -91,13 +96,18 @@ namespace TaloGameServices
                     await Task.Yield();
                 }
 
+                if (Talo.Settings.logResponses && Debug.isDebugBuild)
+                {
+                    Debug.Log($"--> {method} {uri} [{www.responseCode}] {www.downloadHandler.text}");
+                }
+
                 if (www.result == UnityWebRequest.Result.Success)
                 {
                     return www.downloadHandler.text;
                 }
                 else
                 {
-                    if (www.responseCode >= 500 || www.result != UnityWebRequest.Result.ProtocolError)
+                    if (www.responseCode > 500 || www.result != UnityWebRequest.Result.ProtocolError)
                     {
                         Talo.Continuity.PushRequest(uri, method, content, headers, continuityTimestamp);
                     }

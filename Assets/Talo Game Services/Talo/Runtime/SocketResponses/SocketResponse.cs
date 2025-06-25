@@ -1,8 +1,9 @@
+using System;
 using UnityEngine;
 
 namespace TaloGameServices
 {
-    [System.Serializable]
+    [Serializable]
     public class SocketResponse
     {
         private class SocketMessage<T>
@@ -13,20 +14,28 @@ namespace TaloGameServices
 
         public string message;
 
-        public SocketResponse(string message) 
+        public SocketResponse(string message)
         {
             this.message = message;
         }
 
         public string GetResponseType()
         {
-            var message = JsonUtility.FromJson<SocketMessage<object>>(this.message);
-            return message.res;
+            var json = JsonUtility.FromJson<SocketMessage<object>>(message);
+            return json.res;
         }
 
         public T GetData<T>()
         {
             return JsonUtility.FromJson<SocketMessage<T>>(message).data;
+        }
+
+        public object GetJsonData()
+        {
+            var json = message.Substring(1, message.Length - 2) // remove the curly braces
+                .Replace("\"res\":\"" + GetResponseType() + "\",", "") // remove the response type
+                .Replace("\"data\":", ""); // remove the data key, only keep the value
+            return json;
         }
     }
 }

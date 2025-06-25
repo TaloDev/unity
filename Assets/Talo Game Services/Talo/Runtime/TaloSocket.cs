@@ -43,6 +43,11 @@ namespace TaloGameServices
             var res = response.GetResponseType();
             OnMessageReceived?.Invoke(response);
 
+            if (Talo.Settings.logResponses && Debug.isDebugBuild)
+            {
+                Debug.Log($"--> WSS {res} {response.GetJsonData()}");
+            }
+
             switch (res)
             {
                 case "v1.connected":
@@ -83,7 +88,13 @@ namespace TaloGameServices
 
         public void Send<T>(SocketRequest<T> request)
         {
-            socket.AddOutgoingMessage(JsonUtility.ToJson(request));
+            var data = JsonUtility.ToJson(request);
+
+            if (Talo.Settings.logRequests && Debug.isDebugBuild)
+            {
+                Debug.Log($"<-- WSS {request.req} {data}");
+            }
+            socket.AddOutgoingMessage(data);
         }
 
         private void IdentifyPlayer()
