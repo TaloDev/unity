@@ -39,7 +39,7 @@ You'll need to init the submodules after cloning: `git submodule update --init`.
 ## Samples included with the package
 
 - 🕹️ Leaderboards: a basic leaderboard UI, allowing you to add and update entries.
-- 💾 Game saves: a basic saves UI, allowing you to load, create and update saves.
+- 💾 Game saves: a basic saves UI, allowing you to load, create and update saves across multiple levels.
 - 🔒 Authentication: a registration/login flow, showing how to create player accounts and authenticate them.
 - 🎮 Playground: a text-based playground allowing you to test identifying, events, stats and leaderboards.
 - 💬 Chat: showing how to send messages between channels in a chat room.
