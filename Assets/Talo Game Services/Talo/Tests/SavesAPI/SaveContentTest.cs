@@ -52,7 +52,7 @@ namespace TaloGameServices.Test
             var loadable = new GameObject("First Loadable").AddComponent<PositionedLoadable>();
             loadable.transform.position = new Vector3(88, -20, 6);
 
-            var content = new SaveContent(api._registeredLoadables);
+            var content = new SaveContent(api.contentManager.savedObjects);
             Assert.AreEqual(1, content.objects.Length);
 
             Assert.AreEqual(loadable.Id, content.objects[0].id);
@@ -86,7 +86,7 @@ namespace TaloGameServices.Test
 
             Object.DestroyImmediate(destroyedLoadable.gameObject);
 
-            var content = new SaveContent(api._registeredLoadables);
+            var content = new SaveContent(api.contentManager.savedObjects);
             Assert.AreEqual(2, content.objects.Length);
 
             Assert.AreEqual(activeLoadable.Id, content.objects[0].id);
@@ -120,7 +120,7 @@ namespace TaloGameServices.Test
             loadable.transform.parent = parent.transform;
             var id = loadable.AddComponent<PositionedLoadable>().Id;
 
-            var content = new SaveContent(api._registeredLoadables);
+            var content = new SaveContent(api.contentManager.savedObjects);
             Assert.AreEqual(1, content.objects.Length);
 
             Assert.AreEqual(id, content.objects[0].id);

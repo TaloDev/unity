@@ -34,9 +34,9 @@ namespace TaloGameServices.Test
             var api = new SavesAPI();
             Talo._saves = api;
 
-            api._allSaves.Add(new GameSave() { id = 1, name = "Save 1" });
-            api._allSaves.Add(new GameSave() { id = 2, name = "Save 2" });
-            api.WriteOfflineSavesContent(new OfflineSavesContent(api._allSaves.ToArray()));
+            api.savesManager._allSaves.Add(new GameSave() { id = 1, name = "Save 1" });
+            api.savesManager._allSaves.Add(new GameSave() { id = 2, name = "Save 2" });
+            api.savesManager.WriteOfflineSavesContent(new OfflineSavesContent(api.savesManager._allSaves.ToArray()));
 
             var eventMock = new ChosenEventMock();
             api.OnSaveChosen += eventMock.Invoke;
@@ -47,8 +47,8 @@ namespace TaloGameServices.Test
             Assert.AreEqual(1, api.All.Length);
             Assert.AreEqual("Save 2", api.All[0].name);
 
-            Assert.AreEqual(1, api.GetOfflineSavesContent().saves.Length);
-            Assert.AreEqual("Save 2", api.GetOfflineSavesContent().saves[0].name);
+            Assert.AreEqual(1, api.savesManager.GetOfflineSavesContent().saves.Length);
+            Assert.AreEqual("Save 2", api.savesManager.GetOfflineSavesContent().saves[0].name);
 
             Assert.AreEqual(null, eventMock.chosenSave);
             api.OnSaveChosen -= eventMock.Invoke;
@@ -64,9 +64,9 @@ namespace TaloGameServices.Test
             var api = new SavesAPI();
             Talo._saves = api;
 
-            api._allSaves.Add(new GameSave() { id = -1, name = "Save 1" });
-            api._allSaves.Add(new GameSave() { id = -2, name = "Save 2" });
-            api.WriteOfflineSavesContent(new OfflineSavesContent(api._allSaves.ToArray()));
+            api.savesManager._allSaves.Add(new GameSave() { id = -1, name = "Save 1" });
+            api.savesManager._allSaves.Add(new GameSave() { id = -2, name = "Save 2" });
+            api.savesManager.WriteOfflineSavesContent(new OfflineSavesContent(api.savesManager._allSaves.ToArray()));
 
             var eventMock = new ChosenEventMock();
             api.OnSaveChosen += eventMock.Invoke;
@@ -76,8 +76,8 @@ namespace TaloGameServices.Test
             Assert.AreEqual(1, api.All.Length);
             Assert.AreEqual("Save 1", api.All[0].name);
 
-            Assert.AreEqual(1, api.GetOfflineSavesContent().saves.Length);
-            Assert.AreEqual("Save 1", api.GetOfflineSavesContent().saves[0].name);
+            Assert.AreEqual(1, api.savesManager.GetOfflineSavesContent().saves.Length);
+            Assert.AreEqual("Save 1", api.savesManager.GetOfflineSavesContent().saves[0].name);
 
             Assert.AreEqual(null, eventMock.chosenSave);
             api.OnSaveChosen -= eventMock.Invoke;

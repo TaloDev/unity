@@ -1,8 +1,15 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
-    <Style src="project://database/Assets/Samples/SavesDemo/UI/SavesUI.uss?fileID=7433441132597879392&amp;guid=ec88216832605476ca23cbb98e4edd72&amp;type=3#SavesUI" />
-    <ui:VisualElement style="align-items: flex-end; justify-content: flex-end; flex-grow: 1; margin-right: 16px; margin-bottom: 16px;">
-        <ui:Label text="Save name" display-tooltip-when-elided="true" name="save-name" style="position: absolute; left: 16px; top: 16px; padding-left: 0; padding-right: 0; padding-top: 0; padding-bottom: 0; -unity-font-style: bold; font-size: 16px; color: rgba(255, 255, 255, 255);" />
-        <ui:Button text="Save" display-tooltip-when-elided="true" name="update-btn" style="width: 200px;" />
-        <ui:Button text="Menu" display-tooltip-when-elided="true" name="back-btn" style="width: 200px;" />
+    <Style src="project://database/Assets/Talo%20Game%20Services/Talo/Samples/SavesDemo/UI/SavesUI.uss?fileID=7433441132597879392&amp;guid=ec88216832605476ca23cbb98e4edd72&amp;type=3#SavesUI" />
+    <ui:VisualElement style="align-items: flex-end; justify-content: flex-end; flex-grow: 1; margin-right: 16px; margin-bottom: 16px; margin-top: 16px; margin-left: 16px;">
+        <ui:Label text="Save name" display-tooltip-when-elided="true" name="save-name" style="position: absolute; left: 0; top: 0; padding-left: 0; padding-right: 0; padding-top: 0; padding-bottom: 0; -unity-font-style: bold; font-size: 20px; color: rgb(255, 255, 255); margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0;" />
+        <ui:VisualElement style="flex-grow: 1; flex-direction: row; align-items: flex-end; justify-content: flex-end; flex-shrink: 0; width: 100%; flex-wrap: nowrap;">
+            <ui:Button text="Save" display-tooltip-when-elided="true" name="update-btn" style="width: 160px; margin-top: 0; margin-left: 0;" />
+            <ui:VisualElement style="flex-grow: 0; position: absolute; left: 0; bottom: 0; flex-direction: row; flex-basis: auto;">
+                <ui:Button text="Menu" display-tooltip-when-elided="true" name="back-btn" style="width: 160px; margin-top: 0; margin-left: 0;" />
+                <ui:Button text="Level 1" display-tooltip-when-elided="true" name="go-to-level-1" style="width: 160px; margin-top: 0; padding-top: 16px; padding-right: 12px; padding-bottom: 16px; margin-left: 16px;" />
+                <ui:Button text="Level 2" display-tooltip-when-elided="true" name="go-to-level-2" style="width: 160px; margin-top: 0; margin-left: 16px;" />
+                <ui:Button text="Level 3" display-tooltip-when-elided="true" name="go-to-level-3" style="width: 160px; margin-top: 0; margin-left: 16px;" />
+            </ui:VisualElement>
+        </ui:VisualElement>
     </ui:VisualElement>
 </ui:UXML>

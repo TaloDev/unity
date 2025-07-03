@@ -17,6 +17,7 @@ namespace TaloGameServices
         public void OnReady()
         {
             Talo.Events.OnFlushed += ResetFlushTimer;
+            Talo.Saves.Setup();
         }
 
         private void OnDisable()
