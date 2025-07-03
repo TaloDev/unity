@@ -4,6 +4,6 @@
     public class SavesPatchRequest
     {
         public string name;
-        public string content;
+        public SaveContent content;
     }
 }

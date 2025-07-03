@@ -34,12 +34,18 @@ namespace TaloGameServices.Test
             var api = new SavesAPI();
             Talo._saves = api;
 
-            api._allSaves.Add(new GameSave() { id = 1, name = "Online Save" });
-            api.WriteOfflineSavesContent(new OfflineSavesContent(api._allSaves.ToArray()));
+            api.savesManager._allSaves.Add(new GameSave() { id = 1, name = "Online Save" });
+            api.savesManager.WriteOfflineSavesContent(new OfflineSavesContent(api.savesManager._allSaves.ToArray()));
 
             RequestMock.ReplyOnce(new Uri(api.GetUri() + "/1"), "PATCH", JsonUtility.ToJson(new SavesPostResponse
             {
-                save = new GameSave { id = 1, name = "Online Save", content = "updated", updatedAt = "2022-10-30T21:23:30.977Z" }
+                save = new GameSave
+                {
+                    id = 1,
+                    name = "Online Save",
+                    content = JsonUtility.FromJson<SaveContent>("updated"),
+                    updatedAt = "2022-10-30T21:23:30.977Z"
+                }
             }));
             _ = api.UpdateSave(1);
 
@@ -47,9 +53,9 @@ namespace TaloGameServices.Test
             Assert.AreEqual("Online Save", api.All[0].name);
             Assert.AreEqual("updated", api.All[0].content);
 
-            Assert.AreEqual(1, api.GetOfflineSavesContent().saves.Length);
-            Assert.AreEqual("Online Save", api.GetOfflineSavesContent().saves[0].name);
-            Assert.AreEqual("updated", api.GetOfflineSavesContent().saves[0].content);
+            Assert.AreEqual(1, api.savesManager.GetOfflineSavesContent().saves.Length);
+            Assert.AreEqual("Online Save", api.savesManager.GetOfflineSavesContent().saves[0].name);
+            Assert.AreEqual("updated", api.savesManager.GetOfflineSavesContent().saves[0].content);
 
             yield return null;
         }
@@ -60,20 +66,26 @@ namespace TaloGameServices.Test
             var api = new SavesAPI();
             Talo._saves = api;
 
-            api._allSaves.Add(new GameSave() { id = 1, name = "Online Save" });
-            api.WriteOfflineSavesContent(new OfflineSavesContent(api._allSaves.ToArray()));
+            api.savesManager._allSaves.Add(new GameSave() { id = 1, name = "Online Save" });
+            api.savesManager.WriteOfflineSavesContent(new OfflineSavesContent(api.savesManager._allSaves.ToArray()));
 
             RequestMock.ReplyOnce(new Uri(api.GetUri() + "/1"), "PATCH", JsonUtility.ToJson(new SavesPostResponse
             {
-                save = new GameSave { id = 1, name = "New Name", content = "", updatedAt = "2022-10-30T21:23:30.977Z" }
+                save = new GameSave
+                {
+                    id = 1,
+                    name = "New Name",
+                    content = JsonUtility.FromJson<SaveContent>(""),
+                    updatedAt = "2022-10-30T21:23:30.977Z"
+                }
             }));
             _ = api.UpdateSave(1);
 
             Assert.AreEqual(1, api.All.Length);
             Assert.AreEqual("New Name", api.All[0].name);
 
-            Assert.AreEqual(1, api.GetOfflineSavesContent().saves.Length);
-            Assert.AreEqual("New Name", api.GetOfflineSavesContent().saves[0].name);
+            Assert.AreEqual(1, api.savesManager.GetOfflineSavesContent().saves.Length);
+            Assert.AreEqual("New Name", api.savesManager.GetOfflineSavesContent().saves[0].name);
 
             yield return null;
         }
@@ -86,16 +98,16 @@ namespace TaloGameServices.Test
             var api = new SavesAPI();
             Talo._saves = api;
 
-            api._allSaves.Add(new GameSave() { id = -1, name = "Offline Save" });
-            api.WriteOfflineSavesContent(new OfflineSavesContent(api._allSaves.ToArray()));
+            api.savesManager._allSaves.Add(new GameSave() { id = -1, name = "Offline Save" });
+            api.savesManager.WriteOfflineSavesContent(new OfflineSavesContent(api.savesManager._allSaves.ToArray()));
 
             _ = api.UpdateSave(-1);
 
             Assert.AreEqual(1, api.All.Length);
             Assert.AreEqual("Offline Save", api.All[0].name);
 
-            Assert.AreEqual(1, api.GetOfflineSavesContent().saves.Length);
-            Assert.AreEqual("Offline Save", api.GetOfflineSavesContent().saves[0].name);
+            Assert.AreEqual(1, api.savesManager.GetOfflineSavesContent().saves.Length);
+            Assert.AreEqual("Offline Save", api.savesManager.GetOfflineSavesContent().saves[0].name);
 
             yield return null;
         }
@@ -108,16 +120,16 @@ namespace TaloGameServices.Test
             var api = new SavesAPI();
             Talo._saves = api;
 
-            api._allSaves.Add(new GameSave() { id = -1, name = "Offline Save" });
-            api.WriteOfflineSavesContent(new OfflineSavesContent(api._allSaves.ToArray()));
+            api.savesManager._allSaves.Add(new GameSave() { id = -1, name = "Offline Save" });
+            api.savesManager.WriteOfflineSavesContent(new OfflineSavesContent(api.savesManager._allSaves.ToArray()));
 
             _ = api.UpdateSave(-1, "New Name");
 
             Assert.AreEqual(1, api.All.Length);
             Assert.AreEqual("New Name", api.All[0].name);
 
-            Assert.AreEqual(1, api.GetOfflineSavesContent().saves.Length);
-            Assert.AreEqual("New Name", api.GetOfflineSavesContent().saves[0].name);
+            Assert.AreEqual(1, api.savesManager.GetOfflineSavesContent().saves.Length);
+            Assert.AreEqual("New Name", api.savesManager.GetOfflineSavesContent().saves[0].name);
 
             yield return null;
         }

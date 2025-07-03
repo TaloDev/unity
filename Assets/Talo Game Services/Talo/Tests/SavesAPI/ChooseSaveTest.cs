@@ -45,16 +45,16 @@ namespace TaloGameServices.Test
             var loadable2 = new GameObject("Second Loadable").AddComponent<PositionedLoadable>();
             loadable2.transform.position = loadable2Pos = new Vector3(-4, 105, 71);
 
-            var loadables = new List<LoadableData>
+            var savedObjects = new Dictionary<string, SavedObject>
             {
-                new LoadableData(loadable1),
-                new LoadableData(loadable2)
+                { loadable1.Id, new SavedObject(loadable1.Id, loadable1.GetPath(), loadable1.GetLatestData()) },
+                { loadable2.Id, new SavedObject(loadable2.Id, loadable2.GetPath(), loadable2.GetLatestData()) }
             };
 
-            api._allSaves.Add(new GameSave() {
+            api.savesManager._allSaves.Add(new GameSave() {
                 id = 1,
                 name = "Save",
-                content = JsonUtility.ToJson(new SaveContent(loadables))
+                content = new SaveContent(savedObjects)
             });
 
             loadable1.transform.position = Vector3.zero;
