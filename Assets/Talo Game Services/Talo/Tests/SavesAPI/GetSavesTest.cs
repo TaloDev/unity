@@ -42,6 +42,8 @@ namespace TaloGameServices.Test
         public IEnumerator GetSaves_InOnlineMode_ReturnsAnArrayOfSaves()
         {
             var api = new SavesAPI();
+            Talo._saves = api;
+            api.Setup();
 
             var eventMock = new LoadedEventMock();
             api.OnSavesLoaded += eventMock.Invoke; 
@@ -77,6 +79,8 @@ namespace TaloGameServices.Test
             RequestMock.Offline = true;
 
             var api = new SavesAPI();
+            Talo._saves = api;
+            api.Setup();
 
             var eventMock = new LoadedEventMock();
             api.OnSavesLoaded += eventMock.Invoke;
@@ -98,6 +102,9 @@ namespace TaloGameServices.Test
             RequestMock.Offline = true;
 
             var api = new SavesAPI();
+            Talo._saves = api;
+            api.Setup();
+
             _ = api.CreateSave("Offline Save");
 
             var eventMock = new LoadedEventMock();
@@ -121,6 +128,8 @@ namespace TaloGameServices.Test
         public IEnumerator GetSaves_InOnlineMode_PrefersTheLastUpdatedSaveIfTwoWithTheSameIDExist()
         {
             var api = new SavesAPI();
+            Talo._saves = api;
+            api.Setup();
 
             var eventMock = new LoadedEventMock();
             api.OnSavesLoaded += eventMock.Invoke;
@@ -167,6 +176,8 @@ namespace TaloGameServices.Test
         public IEnumerator GetSaves_InOnlineMode_ReplacesTheOnlineSaveIfTheOfflineVersionIsNewer()
         {
             var api = new SavesAPI();
+            Talo._saves = api;
+            api.Setup();
 
             var eventMock = new LoadedEventMock();
             api.OnSavesLoaded += eventMock.Invoke;

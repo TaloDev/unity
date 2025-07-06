@@ -33,7 +33,7 @@ namespace TaloGameServices
             }
             else
             {
-                var savedObject = new SavedObject(loadable.Id, loadable.name, loadable.GetLatestData());
+                var savedObject = new SavedObject(loadable.Id, loadable.GetPath(), loadable.GetLatestData());
                 savedObject.RegisterLoadable(loadable, false); // no need to hydrate, the data will match
                 savedObjects[loadable.Id] = savedObject;
             }

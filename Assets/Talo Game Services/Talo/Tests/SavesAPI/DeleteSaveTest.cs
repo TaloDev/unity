@@ -33,6 +33,7 @@ namespace TaloGameServices.Test
         {
             var api = new SavesAPI();
             Talo._saves = api;
+            api.Setup();
 
             api.savesManager._allSaves.Add(new GameSave() { id = 1, name = "Save 1" });
             api.savesManager._allSaves.Add(new GameSave() { id = 2, name = "Save 2" });
@@ -63,6 +64,7 @@ namespace TaloGameServices.Test
 
             var api = new SavesAPI();
             Talo._saves = api;
+            api.Setup();
 
             api.savesManager._allSaves.Add(new GameSave() { id = -1, name = "Save 1" });
             api.savesManager._allSaves.Add(new GameSave() { id = -2, name = "Save 2" });

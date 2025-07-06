@@ -42,6 +42,7 @@ namespace TaloGameServices.Test
         {
             var api = new SavesAPI();
             Talo._saves = api;
+            api.Setup();
 
             api.savesManager._allSaves.Add(new GameSave() { name = "Existing Online Save" });
             api.savesManager.WriteOfflineSavesContent(new OfflineSavesContent(api.savesManager._allSaves.ToArray()));
@@ -77,6 +78,7 @@ namespace TaloGameServices.Test
 
             var api = new SavesAPI();
             Talo._saves = api;
+            api.Setup();
 
             api.savesManager._allSaves.Add(new GameSave() { id = -1, name = "Existing Offline Save" });
             api.savesManager.WriteOfflineSavesContent(new OfflineSavesContent(api.savesManager._allSaves.ToArray()));

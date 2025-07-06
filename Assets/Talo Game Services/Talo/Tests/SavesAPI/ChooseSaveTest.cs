@@ -37,6 +37,7 @@ namespace TaloGameServices.Test
         {
             var api = new SavesAPI();
             Talo._saves = api;
+            api.Setup();
 
             Vector3 loadable1Pos, loadable2Pos;
 

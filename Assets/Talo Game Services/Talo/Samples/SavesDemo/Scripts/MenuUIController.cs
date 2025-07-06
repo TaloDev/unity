@@ -53,8 +53,7 @@ namespace TaloGameServices.Sample.SavesDemo
             Talo.Saves.UnloadCurrentSave();
 
             var date = DateTime.Now.ToString("ddd dd MMM HH:mm:ss");
-            var save = await Talo.Saves.CreateSave($"Save created {date}");
-            Talo.Saves.ChooseSave(save.id);
+            await Talo.Saves.CreateSave($"Save created {date}");
         }
 
         private void OnLoadClick()
