@@ -12,11 +12,6 @@ namespace TaloGameServices.Sample.SavesDemo
             originalPos = transform.position;
         }
 
-        public void MoveToOriginalPos()
-        {
-            transform.position = originalPos;
-        }
-
         private void OnMouseDrag()
         {
             var nextPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);

@@ -5,7 +5,7 @@
     {
         public int id;
         public string name;
-        public string content;
+        public SaveContent content;
         public string updatedAt;
     }
 }

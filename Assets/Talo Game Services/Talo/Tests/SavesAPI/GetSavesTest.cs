@@ -42,6 +42,8 @@ namespace TaloGameServices.Test
         public IEnumerator GetSaves_InOnlineMode_ReturnsAnArrayOfSaves()
         {
             var api = new SavesAPI();
+            Talo._saves = api;
+            api.Setup();
 
             var eventMock = new LoadedEventMock();
             api.OnSavesLoaded += eventMock.Invoke; 
@@ -52,7 +54,7 @@ namespace TaloGameServices.Test
                     new GameSave {
                         id = 1,
                         name = "Online Save",
-                        content = "",
+                        content = JsonUtility.FromJson<SaveContent>(""),
                         updatedAt = "2022-10-30T21:23:30.977Z"
                     }
                 }
@@ -62,8 +64,8 @@ namespace TaloGameServices.Test
             Assert.AreEqual(1, api.All.Length);
             Assert.AreEqual("Online Save", api.All[0].name);
 
-            Assert.AreEqual(1, api.GetOfflineSavesContent().saves.Length);
-            Assert.AreEqual("Online Save", api.GetOfflineSavesContent().saves[0].name);
+            Assert.AreEqual(1, api.savesManager.GetOfflineSavesContent().saves.Length);
+            Assert.AreEqual("Online Save", api.savesManager.GetOfflineSavesContent().saves[0].name);
 
             Assert.IsTrue(eventMock.wasInvoked);
             api.OnSavesLoaded -= eventMock.Invoke;
@@ -77,6 +79,8 @@ namespace TaloGameServices.Test
             RequestMock.Offline = true;
 
             var api = new SavesAPI();
+            Talo._saves = api;
+            api.Setup();
 
             var eventMock = new LoadedEventMock();
             api.OnSavesLoaded += eventMock.Invoke;
@@ -84,7 +88,7 @@ namespace TaloGameServices.Test
             _ = api.GetSaves();
 
             Assert.AreEqual(0, api.All.Length);
-            Assert.IsNull(api.GetOfflineSavesContent());
+            Assert.IsNull(api.savesManager.GetOfflineSavesContent());
 
             Assert.IsTrue(eventMock.wasInvoked);
             api.OnSavesLoaded -= eventMock.Invoke;
@@ -98,6 +102,9 @@ namespace TaloGameServices.Test
             RequestMock.Offline = true;
 
             var api = new SavesAPI();
+            Talo._saves = api;
+            api.Setup();
+
             _ = api.CreateSave("Offline Save");
 
             var eventMock = new LoadedEventMock();
@@ -108,8 +115,8 @@ namespace TaloGameServices.Test
             Assert.AreEqual(1, api.All.Length);
             Assert.AreEqual("Offline Save", api.All[0].name);
 
-            Assert.AreEqual(1, api.GetOfflineSavesContent().saves.Length);
-            Assert.AreEqual("Offline Save", api.GetOfflineSavesContent().saves[0].name);
+            Assert.AreEqual(1, api.savesManager.GetOfflineSavesContent().saves.Length);
+            Assert.AreEqual("Offline Save", api.savesManager.GetOfflineSavesContent().saves[0].name);
 
             Assert.IsTrue(eventMock.wasInvoked);
             api.OnSavesLoaded -= eventMock.Invoke;
@@ -121,17 +128,19 @@ namespace TaloGameServices.Test
         public IEnumerator GetSaves_InOnlineMode_PrefersTheLastUpdatedSaveIfTwoWithTheSameIDExist()
         {
             var api = new SavesAPI();
+            Talo._saves = api;
+            api.Setup();
 
             var eventMock = new LoadedEventMock();
             api.OnSavesLoaded += eventMock.Invoke;
 
-            api.WriteOfflineSavesContent(new OfflineSavesContent(
+            api.savesManager.WriteOfflineSavesContent(new OfflineSavesContent(
                 new GameSave[] {
                     new GameSave
                     {
                         id = 2,
                         name = "Both Save (old)",
-                        content = "",
+                        content = JsonUtility.FromJson<SaveContent>(""),
                         updatedAt = "2022-10-29T21:23:30.977Z"
                     }
                 }
@@ -143,7 +152,7 @@ namespace TaloGameServices.Test
                     new GameSave {
                         id = 2,
                         name = "Both Save (new)",
-                        content = "",
+                        content = JsonUtility.FromJson<SaveContent>(""),
                         updatedAt = "2022-10-30T21:23:30.977Z"
                     }
                 }
@@ -153,9 +162,9 @@ namespace TaloGameServices.Test
             Assert.AreEqual(1, api.All.Length);
             Assert.AreEqual("Both Save (new)", api.All[0].name);
 
-            Assert.AreEqual(1, api.GetOfflineSavesContent().saves.Length);
-            Assert.AreEqual("Both Save (new)", api.GetOfflineSavesContent().saves[0].name);
-            Assert.AreEqual("2022-10-30T21:23:30.977Z", api.GetOfflineSavesContent().saves[0].updatedAt);
+            Assert.AreEqual(1, api.savesManager.GetOfflineSavesContent().saves.Length);
+            Assert.AreEqual("Both Save (new)", api.savesManager.GetOfflineSavesContent().saves[0].name);
+            Assert.AreEqual("2022-10-30T21:23:30.977Z", api.savesManager.GetOfflineSavesContent().saves[0].updatedAt);
 
             Assert.IsTrue(eventMock.wasInvoked);
             api.OnSavesLoaded -= eventMock.Invoke;
@@ -167,17 +176,19 @@ namespace TaloGameServices.Test
         public IEnumerator GetSaves_InOnlineMode_ReplacesTheOnlineSaveIfTheOfflineVersionIsNewer()
         {
             var api = new SavesAPI();
+            Talo._saves = api;
+            api.Setup();
 
             var eventMock = new LoadedEventMock();
             api.OnSavesLoaded += eventMock.Invoke;
 
-            api.WriteOfflineSavesContent(new OfflineSavesContent(
+            api.savesManager.WriteOfflineSavesContent(new OfflineSavesContent(
                 new GameSave[] {
                     new GameSave
                     {
                         id = 3,
                         name = "Both Save (offline)",
-                        content = "",
+                        content = JsonUtility.FromJson<SaveContent>(""),
                         updatedAt = "2022-10-30T21:23:30.977Z"
                     }
                 }
@@ -189,7 +200,7 @@ namespace TaloGameServices.Test
                     new GameSave {
                         id = 3,
                         name = "Both Save (online)",
-                        content = "",
+                        content = JsonUtility.FromJson<SaveContent>(""),
                         updatedAt = "2022-10-29T21:23:30.977Z"
                     }
                 }
@@ -200,7 +211,7 @@ namespace TaloGameServices.Test
                 save = new GameSave {
                     id = 3,
                     name = "Both Save (offline)",
-                    content = "",
+                    content = JsonUtility.FromJson<SaveContent>(""),
                     updatedAt = "2022-10-30T21:30:30.977Z"
                 }
             }));
@@ -210,9 +221,9 @@ namespace TaloGameServices.Test
             Assert.AreEqual(1, api.All.Length);
             Assert.AreEqual("Both Save (offline)", api.All[0].name);
 
-            Assert.AreEqual(1, api.GetOfflineSavesContent().saves.Length);
-            Assert.AreEqual("Both Save (offline)", api.GetOfflineSavesContent().saves[0].name);
-            Assert.AreEqual("2022-10-30T21:30:30.977Z", api.GetOfflineSavesContent().saves[0].updatedAt);
+            Assert.AreEqual(1, api.savesManager.GetOfflineSavesContent().saves.Length);
+            Assert.AreEqual("Both Save (offline)", api.savesManager.GetOfflineSavesContent().saves[0].name);
+            Assert.AreEqual("2022-10-30T21:30:30.977Z", api.savesManager.GetOfflineSavesContent().saves[0].updatedAt);
 
             Assert.IsTrue(eventMock.wasInvoked);
             api.OnSavesLoaded -= eventMock.Invoke;

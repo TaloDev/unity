@@ -49,18 +49,11 @@ namespace TaloGameServices.Sample.SavesDemo
 
         private async void OnNewGameClick()
         {
-            foreach (var cube in FindObjectsByType<LoadableCube>(FindObjectsSortMode.None))
-            {
-                cube.MoveToOriginalPos();
-            }
+            // unload the current save to reset all objects
+            Talo.Saves.UnloadCurrentSave();
 
             var date = DateTime.Now.ToString("ddd dd MMM HH:mm:ss");
-            var save = await Talo.Saves.CreateSave($"Save created {date}");
-            Talo.Saves.ChooseSave(save.id);
-
-            SendMessageUpwards("AddNewSaveToList", SendMessageOptions.RequireReceiver);
-
-            SetContinueButtonVisibility(DisplayStyle.Flex);
+            await Talo.Saves.CreateSave($"Save created {date}");
         }
 
         private void OnLoadClick()
