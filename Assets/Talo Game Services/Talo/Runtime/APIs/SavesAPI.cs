@@ -199,9 +199,9 @@ namespace TaloGameServices
 
         public void UnloadCurrentSave()
         {
-            if (Talo.Saves.Current != null)
+            if (Current != null)
             {
-                OnSaveUnloaded?.Invoke(Talo.Saves.Current);
+                OnSaveUnloaded?.Invoke(Current);
             }
 
             savesManager.UnloadCurrentSave();
