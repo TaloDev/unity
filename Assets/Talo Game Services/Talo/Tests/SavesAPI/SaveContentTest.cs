@@ -48,11 +48,12 @@ namespace TaloGameServices.Test
         {
             var api = new SavesAPI();
             Talo._saves = api;
+            api.Setup();
 
             var loadable = new GameObject("First Loadable").AddComponent<PositionedLoadable>();
             loadable.transform.position = new Vector3(88, -20, 6);
 
-            var content = new SaveContent(api._registeredLoadables);
+            var content = new SaveContent(api.contentManager.savedObjects);
             Assert.AreEqual(1, content.objects.Length);
 
             Assert.AreEqual(loadable.Id, content.objects[0].id);
@@ -80,13 +81,14 @@ namespace TaloGameServices.Test
         {
             var api = new SavesAPI();
             Talo._saves = api;
+            api.Setup();
 
             var activeLoadable = new GameObject("Active Loadable").AddComponent<PositionedLoadable>();
             var destroyedLoadable = new GameObject("Destroyed Loadable").AddComponent<PositionedLoadable>();
 
             Object.DestroyImmediate(destroyedLoadable.gameObject);
 
-            var content = new SaveContent(api._registeredLoadables);
+            var content = new SaveContent(api.contentManager.savedObjects);
             Assert.AreEqual(2, content.objects.Length);
 
             Assert.AreEqual(activeLoadable.Id, content.objects[0].id);
@@ -95,11 +97,12 @@ namespace TaloGameServices.Test
             Assert.AreEqual("pos.y", content.objects[0].data[1].key);
             Assert.AreEqual("pos.z", content.objects[0].data[2].key);
 
+            // data[0] - data[2] will be the x, y, z
             Assert.AreEqual(destroyedLoadable.Id, content.objects[1].id);
             Assert.AreEqual("Destroyed Loadable", content.objects[1].name);
-            Assert.AreEqual("meta.destroyed", content.objects[1].data[0].key);
-            Assert.AreEqual("True", content.objects[1].data[0].value);
-            Assert.AreEqual("System.Boolean", content.objects[1].data[0].type);
+            Assert.AreEqual("meta.destroyed", content.objects[1].data[3].key);
+            Assert.AreEqual("True", content.objects[1].data[3].value);
+            Assert.AreEqual("System.Boolean", content.objects[1].data[3].type);
 
             Object.DestroyImmediate(activeLoadable.gameObject);
 
@@ -111,6 +114,7 @@ namespace TaloGameServices.Test
         {
             var api = new SavesAPI();
             Talo._saves = api;
+            api.Setup();
 
             var grandParent = new GameObject("Grandparent");
             var parent = new GameObject("Parent");
@@ -120,7 +124,7 @@ namespace TaloGameServices.Test
             loadable.transform.parent = parent.transform;
             var id = loadable.AddComponent<PositionedLoadable>().Id;
 
-            var content = new SaveContent(api._registeredLoadables);
+            var content = new SaveContent(api.contentManager.savedObjects);
             Assert.AreEqual(1, content.objects.Length);
 
             Assert.AreEqual(id, content.objects[0].id);

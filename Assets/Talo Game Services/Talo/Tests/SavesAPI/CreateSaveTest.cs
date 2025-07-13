@@ -42,16 +42,17 @@ namespace TaloGameServices.Test
         {
             var api = new SavesAPI();
             Talo._saves = api;
+            api.Setup();
 
-            api._allSaves.Add(new GameSave() { name = "Existing Online Save" });
-            api.WriteOfflineSavesContent(new OfflineSavesContent(api._allSaves.ToArray()));
+            api.savesManager._allSaves.Add(new GameSave() { name = "Existing Online Save" });
+            api.savesManager.WriteOfflineSavesContent(new OfflineSavesContent(api.savesManager._allSaves.ToArray()));
 
             var eventMock = new ChosenEventMock();
             api.OnSaveChosen += eventMock.Invoke;
 
             RequestMock.ReplyOnce(api.GetUri(), "POST", JsonUtility.ToJson(new SavesPostResponse
             {
-                save = new GameSave { id = 1, name = "New Online Save", content = "", updatedAt = "2022-10-30T21:23:30.977Z" }
+                save = new GameSave { id = 1, name = "New Online Save", content = JsonUtility.FromJson<SaveContent>(""), updatedAt = "2022-10-30T21:23:30.977Z" }
             }));
             _ = api.CreateSave("New Online Save");
 
@@ -59,9 +60,9 @@ namespace TaloGameServices.Test
             Assert.AreEqual("Existing Online Save", api.All[0].name);
             Assert.AreEqual("New Online Save", api.All[1].name);
 
-            Assert.AreEqual(2, api.GetOfflineSavesContent().saves.Length);
-            Assert.AreEqual("Existing Online Save", api.GetOfflineSavesContent().saves[0].name);
-            Assert.AreEqual("New Online Save", api.GetOfflineSavesContent().saves[1].name);
+            Assert.AreEqual(2, api.savesManager.GetOfflineSavesContent().saves.Length);
+            Assert.AreEqual("Existing Online Save", api.savesManager.GetOfflineSavesContent().saves[0].name);
+            Assert.AreEqual("New Online Save", api.savesManager.GetOfflineSavesContent().saves[1].name);
 
             Assert.AreEqual(1, api.Current.id);
             Assert.Null(eventMock.chosenSave); // should not invoke the OnSaveChosen event
@@ -77,9 +78,10 @@ namespace TaloGameServices.Test
 
             var api = new SavesAPI();
             Talo._saves = api;
+            api.Setup();
 
-            api._allSaves.Add(new GameSave() { id = -1, name = "Existing Offline Save" });
-            api.WriteOfflineSavesContent(new OfflineSavesContent(api._allSaves.ToArray()));
+            api.savesManager._allSaves.Add(new GameSave() { id = -1, name = "Existing Offline Save" });
+            api.savesManager.WriteOfflineSavesContent(new OfflineSavesContent(api.savesManager._allSaves.ToArray()));
 
             var eventMock = new ChosenEventMock();
             api.OnSaveChosen += eventMock.Invoke;
@@ -90,9 +92,9 @@ namespace TaloGameServices.Test
             Assert.AreEqual("Existing Offline Save", api.All[0].name);
             Assert.AreEqual("New Offline Save", api.All[1].name);
 
-            Assert.AreEqual(2, api.GetOfflineSavesContent().saves.Length);
-            Assert.AreEqual("Existing Offline Save", api.GetOfflineSavesContent().saves[0].name);
-            Assert.AreEqual("New Offline Save", api.GetOfflineSavesContent().saves[1].name);
+            Assert.AreEqual(2, api.savesManager.GetOfflineSavesContent().saves.Length);
+            Assert.AreEqual("Existing Offline Save", api.savesManager.GetOfflineSavesContent().saves[0].name);
+            Assert.AreEqual("New Offline Save", api.savesManager.GetOfflineSavesContent().saves[1].name);
 
             Assert.AreEqual(-2, api.Current.id);
             Assert.Null(eventMock.chosenSave); // should not invoke the OnSaveChosen event

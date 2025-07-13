@@ -6,17 +6,23 @@ using System.Collections.Generic;
 
 namespace TaloGameServices.Test
 {
-    internal class LoadingCompletedEvent
+    internal class UnloadedEventMock
     {
+        private int expectedSaveId;
         public bool wasInvoked;
 
-        public void Invoke()
+        public UnloadedEventMock(int expectedSaveId)
         {
-            wasInvoked = true;
+            this.expectedSaveId = expectedSaveId;
+        }
+
+        public void Invoke(GameSave save)
+        {
+            wasInvoked = save.id == expectedSaveId;
         }
     }
 
-    internal class ChooseSaveTest
+    internal class UnloadSaveTest
     {
         [OneTimeSetUp]
         public void SetUp()
@@ -33,19 +39,14 @@ namespace TaloGameServices.Test
         }
 
         [UnityTest]
-        public IEnumerator ChooseSave_LoadsLoadableData()
+        public IEnumerator UnloadCurrentSave_InvokesOnSaveUnloaded()
         {
             var api = new SavesAPI();
             Talo._saves = api;
             api.Setup();
 
-            Vector3 loadable1Pos, loadable2Pos;
-
             var loadable1 = new GameObject("First Loadable").AddComponent<PositionedLoadable>();
-            loadable1.transform.position = loadable1Pos = new Vector3(88, -20, 6);
             var loadable2 = new GameObject("Second Loadable").AddComponent<PositionedLoadable>();
-            loadable2.transform.position = loadable2Pos = new Vector3(-4, 105, 71);
-
             var savedObjects = new Dictionary<string, SavedObject>
             {
                 { loadable1.Id, new SavedObject(loadable1.Id, loadable1.GetPath(), loadable1.GetLatestData()) },
@@ -58,18 +59,21 @@ namespace TaloGameServices.Test
                 content = new SaveContent(savedObjects)
             });
 
-            loadable1.transform.position = Vector3.zero;
-            loadable2.transform.position = Vector3.zero;
-
-            var eventMock = new LoadingCompletedEvent();
-            api.OnSaveLoadingCompleted += eventMock.Invoke;
+            var unloadedEventMock = new UnloadedEventMock(api.All[0].id);
+            api.OnSaveUnloaded += unloadedEventMock.Invoke;
 
             api.ChooseSave(api.All[0].id);
 
-            Assert.AreEqual(loadable1.transform.position, loadable1Pos);
-            Assert.AreEqual(loadable2.transform.position, loadable2Pos);
+            var chosenEventMock = new ChosenEventMock();
+            api.OnSaveChosen += chosenEventMock.Invoke;
 
-            api.OnSaveLoadingCompleted -= eventMock.Invoke;
+            api.UnloadCurrentSave();
+            Assert.Null(chosenEventMock.chosenSave);
+            Assert.True(unloadedEventMock.wasInvoked);
+            Assert.Null(api.Current);
+
+            api.OnSaveUnloaded -= unloadedEventMock.Invoke;
+            api.OnSaveChosen -= chosenEventMock.Invoke;
 
             yield return null;
         }

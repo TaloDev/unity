@@ -8,42 +8,55 @@ namespace TaloGameServices
 {
     public class SavesAPI : BaseAPI
     {
-        private GameSave _currentSave;
-        internal List<GameSave> _allSaves = new();
-        internal List<LoadableData> _registeredLoadables = new();
-        private List<string> _loadedLoadables = new();
+        internal SavesManager savesManager;
+        internal SavesContentManager contentManager;
 
         public event Action OnSavesLoaded;
-        public event Action<GameSave> OnSaveChosen;
         public event Action OnSaveLoadingCompleted;
 
-        private IFileHandler<OfflineSavesContent> _fileHandler;
+        public event Action<GameSave> OnSaveChosen;
+        public event Action<GameSave> OnSaveUnloaded;
 
         public GameSave[] All
         {
-            get => _allSaves.ToArray();
+            get => savesManager.AllSaves;
         }
 
         public GameSave Latest
         {
-            get {
-                if (_allSaves.Count == 0) return null;
-                return _allSaves.OrderByDescending((save) => DateTime.Parse(save.updatedAt)).First();
-            }
+            get => savesManager.GetLatestSave();
         }
 
         public GameSave Current
         {
-            get => _currentSave;
+            get => savesManager.CurrentSave;
         }
 
-        public SavesAPI() : base("v1/game-saves") {
-            _fileHandler = Talo.TestMode
-                ? new SavesTestFileHandler()
-                : new SavesFileHandler();
+        public SavesAPI() : base("v1/game-saves")
+        { }
+
+        internal void Setup()
+        {
+            savesManager = new();
+            contentManager = new();
+
+            savesManager.OnSaveChosen += (save) =>
+            {
+                OnSaveChosen?.Invoke(save);
+            };
+
+            savesManager.OnSavesLoaded += () =>
+            {
+                OnSavesLoaded?.Invoke();
+            };
+
+            contentManager.OnSaveLoadingCompleted += () =>
+            {
+                OnSaveLoadingCompleted?.Invoke();
+            };
         }
 
-        private async Task<GameSave> ReplaceSaveWithOfflineSave(GameSave offlineSave)
+        public async Task<GameSave> ReplaceSaveWithOfflineSave(GameSave offlineSave)
         {
             var uri = new Uri($"{baseUrl}/{offlineSave.id}");
             var json = await Call(uri, "PATCH", JsonUtility.ToJson(new SavesPatchRequest
@@ -56,43 +69,10 @@ namespace TaloGameServices
             return res.save;
         }
 
-        private async Task<GameSave> SyncSave(GameSave onlineSave, GameSave offlineSave)
-        {
-            var onlineUpdatedAt = DateTime.Parse(onlineSave.updatedAt);
-            var offlineUpdatedAt = DateTime.Parse(offlineSave.updatedAt);
-
-            if (DateTime.Compare(offlineUpdatedAt, onlineUpdatedAt) > 0)
-            {
-                var save = await ReplaceSaveWithOfflineSave(offlineSave);
-                return save;
-            }
-            else
-            {
-                return onlineSave;
-            }
-        }
-
-        private async Task<GameSave[]> SyncOfflineSaves(GameSave[] offlineSaves)
-        {
-            var newSaves = new List<GameSave>();
-
-            foreach (var offlineSave in offlineSaves)
-            {
-                if (offlineSave.id < 0)
-                {
-                    var save = await CreateSave(offlineSave.name, offlineSave.content);
-                    DeleteOfflineSave(offlineSave.id);
-                    newSaves.Add(save);
-                }
-            }
-
-            return newSaves.ToArray();
-        }
-
         public async Task<GameSave[]> GetSaves()
         {
             var saves = new List<GameSave>();
-            var offlineSaves = GetOfflineSavesContent()?.saves;
+            var offlineSaves = savesManager.GetOfflineSavesContent()?.saves;
 
             if (Talo.IsOffline())
             {
@@ -108,120 +88,42 @@ namespace TaloGameServices
                 var onlineSaves = res.saves;
 
                 if (offlineSaves != null)
-                {
-                    var tasks = onlineSaves.Select(async (onlineSave) =>
                     {
-                        var offlineSave = offlineSaves
-                            .FirstOrDefault((offlineSave) => offlineSave.id == onlineSave.id);
-
-                        if (offlineSave != null)
+                        var tasks = onlineSaves.Select(async (onlineSave) =>
                         {
-                            return await SyncSave(onlineSave, offlineSave);
-                        }
-                        return onlineSave;
-                    })
-                        .ToList();
+                            var offlineSave = offlineSaves
+                                .FirstOrDefault((offlineSave) => offlineSave.id == onlineSave.id);
 
-                    onlineSaves = await Task.WhenAll(tasks);
+                            if (offlineSave != null)
+                            {
+                                return await savesManager.SyncSave(onlineSave, offlineSave);
+                            }
+                            return onlineSave;
+                        })
+                            .ToList();
 
-                    var syncedSaves = await SyncOfflineSaves(offlineSaves);
-                    saves.AddRange(syncedSaves);
-                }
+                        onlineSaves = await Task.WhenAll(tasks);
 
-                saves.AddRange(onlineSaves);
+                        var syncedSaves = await savesManager.SyncOfflineSaves(offlineSaves);
+                        saves.AddRange(syncedSaves);
+                    }
+
+                    saves.AddRange(onlineSaves);
             }
 
-            _allSaves = saves;
-            OnSavesLoaded?.Invoke();
-
-            foreach(var save in _allSaves)
-            {
-                UpdateOfflineSaves(save);
-            }
-
-            return _allSaves.ToArray();
+            savesManager.HandleSavesLoaded(saves);
+            return savesManager.AllSaves;
         }
 
         public void Register(Loadable loadable)
         {
-            _registeredLoadables.Add(new LoadableData(loadable));
+            contentManager.Register(loadable);
         }
 
-        internal string GetOfflineSavesPath()
-        {
-            return Application.persistentDataPath + $"/ts.{Talo.CurrentPlayer.id}.bin";
-        }
-
-        internal OfflineSavesContent GetOfflineSavesContent()
-        {
-            return _fileHandler.ReadContent(GetOfflineSavesPath());
-        }
-
-        internal void WriteOfflineSavesContent(OfflineSavesContent newContent)
-        {
-            _fileHandler.WriteContent(GetOfflineSavesPath(), newContent);
-        }
-
-        private GameSave CreateOfflineCopy(GameSave originalSave)
-        {
-            return new GameSave
-            {
-                id = originalSave.id,
-                name = originalSave.name,
-                content = originalSave.content,
-                updatedAt = originalSave.updatedAt
-            };
-        }
-
-        private GameSave UpdateOfflineSaves(GameSave incomingSave)
-        {
-            var offlineIncomingSave = CreateOfflineCopy(incomingSave);
-            var offlineContent = GetOfflineSavesContent();
-            var updated = false;
-
-            if (offlineContent?.saves != null)
-            {
-                // updating
-                offlineContent.saves = offlineContent.saves.Select((existingSave) =>
-                {
-                    if (existingSave.id == offlineIncomingSave.id)
-                    {
-                        updated = true;
-                        return offlineIncomingSave;
-                    }
-                    return existingSave;
-                }).ToArray();
-
-                // appending
-                if (!updated)
-                {
-                    if (offlineIncomingSave.id == 0)
-                    {
-                        offlineIncomingSave.id = -offlineContent.saves.Length - 1;
-                    }
-
-                    offlineContent.saves = offlineContent.saves.Concat(new GameSave[] { offlineIncomingSave }).ToArray();
-                }
-            }
-            else
-            {
-                // first entry into the saves file
-                if (offlineIncomingSave.id == 0)
-                {
-                    offlineIncomingSave.id = -1;
-                }
-                offlineContent = new OfflineSavesContent(new GameSave[] { offlineIncomingSave });
-            }
-
-            WriteOfflineSavesContent(offlineContent);
-            return offlineIncomingSave;
-        }
-
-        public async Task<GameSave> CreateSave(string saveName, string content = null)
+        public async Task<GameSave> CreateSave(string saveName, SaveContent content = null)
         {
             GameSave save;
-
-            string saveContent = content ?? JsonUtility.ToJson(new SaveContent(_registeredLoadables));
+            var saveContent = content ?? contentManager.Content;
 
             if (Talo.IsOffline())
             {
@@ -247,33 +149,19 @@ namespace TaloGameServices
                 save = res.save;
             }
 
-            _allSaves.Add(save);
-
-            var offlineSave = UpdateOfflineSaves(save);
-            var chosenSave = Talo.IsOffline() ? offlineSave : save;
-
-            SetChosenSave(chosenSave, false);
-            return chosenSave;
+            return savesManager.CreateSave(save);
         }
 
         public async Task<GameSave> UpdateCurrentSave(string newName = "")
         {
-            return await UpdateSave(_currentSave.id, newName);
-        }
-
-        private GameSave FindSaveByID(int saveId)
-        {
-            GameSave save = _allSaves.FirstOrDefault((existingSave) => existingSave.id == saveId);
-            if (save == null) throw new Exception("Save not found");
-
-            return save;
+            return await UpdateSave(savesManager.CurrentSave.id, newName);
         }
 
         public async Task<GameSave> UpdateSave(int saveId, string newName = "")
         {
-            var save = FindSaveByID(saveId);
+            var save = savesManager.FindSaveByID(saveId);
 
-            var saveContent = JsonUtility.ToJson(new SaveContent(_registeredLoadables));
+            var saveContent = contentManager.Content;
 
             if (Talo.IsOffline())
             {
@@ -298,53 +186,30 @@ namespace TaloGameServices
                 save = res.save;
             }
 
-            _allSaves = _allSaves
-                .Select((existingSave) => existingSave.id == saveId ? save : existingSave)
-                .ToList();
-            UpdateOfflineSaves(save);
+            savesManager.HandleSaveUpdated(save);
 
             return save;
         }
 
-        private void SetChosenSave(GameSave save, bool loadSave = true)
+        public void ChooseSave(int saveId, bool loadSave = true)
         {
-            _currentSave = save;
-            if (!loadSave) return;
-
-            _loadedLoadables.Clear();
-            OnSaveChosen?.Invoke(save);
-        }
-
-        public void ChooseSave(int saveId)
-        {
-            var save = FindSaveByID(saveId);
-            SetChosenSave(save);
+            var save = savesManager.FindSaveByID(saveId);
+            savesManager.SetChosenSave(save, loadSave);
         }
 
         public void UnloadCurrentSave()
         {
-            SetChosenSave(null);
-        }
-
-        public void SetObjectLoaded(string id)
-        {
-            _loadedLoadables.Add(id);
-            if (_loadedLoadables.Count == _registeredLoadables.Count)
+            if (Current != null)
             {
-                OnSaveLoadingCompleted?.Invoke();
+                OnSaveUnloaded?.Invoke(Current);
             }
-        }
 
-        private void DeleteOfflineSave(int saveId)
-        {
-            var offlineContent = GetOfflineSavesContent();
-            offlineContent.saves = offlineContent.saves.Where((save) => save.id != saveId).ToArray();
-            WriteOfflineSavesContent(offlineContent);
+            savesManager.UnloadCurrentSave();
         }
 
         public async Task DeleteSave(int saveId)
         {
-            var save = FindSaveByID(saveId);
+            var save = savesManager.FindSaveByID(saveId);
 
             if (!Talo.IsOffline())
             {
@@ -353,13 +218,7 @@ namespace TaloGameServices
                 await Call(uri, "DELETE");
             }
 
-            _allSaves = _allSaves.Where((existingSave) => existingSave.id != saveId).ToList();
-            DeleteOfflineSave(saveId);
-
-            if (_currentSave?.id == saveId)
-            {
-                UnloadCurrentSave();
-            }
+            savesManager.DeleteSave(saveId);
         }
     }
 }

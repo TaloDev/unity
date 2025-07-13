@@ -4,6 +4,6 @@
     public class SavesPostRequest
     {
         public string name;
-        public string content;
+        public SaveContent content;
     }
 }
