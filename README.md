@@ -1,6 +1,6 @@
 # Talo Unity Package: self-hostable game dev tools
 
-Talo's Unity package is the easiest way to add leaderboards, player authentication, socket-based multiplayer and more to your game. Using the Talo Dashboard, you can visualise and analyse your game data to help make better data-driven decisions.
+Talo is the easiest way to add leaderboards, player authentication, socket-based multiplayer and more to your game. Using the Talo Dashboard, you can visualise and analyse your game data to make data-driven decisions.
 
 ## Project structure
 
