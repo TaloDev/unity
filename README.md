@@ -1,4 +1,4 @@
-# Talo Unity Package: self-hostable game dev tools
+# Talo Unity package: self-hostable game dev tools
 
 Talo is the easiest way to add leaderboards, player authentication, socket-based multiplayer and more to your game. Using the Talo Dashboard, you can visualise and analyse your game data to make data-driven decisions.
 
@@ -47,7 +47,7 @@ You'll need to init the submodules after cloning: `git submodule update --init`.
 - [Unity package docs](https://docs.trytalo.com/docs/unity/install)
 - [Self-hosting examples](https://github.com/talodev/hosting)
 
-## Contributing to Talo
+## Contributing
 
 Thinking about contributing to Talo? We’d love the help! Head over to our [contribution guide](CONTRIBUTING.md) to learn how to set up the project, run tests, and start adding new features.
 
