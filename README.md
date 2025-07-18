@@ -18,7 +18,7 @@ You'll need to init the submodules after cloning: `git submodule update --init`.
 - [GitHub releases](https://github.com/TaloDev/unity/releases)
 - [itch.io](https://sleepystudios.itch.io/talo-unity)
 
-## Talo's key features
+## Features
 
 - 👥 [Player management](https://trytalo.com/players): Persist player data across sessions, create segments and handle authentication.
 - ⚡️ [Event tracking](https://trytalo.com/events): Track in-game player actions individually and globally.
