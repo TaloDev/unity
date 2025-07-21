@@ -1,6 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using UnityEngine;
+using System.Linq;
 
 namespace TaloGameServices
 {
@@ -17,12 +18,13 @@ namespace TaloGameServices
             return res.feedbackCategories;
         }
 
-        public async Task Send(string categoryInternalName, string comment)
+        public async Task Send(string categoryInternalName, string comment, params (string, string)[] props)
         {
             Talo.IdentityCheck();
 
             var uri = new Uri($"{baseUrl}/categories/{categoryInternalName}");
-            var content = JsonUtility.ToJson(new FeedbackPostRequest { comment = comment });
+            var propsArray = props.Select((propTuples) => new Prop(propTuples)).ToArray();
+            var content = JsonUtility.ToJson(new FeedbackPostRequest { comment = comment, props = propsArray });
 
             await Call(uri, "POST", content);
         }
