@@ -1,10 +1,6 @@
-# Talo Unity Package: self-hostable game dev tools
+# Talo Unity package: self-hostable game dev tools
 
-Talo is a collection of tools and APIs designed to make game development easier and to help you make better data-driven decisions.
-
-From essentials like player management, stats and leaderboards to advanced APIs for game saves, event tracking and player authentication.
-
-The Talo Unity Package is a lightweight wrapper around the [REST API](https://docs.trytalo.com/docs/http/authentication). It also includes handy utilities and a collection of ready-to-use samples.
+Talo is the easiest way to add leaderboards, player authentication, socket-based multiplayer and more to your game. Using the Talo Dashboard, you can visualise and analyse your game data to make data-driven decisions.
 
 ## Project structure
 
@@ -22,7 +18,7 @@ You'll need to init the submodules after cloning: `git submodule update --init`.
 - [GitHub releases](https://github.com/TaloDev/unity/releases)
 - [itch.io](https://sleepystudios.itch.io/talo-unity)
 
-## Talo's key features
+## Features
 
 - 👥 [Player management](https://trytalo.com/players): Persist player data across sessions, create segments and handle authentication.
 - ⚡️ [Event tracking](https://trytalo.com/events): Track in-game player actions individually and globally.
@@ -38,25 +34,23 @@ You'll need to init the submodules after cloning: `git submodule update --init`.
 
 ## Samples included with the package
 
-- 🕹️ Leaderboards: a basic leaderboard UI, allowing you to add and update entries.
-- 💾 Game saves: an end to end example allowing you to load, create and update saves across multiple levels.
-- 🔒 Authentication: a registration/login flow, showing how to create player accounts and authenticate them.
-- 🎮 Playground: a text-based playground allowing you to test identifying, events, stats and leaderboards.
-- 💬 Chat: showing how to send messages between channels in a chat room.
-- 🤝 Channel storage: showing how to store data that can be accessed by other players using channels.
+- 🕹️ **Leaderboards**: a basic leaderboard UI, allowing you to add and update entries.
+- 💾 **Game saves**: an end to end example allowing you to load, create and update saves across multiple levels.
+- 🔒 **Authentication**: a registration/login flow, showing how to create player accounts and authenticate them.
+- 🎮 **Playground**: a text-based playground allowing you to test identifying, events, stats and leaderboards.
+- 💬 **Chat**: showing how to send messages between players in a chat room using channels.
+- 🤝 **Channel storage**: showing how to store data that can be accessed by other players using channels.
 
-## Documentation
+## Links
 
-Check out the [full Talo docs](https://docs.trytalo.com) for setup instructions, detailed API docs/examples and configuration options.
+- [Website](https://trytalo.com)
+- [Unity package docs](https://docs.trytalo.com/docs/unity/install)
+- [Self-hosting examples](https://github.com/talodev/hosting)
 
-## Self-hosting your own Talo instance
+## Contributing
 
-Talo is designed to be easily self-hosted. Take a look at our [self-hosting guide](https://docs.trytalo.com/docs/selfhosting/overview) and the [GitHub repo](https://github.com/TaloDev/hosting) for examples on how to get started.
+Thinking about contributing to Talo? We’d love the help! Head over to our [contribution guide](CONTRIBUTING.md) to learn how to set up the project, run tests, and start adding new features.
 
-## Join our community
+## Join the community
 
 Have questions, want to share feedback or show off your game? [Join us on Discord](https://trytalo.com/discord) to connect with other developers and get help from the Talo team.
-
----
-
-Find all the details about Talo on our [website](https://trytalo.com)!
