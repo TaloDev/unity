@@ -209,7 +209,7 @@ namespace TaloGameServices
 
         public async Task DeleteSave(int saveId)
         {
-            var save = savesManager.FindSaveByID(saveId);
+            var _ = savesManager.FindSaveByID(saveId);
 
             if (!Talo.IsOffline())
             {
