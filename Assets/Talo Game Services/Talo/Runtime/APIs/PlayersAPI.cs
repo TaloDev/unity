@@ -1,6 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using UnityEngine;
+using System.IO;
 
 namespace TaloGameServices
 {
@@ -10,6 +11,8 @@ namespace TaloGameServices
         public event Action OnIdentificationStarted;
         public event Action OnIdentificationFailed;
 
+        private readonly string _offlineDataPath = Application.persistentDataPath + "/ta.bin";
+
         public PlayersAPI() : base("v1/players") { }
 
         public void InvokeIdentifiedEvent()
@@ -17,9 +20,33 @@ namespace TaloGameServices
             OnIdentified?.Invoke(Talo.CurrentPlayer);
         }
 
+        private async Task<Player> HandleIdentifySuccess(PlayerAlias alias, string socketToken = "")
+        {
+            if (!Talo.IsOffline())
+            {
+                await Talo.Socket.ResetConnection();
+            }
+
+            Talo.CurrentAlias = alias;
+            if (!string.IsNullOrEmpty(socketToken))
+            {
+                Talo.Socket.SetSocketToken(socketToken);
+            }
+
+            InvokeIdentifiedEvent();
+
+            return alias.player;
+        }
+
         public async Task<Player> Identify(string service, string identifier)
         {
             OnIdentificationStarted?.Invoke();
+
+            if (Talo.IsOffline())
+            {
+                return await IdentifyOffline(service, identifier);
+            }
+
             var uri = new Uri($"{baseUrl}/identify?service={service}&identifier={identifier}");
 
             try
@@ -27,21 +54,13 @@ namespace TaloGameServices
                 var json = await Call(uri, "GET");
 
                 var res = JsonUtility.FromJson<PlayersIdentifyResponse>(json);
-                await Talo.Socket.ResetConnection();
-
-                Talo.CurrentAlias = res.alias;
-                Talo.Socket.SetSocketToken(res.socketToken);
-                InvokeIdentifiedEvent();
-
-                return Talo.CurrentPlayer;
+                var alias = res.alias;
+                WriteOfflineAlias(alias);
+                return await HandleIdentifySuccess(alias, res.socketToken);
             }
             catch
             {
-                if (!Talo.IsOffline())
-                {
-                    await Talo.PlayerAuth.SessionManager.ClearSession();
-                }
-
+                await Talo.PlayerAuth.SessionManager.ClearSession();
                 OnIdentificationFailed?.Invoke();
                 throw;
             }
@@ -69,6 +88,7 @@ namespace TaloGameServices
 
             var res = JsonUtility.FromJson<PlayersUpdateResponse>(json);
             Talo.CurrentPlayer = res.player;
+            WriteOfflineAlias(Talo.CurrentAlias);
 
             return Talo.CurrentPlayer;
         }
@@ -90,6 +110,40 @@ namespace TaloGameServices
 
             var res = JsonUtility.FromJson<PlayersFindResponse>(json);
             return res.player;
+        }
+
+        private async Task<Player> IdentifyOffline(string service, string identifier)
+        {
+            var offlineAlias = GetOfflineAlias();
+            if (offlineAlias != null && offlineAlias.MatchesIdentifyRequest(service, identifier))
+            {
+                return await HandleIdentifySuccess(offlineAlias);
+            }
+            else
+            {
+                try
+                {
+                    File.Delete(_offlineDataPath);
+                }
+                finally
+                {
+                    OnIdentificationFailed?.Invoke();
+                    throw new Exception("No offline player alias found.");
+                }
+            }
+        }
+
+        private void WriteOfflineAlias(PlayerAlias alias)
+        {
+            if (!Talo.Settings.cachePlayerOnIdentify) return;
+            var content = JsonUtility.ToJson(alias);
+            Talo.Crypto.WriteFileContent(_offlineDataPath, content);
+        }
+
+        private PlayerAlias GetOfflineAlias()
+        {
+            if (!Talo.Settings.cachePlayerOnIdentify || !File.Exists(_offlineDataPath)) return null;
+            return JsonUtility.FromJson<PlayerAlias>(Talo.Crypto.ReadFileContent(_offlineDataPath));
         }
     }
 }

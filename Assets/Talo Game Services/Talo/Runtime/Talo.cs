@@ -35,11 +35,7 @@ namespace TaloGameServices
 
         public static Player CurrentPlayer
         {
-            get
-            {
-                IdentityCheck();
-                return _currentAlias.player;
-            }
+            get => _currentAlias?.player ?? null;
             set => _currentAlias.player = value;
         }
 
@@ -58,7 +54,8 @@ namespace TaloGameServices
 
         public static LiveConfig LiveConfig
         {
-            get {
+            get
+            {
                 if (_liveConfig == null)
                 {
                     throw new Exception("Live config needs to be initialised first - use Talo.GameConfig.Get() to fetch it.");
@@ -196,12 +193,12 @@ namespace TaloGameServices
         public static bool IsOffline()
         {
             if (TestMode) return RequestMock.Offline;
-            return Application.internetReachability == NetworkReachability.NotReachable;
+            return Application.internetReachability == NetworkReachability.NotReachable || Settings.offlineMode;
         }
 
         internal static bool CheckTestMode()
         {
-        #if UNITY_EDITOR || DEBUG
+#if UNITY_EDITOR || DEBUG
             var assembly = AppDomain.CurrentDomain.GetAssemblies()
                 .FirstOrDefault((assembly) => assembly.FullName.ToLowerInvariant().StartsWith("nunit.framework"));
 
@@ -217,7 +214,7 @@ namespace TaloGameServices
                     return false;
                 }
             }
-        #endif
+#endif
             _testMode = false;
             return _testMode;
         }
