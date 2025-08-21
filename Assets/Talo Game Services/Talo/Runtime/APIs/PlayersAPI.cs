@@ -33,7 +33,6 @@ namespace TaloGameServices
                 Talo.Socket.SetSocketToken(socketToken);
             }
 
-            WriteOfflineAlias();
             InvokeIdentifiedEvent();
 
             return alias.player;
@@ -45,16 +44,7 @@ namespace TaloGameServices
 
             if (Talo.IsOffline())
             {
-                var offlineAlias = GetOfflineAlias();
-                if (offlineAlias != null)
-                {
-                    return await HandleIdentifySuccess(offlineAlias);
-                }
-                else
-                {
-                    OnIdentificationFailed?.Invoke();
-                    throw new Exception("No offline player alias found.");
-                }
+                return await IdentifyOffline(service, identifier);
             }
 
             var uri = new Uri($"{baseUrl}/identify?service={service}&identifier={identifier}");
@@ -64,7 +54,9 @@ namespace TaloGameServices
                 var json = await Call(uri, "GET");
 
                 var res = JsonUtility.FromJson<PlayersIdentifyResponse>(json);
-                return await HandleIdentifySuccess(res.alias, res.socketToken);
+                var alias = res.alias;
+                WriteOfflineAlias(alias);
+                return await HandleIdentifySuccess(alias, res.socketToken);
             }
             catch
             {
@@ -96,7 +88,7 @@ namespace TaloGameServices
 
             var res = JsonUtility.FromJson<PlayersUpdateResponse>(json);
             Talo.CurrentPlayer = res.player;
-            WriteOfflineAlias();
+            WriteOfflineAlias(Talo.CurrentAlias);
 
             return Talo.CurrentPlayer;
         }
@@ -120,15 +112,37 @@ namespace TaloGameServices
             return res.player;
         }
 
-        private void WriteOfflineAlias()
+        private async Task<Player> IdentifyOffline(string service, string identifier)
         {
-            var content = JsonUtility.ToJson(Talo.CurrentAlias);
+            var offlineAlias = GetOfflineAlias();
+            if (offlineAlias != null && offlineAlias.MatchesIdentifyRequest(service, identifier))
+            {
+                return await HandleIdentifySuccess(offlineAlias);
+            }
+            else
+            {
+                try
+                {
+                    File.Delete(_offlineDataPath);
+                }
+                finally
+                {
+                    OnIdentificationFailed?.Invoke();
+                    throw new Exception("No offline player alias found.");
+                }
+            }
+        }
+
+        private void WriteOfflineAlias(PlayerAlias alias)
+        {
+            if (!Talo.Settings.cachePlayerOnIdentify) return;
+            var content = JsonUtility.ToJson(alias);
             Talo.Crypto.WriteFileContent(_offlineDataPath, content);
         }
 
         private PlayerAlias GetOfflineAlias()
         {
-            if (!File.Exists(_offlineDataPath)) return null;
+            if (!Talo.Settings.cachePlayerOnIdentify || !File.Exists(_offlineDataPath)) return null;
             return JsonUtility.FromJson<PlayerAlias>(Talo.Crypto.ReadFileContent(_offlineDataPath));
         }
     }

@@ -31,5 +31,8 @@ namespace TaloGameServices
 
         [Tooltip("If a valid session token is found, automatically authenticate the player")]
         public bool autoStartSession = true;
+
+        [Tooltip("If enabled, Talo will automatically cache the player after a successful online identification for use in later offline sessions")]
+        public bool cachePlayerOnIdentify = true;
     }
 }
