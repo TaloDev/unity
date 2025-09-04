@@ -145,5 +145,15 @@ namespace TaloGameServices
             if (!Talo.Settings.cachePlayerOnIdentify || !File.Exists(_offlineDataPath)) return null;
             return JsonUtility.FromJson<PlayerAlias>(Talo.Crypto.ReadFileContent(_offlineDataPath));
         }
+
+        public async Task<PlayersSearchResponse> Search(string query)
+        {
+            var encodedQuery = Uri.EscapeDataString(query.Trim());
+            var uri = new Uri($"{baseUrl}/search?query={encodedQuery}");
+            var json = await Call(uri, "GET");
+
+            var res = JsonUtility.FromJson<PlayersSearchResponse>(json);
+            return res;
+        }
     }
 }
