@@ -17,8 +17,8 @@ namespace TaloGameServices.Sample.Playground
 
             try
             {
-                var group = await Talo.PlayerGroups.Get(groupId);
-                ResponseMessage.SetText($"{group.name} has {group.count} player(s)");
+                var res = await Talo.PlayerGroups.Get(groupId);
+                ResponseMessage.SetText($"{res.group.name} has {res.group.count} player(s)");
             }
             catch (Exception e)
             {
