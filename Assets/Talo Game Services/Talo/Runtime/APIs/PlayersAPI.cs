@@ -11,7 +11,7 @@ namespace TaloGameServices
         public event Action OnIdentificationStarted;
         public event Action OnIdentificationFailed;
 
-        private readonly string _offlineDataPath = Application.persistentDataPath + "/ta.bin";
+        private readonly string offlineDataPath = Application.persistentDataPath + "/ta.bin";
 
         public PlayersAPI() : base("v1/players") { }
 
@@ -123,7 +123,7 @@ namespace TaloGameServices
             {
                 try
                 {
-                    File.Delete(_offlineDataPath);
+                    File.Delete(offlineDataPath);
                 }
                 finally
                 {
@@ -137,13 +137,13 @@ namespace TaloGameServices
         {
             if (!Talo.Settings.cachePlayerOnIdentify) return;
             var content = JsonUtility.ToJson(alias);
-            Talo.Crypto.WriteFileContent(_offlineDataPath, content);
+            Talo.Crypto.WriteFileContent(offlineDataPath, content);
         }
 
         private PlayerAlias GetOfflineAlias()
         {
-            if (!Talo.Settings.cachePlayerOnIdentify || !File.Exists(_offlineDataPath)) return null;
-            return JsonUtility.FromJson<PlayerAlias>(Talo.Crypto.ReadFileContent(_offlineDataPath));
+            if (!Talo.Settings.cachePlayerOnIdentify || !File.Exists(offlineDataPath)) return null;
+            return JsonUtility.FromJson<PlayerAlias>(Talo.Crypto.ReadFileContent(offlineDataPath));
         }
 
         public async Task<PlayersSearchResponse> Search(string query)
