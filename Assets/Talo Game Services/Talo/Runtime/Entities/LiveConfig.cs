@@ -1,18 +1,21 @@
 using System;
+using System.IO;
 using System.Linq;
+using UnityEngine;
 
 namespace TaloGameServices
 {
     public class LiveConfig
     {
-        private Prop[] props;
+        private static readonly string offlineDataPath = Application.persistentDataPath + "/tlc.bin";
+        private readonly Prop[] props;
 
         public LiveConfig(Prop[] props)
         {
             this.props = props;
         }
 
-        public T GetProp<T>(string key, T fallback = default(T))
+        public T GetProp<T>(string key, T fallback = default)
         {
             try
             {
@@ -22,6 +25,58 @@ namespace TaloGameServices
             catch (Exception)
             {
                 return fallback;
+            }
+        }
+
+        public void WriteOfflineConfig()
+        {
+            try
+            {
+                var json = JsonUtility.ToJson(new GameConfigResponse { config = props });
+                Talo.Crypto.WriteFileContent(offlineDataPath, json);
+            }
+            catch (Exception e)
+            {
+                Debug.LogWarning($"Failed to write offline config: {e.Message}");
+            }
+        }
+
+        public static LiveConfig GetOfflineConfig()
+        {
+            try
+            {
+                if (!File.Exists(offlineDataPath))
+                {
+                    return null;
+                }
+
+                var json = Talo.Crypto.ReadFileContent(offlineDataPath);
+                var response = JsonUtility.FromJson<GameConfigResponse>(json);
+                return new LiveConfig(response.config);
+            }
+            catch (Exception e)
+            {
+                Debug.LogWarning($"Failed to read offline config: {e.Message}");
+                return null;
+            }
+        }
+
+        public static long GetOfflineConfigLastModified()
+        {
+            try
+            {
+                if (!File.Exists(offlineDataPath))
+                {
+                    return 0;
+                }
+
+                var fileInfo = new FileInfo(offlineDataPath);
+                return new DateTimeOffset(fileInfo.LastWriteTimeUtc).ToUnixTimeSeconds();
+            }
+            catch (Exception e)
+            {
+                Debug.LogWarning($"Failed to get offline config last modified time: {e.Message}");
+                return 0;
             }
         }
     }
