@@ -151,11 +151,11 @@ namespace TaloGameServices
 
         private void DeleteOfflineAlias()
         {
-            if (File.Exists(_offlineDataPath))
+            if (File.Exists(offlineDataPath))
             {
                 try
                 {
-                    File.Delete(_offlineDataPath);
+                    File.Delete(offlineDataPath);
                 }
                 catch (Exception e)
                 {
