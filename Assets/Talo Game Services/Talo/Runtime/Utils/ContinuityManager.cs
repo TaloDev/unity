@@ -116,5 +116,11 @@ namespace TaloGameServices
                 throw new ContinuityReplayException(exceptions);
             }
         }
+
+        public void ClearRequests()
+        {
+            _requests.Clear();
+            WriteRequests();
+        }
     }
 }

@@ -10,10 +10,10 @@ namespace TaloGameServices
     {
         public event Action OnFlushed;
 
-        private List<Event> queue = new ();
+        internal List<Event> queue = new ();
         private readonly int minQueueSize = 10;
 
-        private List<Event> eventsToFlush = new ();
+        internal List<Event> eventsToFlush = new ();
         private bool lockFlushes;
         private bool flushAttemptedDuringLock;
 
@@ -117,6 +117,14 @@ namespace TaloGameServices
                 flushAttemptedDuringLock = false;
                 await Flush();
             }
+        }
+
+        public void ClearQueue()
+        {
+            queue.Clear();
+            eventsToFlush.Clear();
+            lockFlushes = false;
+            flushAttemptedDuringLock = false;
         }
     }
 }

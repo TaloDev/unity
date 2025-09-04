@@ -10,6 +10,7 @@ namespace TaloGameServices
         public event Action<Player> OnIdentified;
         public event Action OnIdentificationStarted;
         public event Action OnIdentificationFailed;
+        public event Action OnIdentityCleared;
 
         private readonly string _offlineDataPath = Application.persistentDataPath + "/ta.bin";
 
@@ -82,6 +83,8 @@ namespace TaloGameServices
 
         public async Task<Player> Update()
         {
+            Talo.IdentityCheck();
+
             var uri = new Uri($"{baseUrl}/{Talo.CurrentPlayer.id}");
             var content = JsonUtility.ToJson(Talo.CurrentPlayer);
             var json = await Call(uri, "PATCH", Prop.SanitiseJson(content));
@@ -144,6 +147,50 @@ namespace TaloGameServices
         {
             if (!Talo.Settings.cachePlayerOnIdentify || !File.Exists(_offlineDataPath)) return null;
             return JsonUtility.FromJson<PlayerAlias>(Talo.Crypto.ReadFileContent(_offlineDataPath));
+        }
+
+        private void DeleteOfflineAlias()
+        {
+            if (File.Exists(_offlineDataPath))
+            {
+                try
+                {
+                    File.Delete(_offlineDataPath);
+                }
+                catch (Exception e)
+                {
+                    Debug.LogWarning($"Failed to delete offline player data: {e.Message}");
+                }
+            }
+        }
+
+        public async Task ClearIdentity()
+        {
+            Talo.IdentityCheck();
+
+            try
+            {
+                DeleteOfflineAlias();
+            }
+            catch (Exception e)
+            {
+                Debug.LogWarning($"Error deleting offline alias: {e.Message}");
+            }
+
+            try
+            {
+                // clears the alias and resets the socket (doesn't require auth)
+                await Talo.PlayerAuth.SessionManager.ClearSession();
+            }
+            catch (Exception ex)
+            {
+                Debug.LogWarning($"Error clearing session: {ex.Message}");
+            }
+
+            Talo.Events.ClearQueue();
+            Talo.Continuity.ClearRequests();
+
+            OnIdentityCleared?.Invoke();
         }
 
         public async Task<PlayersSearchResponse> Search(string query)
