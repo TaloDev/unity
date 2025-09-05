@@ -37,6 +37,30 @@ namespace TaloGameServices
         }
     }
 
+    public class GetMembersOptions
+    {
+        public int page = 0;
+        public string playerId = "";
+        public int aliasId = -1;
+        public string identifier = "";
+        public string propKey = "";
+        public string propValue = "";
+        public string playerGroupId = "";
+
+        public string ToQueryString()
+        {
+            var query = new Dictionary<string, string> { ["page"] = page.ToString() };
+            if (!string.IsNullOrEmpty(playerId)) query["playerId"] = playerId;
+            if (aliasId != -1) query["aliasId"] = aliasId.ToString();
+            if (!string.IsNullOrEmpty(identifier)) query["identifier"] = identifier;
+            if (!string.IsNullOrEmpty(propKey)) query["propKey"] = propKey;
+            if (!string.IsNullOrEmpty(propValue)) query["propValue"] = propValue;
+            if (!string.IsNullOrEmpty(playerGroupId)) query["playerGroupId"] = playerGroupId;
+
+            return string.Join("&", query.Select((param) => $"{param.Key}={param.Value}"));
+        }
+    }
+
     public class CreateChannelOptions
     {
         public string name;
@@ -273,15 +297,17 @@ namespace TaloGameServices
             await Call(uri, "POST", content);
         }
 
-        public async Task<PlayerAlias[]> GetMembers(int channelId)
+        public async Task<ChannelsMembersResponse> GetMembers(int channelId, GetMembersOptions options = null)
         {
             Talo.IdentityCheck();
 
-            var uri = new Uri($"{baseUrl}/{channelId}/members");
+            options ??= new GetMembersOptions();
+
+            var uri = new Uri($"{baseUrl}/{channelId}/members?{options.ToQueryString()}");
             var json = await Call(uri, "GET");
 
             var res = JsonUtility.FromJson<ChannelsMembersResponse>(json);
-            return res.members;
+            return res;
         }
 
         public async Task<ChannelStorageProp> GetStorageProp(int channelId, string propKey, bool bustCache = false)
