@@ -35,9 +35,9 @@ namespace TaloGameServices
                 var json = JsonUtility.ToJson(new GameConfigResponse { config = props });
                 Talo.Crypto.WriteFileContent(offlineDataPath, json);
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                Debug.LogWarning($"Failed to write offline config: {e.Message}");
+                Debug.LogWarning($"Failed to write offline config: {ex.Message}");
             }
         }
 
@@ -54,9 +54,9 @@ namespace TaloGameServices
                 var response = JsonUtility.FromJson<GameConfigResponse>(json);
                 return new LiveConfig(response.config);
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                Debug.LogWarning($"Failed to read offline config: {e.Message}");
+                Debug.LogWarning($"Failed to read offline config: {ex.Message}");
                 return null;
             }
         }
@@ -73,9 +73,9 @@ namespace TaloGameServices
                 var fileInfo = new FileInfo(offlineDataPath);
                 return new DateTimeOffset(fileInfo.LastWriteTimeUtc).ToUnixTimeSeconds();
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                Debug.LogWarning($"Failed to get offline config last modified time: {e.Message}");
+                Debug.LogWarning($"Failed to get offline config last modified time: {ex.Message}");
                 return 0;
             }
         }

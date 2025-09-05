@@ -27,10 +27,10 @@ namespace TaloGameServices.Sample.Playground
 
                 ResponseMessage.SetText($"{statInternalName} changed by {change}, new value is {res.playerStat.value}");
             }
-            catch (Exception err)
+            catch (Exception ex)
             {
-                ResponseMessage.SetText(err.Message);
-                throw err;
+                ResponseMessage.SetText(ex.Message);
+                throw;
             }
         }
     }

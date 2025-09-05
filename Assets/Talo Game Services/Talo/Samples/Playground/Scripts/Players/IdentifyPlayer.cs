@@ -31,10 +31,10 @@ namespace TaloGameServices.Sample.Playground
             {
                 await Talo.Players.Identify(service, identifier);
             }
-            catch (Exception err)
+            catch (Exception ex)
             {
-                ResponseMessage.SetText(err.Message);
-                throw err;
+                ResponseMessage.SetText(ex.Message);
+                throw;
             }
         }
 
