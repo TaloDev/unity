@@ -107,9 +107,9 @@ namespace TaloGameServices
                 eventsToFlush.Clear();
                 lockFlushes = false;
             }
-            catch (Exception err)
+            catch (Exception ex)
             {
-                Debug.LogError(err.Message);
+                Debug.LogError(ex.Message);
             }
             
             if (flushAttemptedDuringLock)

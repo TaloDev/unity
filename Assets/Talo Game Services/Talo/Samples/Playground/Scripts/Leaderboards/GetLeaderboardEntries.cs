@@ -38,10 +38,10 @@ namespace TaloGameServices.Sample.Playground
                     ResponseMessage.SetText(string.Join(", ", entries.Select((e) => e.ToString()).ToArray()));
                 }
             }
-            catch (Exception err)
+            catch (Exception ex)
             {
-                ResponseMessage.SetText(err.Message);
-                throw err;
+                ResponseMessage.SetText(ex.Message);
+                throw;
             }
         }
     }

@@ -26,10 +26,10 @@ namespace TaloGameServices.Sample.Playground
                 await Talo.CurrentPlayer.DeleteProp(key);
                 ResponseMessage.SetText($"{key} deleted");
             }
-            catch (Exception err)
+            catch (Exception ex)
             {
-                ResponseMessage.SetText(err.Message);
-                throw err;
+                ResponseMessage.SetText(ex.Message);
+                throw;
             }
         }
     }

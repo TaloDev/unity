@@ -20,10 +20,10 @@ namespace TaloGameServices.Sample.Playground
                 await Talo.Feedback.Send(categoryInternalName, feedbackComment);
                 ResponseMessage.SetText($"Feedback sent for {categoryInternalName}: {feedbackComment}");
             }
-            catch (Exception err)
+            catch (Exception ex)
             {
-                ResponseMessage.SetText(err.Message);
-                throw err;
+                ResponseMessage.SetText(ex.Message);
+                throw;
             }
         }
     }

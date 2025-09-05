@@ -25,10 +25,10 @@ namespace TaloGameServices.Sample.Playground
                 var res = await Talo.Stats.FindPlayerStat(statInternalName);
                 ResponseMessage.SetText($"{statInternalName} value: {(res == null ? "not set" : res.value)}, last updated: {res?.updatedAt ?? "never"}");
             }
-            catch (Exception err)
+            catch (Exception ex)
             {
-                ResponseMessage.SetText(err.Message);
-                throw err;
+                ResponseMessage.SetText(ex.Message);
+                throw;
             }
         }
     }

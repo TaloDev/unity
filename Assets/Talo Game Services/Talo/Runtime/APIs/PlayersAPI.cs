@@ -157,9 +157,9 @@ namespace TaloGameServices
                 {
                     File.Delete(offlineDataPath);
                 }
-                catch (Exception e)
+                catch (Exception ex)
                 {
-                    Debug.LogWarning($"Failed to delete offline player data: {e.Message}");
+                    Debug.LogWarning($"Failed to delete offline player data: {ex.Message}");
                 }
             }
         }
@@ -172,9 +172,9 @@ namespace TaloGameServices
             {
                 DeleteOfflineAlias();
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                Debug.LogWarning($"Error deleting offline alias: {e.Message}");
+                Debug.LogWarning($"Error deleting offline alias: {ex.Message}");
             }
 
             try
