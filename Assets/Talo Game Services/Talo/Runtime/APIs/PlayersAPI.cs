@@ -10,8 +10,9 @@ namespace TaloGameServices
         public event Action<Player> OnIdentified;
         public event Action OnIdentificationStarted;
         public event Action OnIdentificationFailed;
+        public event Action OnIdentityCleared;
 
-        private readonly string _offlineDataPath = Application.persistentDataPath + "/ta.bin";
+        private readonly string offlineDataPath = Application.persistentDataPath + "/ta.bin";
 
         public PlayersAPI() : base("v1/players") { }
 
@@ -82,6 +83,8 @@ namespace TaloGameServices
 
         public async Task<Player> Update()
         {
+            Talo.IdentityCheck();
+
             var uri = new Uri($"{baseUrl}/{Talo.CurrentPlayer.id}");
             var content = JsonUtility.ToJson(Talo.CurrentPlayer);
             var json = await Call(uri, "PATCH", Prop.SanitiseJson(content));
@@ -123,7 +126,7 @@ namespace TaloGameServices
             {
                 try
                 {
-                    File.Delete(_offlineDataPath);
+                    File.Delete(offlineDataPath);
                 }
                 finally
                 {
@@ -137,13 +140,67 @@ namespace TaloGameServices
         {
             if (!Talo.Settings.cachePlayerOnIdentify) return;
             var content = JsonUtility.ToJson(alias);
-            Talo.Crypto.WriteFileContent(_offlineDataPath, content);
+            Talo.Crypto.WriteFileContent(offlineDataPath, content);
         }
 
         private PlayerAlias GetOfflineAlias()
         {
-            if (!Talo.Settings.cachePlayerOnIdentify || !File.Exists(_offlineDataPath)) return null;
-            return JsonUtility.FromJson<PlayerAlias>(Talo.Crypto.ReadFileContent(_offlineDataPath));
+            if (!Talo.Settings.cachePlayerOnIdentify || !File.Exists(offlineDataPath)) return null;
+            return JsonUtility.FromJson<PlayerAlias>(Talo.Crypto.ReadFileContent(offlineDataPath));
+        }
+
+        private void DeleteOfflineAlias()
+        {
+            if (File.Exists(offlineDataPath))
+            {
+                try
+                {
+                    File.Delete(offlineDataPath);
+                }
+                catch (Exception ex)
+                {
+                    Debug.LogWarning($"Failed to delete offline player data: {ex.Message}");
+                }
+            }
+        }
+
+        public async Task ClearIdentity()
+        {
+            Talo.IdentityCheck();
+
+            try
+            {
+                DeleteOfflineAlias();
+            }
+            catch (Exception ex)
+            {
+                Debug.LogWarning($"Error deleting offline alias: {ex.Message}");
+            }
+
+            try
+            {
+                // clears the alias and resets the socket (doesn't require auth)
+                await Talo.PlayerAuth.SessionManager.ClearSession();
+            }
+            catch (Exception ex)
+            {
+                Debug.LogWarning($"Error clearing session: {ex.Message}");
+            }
+
+            Talo.Events.ClearQueue();
+            Talo.Continuity.ClearRequests();
+
+            OnIdentityCleared?.Invoke();
+        }
+
+        public async Task<PlayersSearchResponse> Search(string query)
+        {
+            var encodedQuery = Uri.EscapeDataString(query.Trim());
+            var uri = new Uri($"{baseUrl}/search?query={encodedQuery}");
+            var json = await Call(uri, "GET");
+
+            var res = JsonUtility.FromJson<PlayersSearchResponse>(json);
+            return res;
         }
     }
 }

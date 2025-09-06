@@ -44,17 +44,17 @@ namespace TaloGameServices.Sample.AuthenticationDemo
                     SendMessageUpwards("GoToVerify", SendMessageOptions.RequireReceiver);
                 }
             }
-            catch (PlayerAuthException e)
+            catch (PlayerAuthException ex)
             {
-                validationLabel.text = e.ErrorCode switch
+                validationLabel.text = ex.ErrorCode switch
                 {
                     PlayerAuthErrorCode.INVALID_CREDENTIALS => "Username or password is incorrect",
-                    _ => e.Message
+                    _ => ex.Message
                 };
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                validationLabel.text = e.Message;
+                validationLabel.text = ex.Message;
             }
         }
 

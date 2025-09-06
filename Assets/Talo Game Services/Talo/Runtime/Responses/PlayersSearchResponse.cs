@@ -1,9 +1,9 @@
 namespace TaloGameServices
 {
     [System.Serializable]
-    public class ChannelsMembersResponse
+    public class PlayersSearchResponse
     {
-        public PlayerAlias[] members;
+        public Player[] players;
         public int count;
         public int itemsPerPage;
         public bool isLastPage;

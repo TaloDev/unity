@@ -19,10 +19,10 @@ namespace TaloGameServices.Sample.Playground
 
                 ResponseMessage.SetText("Flushed events");
             }
-            catch (Exception err)
+            catch (Exception ex)
             {
-                ResponseMessage.SetText(err.Message);
-                throw err;
+                ResponseMessage.SetText(ex.Message);
+                throw;
             }
         }
     }

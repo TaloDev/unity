@@ -25,10 +25,10 @@ namespace TaloGameServices.Sample.Playground
                 await Talo.CurrentPlayer.SetProp(key, value);
                 ResponseMessage.SetText($"{key} set to {value}");
             }
-            catch (System.Exception err)
+            catch (System.Exception ex)
             {
-                ResponseMessage.SetText(err.Message);
-                throw err;
+                ResponseMessage.SetText(ex.Message);
+                throw;
             }
         }
     }

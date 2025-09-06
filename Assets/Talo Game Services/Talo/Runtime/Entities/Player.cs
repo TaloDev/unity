@@ -6,9 +6,10 @@ using System.Threading.Tasks;
 namespace TaloGameServices
 {
     [Serializable]
-    public class Player: EntityWithProps
+    public class Player : EntityWithProps
     {
         public string id;
+        public PlayerAlias[] aliases;
         public GroupStub[] groups;
 
         public override string ToString()
@@ -44,6 +45,16 @@ namespace TaloGameServices
         public bool IsInGroupName(string groupName)
         {
             return groups.Any((group) => group.name == groupName);
+        }
+
+        public PlayerAlias GetAlias(string service = "")
+        {
+            if (string.IsNullOrEmpty(service))
+            {
+                return aliases.Length > 0 ? aliases[0] : null;
+            }
+
+            return aliases.FirstOrDefault((alias) => alias.service == service);
         }
     }
 }

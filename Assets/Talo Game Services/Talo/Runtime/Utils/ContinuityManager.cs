@@ -105,9 +105,9 @@ namespace TaloGameServices
                 try
                 {
                     await _api.Replay(uri, request.method, request.content, headers);
-                } catch (Exception e)
+                } catch (Exception ex)
                 {
-                    exceptions.Add(e);
+                    exceptions.Add(ex);
                 }
             }
 
@@ -115,6 +115,12 @@ namespace TaloGameServices
             {
                 throw new ContinuityReplayException(exceptions);
             }
+        }
+
+        public void ClearRequests()
+        {
+            _requests.Clear();
+            WriteRequests();
         }
     }
 }

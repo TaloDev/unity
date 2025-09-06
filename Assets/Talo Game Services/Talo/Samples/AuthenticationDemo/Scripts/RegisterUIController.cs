@@ -45,18 +45,18 @@ namespace TaloGameServices.Sample.AuthenticationDemo
             {
                 await Talo.PlayerAuth.Register(username, password, email, enableVerification);
             }
-            catch (PlayerAuthException e)
+            catch (PlayerAuthException ex)
             {
-                validationLabel.text = e.ErrorCode switch
+                validationLabel.text = ex.ErrorCode switch
                 {
                     PlayerAuthErrorCode.IDENTIFIER_TAKEN => "Username is already taken",
                     PlayerAuthErrorCode.INVALID_EMAIL => "Invalid email address",
-                    _ => e.Message
+                    _ => ex.Message
                 };
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                validationLabel.text = e.Message;
+                validationLabel.text = ex.Message;
             }
         }
 

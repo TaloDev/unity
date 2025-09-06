@@ -19,10 +19,10 @@ namespace TaloGameServices.Sample.Playground
                 var internalNames = res.Length > 0 ? string.Join(", ", res.Select((item) => item.internalName)) : "no stats";
                 ResponseMessage.SetText($"Stats: {internalNames}");
             }
-            catch (Exception err)
+            catch (Exception ex)
             {
-                ResponseMessage.SetText(err.Message);
-                throw err;
+                ResponseMessage.SetText(ex.Message);
+                throw;
             }
         }
     }

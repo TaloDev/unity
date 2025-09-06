@@ -35,10 +35,10 @@ namespace TaloGameServices.Sample.Playground
                     $"average player value: {playerMetrics.averageValue}"
                 );
             }
-            catch (Exception err)
+            catch (Exception ex)
             {
-                ResponseMessage.SetText(err.Message);
-                throw err;
+                ResponseMessage.SetText(ex.Message);
+                throw;
             }
         }
     }

@@ -32,17 +32,17 @@ namespace TaloGameServices.Sample.AuthenticationDemo
             {
                 await Talo.PlayerAuth.Verify(code);
             }
-            catch (PlayerAuthException e)
+            catch (PlayerAuthException ex)
             {
-                validationLabel.text = e.ErrorCode switch
+                validationLabel.text = ex.ErrorCode switch
                 {
                     PlayerAuthErrorCode.VERIFICATION_CODE_INVALID => "Verification code is incorrect",
-                    _ => e.Message
+                    _ => ex.Message
                 };
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                validationLabel.text = e.Message;
+                validationLabel.text = ex.Message;
             }
         }
     }
