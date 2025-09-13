@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace TaloGameServices
 {
@@ -21,24 +22,64 @@ namespace TaloGameServices
             {
                 _currentEntries[internalName] = new List<LeaderboardEntry>();
             }
-            else
+
+            var entries = _currentEntries[internalName];
+            
+            // ensure there isn't an existing entry
+            entries.RemoveAll((e) => e.id == entry.id);
+            
+            int insertPosition = FindInsertPosition(entries, entry);
+            entries.Insert(insertPosition, entry);
+
+            for (int idx = 0; idx < entries.Count; idx++)
             {
-                _currentEntries[internalName].RemoveAll(e => e.id == entry.id);
+                entries[idx].position = idx;
+            }
+        }
+
+        private int FindInsertPosition(List<LeaderboardEntry> entries, LeaderboardEntry newEntry)
+        {
+            if (entries.Count == 0)
+            {
+                return 0;
             }
 
-            if (entry.position >= _currentEntries[internalName].Count)
+            int left = 0;
+            int right = entries.Count;
+
+            while (left < right)
             {
-                _currentEntries[internalName].Add(entry);
-            }
-            else
-            {
-                _currentEntries[internalName].Insert(entry.position, entry);
+                int mid = left + (right - left) / 2;
+                if (CompareEntries(newEntry, entries[mid]))
+                {
+                    right = mid;
+                }
+                else
+                {
+                    left = mid + 1;
+                }
             }
 
-            for (int idx = entry.position; idx < _currentEntries[internalName].Count; idx++)
+            return left;
+        }
+
+        private bool CompareEntries(LeaderboardEntry a, LeaderboardEntry b)
+        {
+            // first compare by score based on sort mode
+            if (a.score != b.score)
             {
-                _currentEntries[internalName][idx].position = idx;
+                if (a.LeaderboardSortMode == LeaderboardSortMode.ASC)
+                {
+                    return a.score < b.score;
+                }
+                else
+                {
+                    return a.score > b.score;
+                }
             }
+
+            // if scores are equal, earlier entries win
+            return DateTime.Parse(a.createdAt) < DateTime.Parse(b.createdAt);
         }
     }
 }
