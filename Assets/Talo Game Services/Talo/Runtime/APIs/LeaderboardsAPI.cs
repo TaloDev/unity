@@ -13,6 +13,8 @@ namespace TaloGameServices
         public bool includeArchived = false;
         public string propKey = "";
         public string propValue = "";
+        public string startDate = "";
+        public string endDate = "";
 
         public string ToQueryString()
         {
@@ -21,6 +23,8 @@ namespace TaloGameServices
             if (includeArchived) query["withDeleted"] = "1";
             if (!string.IsNullOrEmpty(propKey)) query["propKey"] = propKey;
             if (!string.IsNullOrEmpty(propValue)) query["propValue"] = propValue;
+            if (!string.IsNullOrEmpty(startDate)) query["startDate"] = startDate;
+            if (!string.IsNullOrEmpty(endDate)) query["endDate"] = endDate;
 
             return string.Join("&", query.Select((param) => $"{param.Key}={param.Value}"));
         }
