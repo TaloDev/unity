@@ -348,5 +348,34 @@ namespace TaloGameServices
                 OnChannelStoragePropsFailedToSet?.Invoke(res.channel, res.failedProps);
             }
         }
+
+        public async Task<ChannelStorageProp[]> ListStorageProps(int channelId, string[] propKeys, bool bustCache = false)
+        {
+            Talo.IdentityCheck();
+
+            if (!bustCache)
+            {
+                return await _storageManager.ListProps(channelId, propKeys);
+            }
+
+            var queryParams = propKeys.Length > 0 
+                ? "?" + string.Join("&", propKeys.Select((key) => $"propKeys={key}"))
+                : "";
+            
+            var uri = new Uri($"{baseUrl}/{channelId}/storage/list{queryParams}");
+            var json = await Call(uri, "GET");
+
+            var res = JsonUtility.FromJson<ChannelStoragePropsListResponse>(json);
+            if (res.props != null)
+            {
+                foreach (var prop in res.props)
+                {
+                    _storageManager.UpsertProp(channelId, prop);
+                }
+                return res.props;
+            }
+
+            return new ChannelStorageProp[0];
+        }
     }
 }
