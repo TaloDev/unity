@@ -42,5 +42,32 @@ namespace TaloGameServices
             var key = $"{channelId}:{propKey}";
             _currentProps.Remove(key);
         }
+
+        public async Task<ChannelStorageProp[]> ListProps(int channelId, string[] propKeys)
+        {
+            var results = new List<ChannelStorageProp>();
+            var keysToFetch = new List<string>();
+
+            foreach (var propKey in propKeys)
+            {
+                var cacheKey = $"{channelId}:{propKey}";
+                if (_currentProps.TryGetValue(cacheKey, out var cachedProp))
+                {
+                    results.Add(cachedProp);
+                }
+                else
+                {
+                    keysToFetch.Add(propKey);
+                }
+            }
+
+            if (keysToFetch.Count > 0)
+            {
+                var fetchedProps = await Talo.Channels.ListStorageProps(channelId, keysToFetch.ToArray(), true);
+                results.AddRange(fetchedProps);
+            }
+
+            return results.ToArray();
+        }
     }
 }
