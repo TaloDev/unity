@@ -375,7 +375,7 @@ namespace TaloGameServices
                 return res.props;
             }
 
-            return new ChannelStorageProp[0];
+            return Array.Empty<ChannelStorageProp>();
         }
     }
 }
