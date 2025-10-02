@@ -123,7 +123,20 @@ namespace TaloGameServices
         public void DeleteOfflineSave(int saveId)
         {
             var offlineContent = GetOfflineSavesContent();
+            if (offlineContent?.saves == null) return;
+
             offlineContent.saves = offlineContent.saves.Where((save) => save.id != saveId).ToArray();
+            WriteOfflineSavesContent(offlineContent);
+        }
+
+        public void DeleteOfflineSaves(int[] saveIds)
+        {
+            if (saveIds.Length == 0) return;
+
+            var offlineContent = GetOfflineSavesContent();
+            if (offlineContent?.saves == null) return;
+
+            offlineContent.saves = offlineContent.saves.Where((save) => !saveIds.Contains(save.id)).ToArray();
             WriteOfflineSavesContent(offlineContent);
         }
 
@@ -136,23 +149,6 @@ namespace TaloGameServices
             {
                 UnloadCurrentSave();
             }
-        }
-
-        public async Task<GameSave[]> SyncOfflineSaves(GameSave[] offlineSaves)
-        {
-            var newSaves = new List<GameSave>();
-
-            foreach (var offlineSave in offlineSaves)
-            {
-                if (offlineSave.id < 0)
-                {
-                    var save = await Talo.Saves.CreateSave(offlineSave.name, offlineSave.content);
-                    DeleteOfflineSave(offlineSave.id);
-                    newSaves.Add(save);
-                }
-            }
-
-            return newSaves.ToArray();
         }
 
         public async Task<GameSave> SyncSave(GameSave onlineSave, GameSave offlineSave)
