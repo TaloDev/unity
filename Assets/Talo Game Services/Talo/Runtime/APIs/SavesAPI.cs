@@ -69,6 +69,41 @@ namespace TaloGameServices
             return res.save;
         }
 
+        private async Task<GameSave[]> SyncOfflineSaves(GameSave[] offlineSaves)
+        {
+            var offlineOnlySaves = offlineSaves.Where((save) => save.id < 0).ToArray();
+            if (offlineOnlySaves.Length == 0) return Array.Empty<GameSave>();
+
+            Talo.IdentityCheck();
+
+            var tasks = offlineOnlySaves.Select(async (offlineSave) =>
+            {
+                try
+                {
+                    var uri = new Uri(baseUrl);
+                    var json = await Call(uri, "POST", JsonUtility.ToJson(new SavesPostRequest
+                    {
+                        name = offlineSave.name,
+                        content = offlineSave.content
+                    }));
+
+                    var res = JsonUtility.FromJson<SavesPostResponse>(json);
+                    return new { res.save, offlineId = offlineSave.id };
+                }
+                catch
+                {
+                    return null;
+                }
+            });
+
+            var results = await Task.WhenAll(tasks);
+            var successfulResults = results.Where((res) => res != null);
+            var offlineIdsToDelete = successfulResults.Select((res) => res.offlineId).ToArray();
+            savesManager.DeleteOfflineSaves(offlineIdsToDelete);
+
+            return successfulResults.Select((res) => res.save).ToArray();
+        }
+
         public async Task<GameSave[]> GetSaves()
         {
             var saves = new List<GameSave>();
@@ -88,27 +123,26 @@ namespace TaloGameServices
                 var onlineSaves = res.saves;
 
                 if (offlineSaves != null)
+                {
+                    var tasks = onlineSaves.Select(async (onlineSave) =>
                     {
-                        var tasks = onlineSaves.Select(async (onlineSave) =>
+                        var offlineSave = offlineSaves
+                            .FirstOrDefault((offlineSave) => offlineSave.id == onlineSave.id);
+
+                        if (offlineSave != null)
                         {
-                            var offlineSave = offlineSaves
-                                .FirstOrDefault((offlineSave) => offlineSave.id == onlineSave.id);
+                            return await savesManager.SyncSave(onlineSave, offlineSave);
+                        }
+                        return onlineSave;
+                    });
 
-                            if (offlineSave != null)
-                            {
-                                return await savesManager.SyncSave(onlineSave, offlineSave);
-                            }
-                            return onlineSave;
-                        })
-                            .ToList();
+                    onlineSaves = await Task.WhenAll(tasks);
 
-                        onlineSaves = await Task.WhenAll(tasks);
+                    var syncedSaves = await SyncOfflineSaves(offlineSaves);
+                    saves.AddRange(syncedSaves);
+                }
 
-                        var syncedSaves = await savesManager.SyncOfflineSaves(offlineSaves);
-                        saves.AddRange(syncedSaves);
-                    }
-
-                    saves.AddRange(onlineSaves);
+                saves.AddRange(onlineSaves);
             }
 
             savesManager.HandleSavesLoaded(saves);
