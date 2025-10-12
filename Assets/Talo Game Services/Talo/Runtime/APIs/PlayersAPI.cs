@@ -14,7 +14,24 @@ namespace TaloGameServices
 
         private readonly string offlineDataPath = Application.persistentDataPath + "/ta.bin";
 
-        public PlayersAPI() : base("v1/players") { }
+        public PlayersAPI() : base("v1/players")
+        {
+            Talo.OnConnectionRestored += OnConnectionRestored;
+        }
+
+        private async void OnConnectionRestored()
+        {
+            await Talo.Socket.ResetConnection();
+
+            if (Talo.HasIdentity())
+            {
+                var socketToken = await CreateSocketToken();
+                if (!string.IsNullOrEmpty(socketToken))
+                {
+                    Talo.Socket.SetSocketToken(socketToken);
+                }
+            }
+        }
 
         public void InvokeIdentifiedEvent()
         {
@@ -201,6 +218,25 @@ namespace TaloGameServices
 
             var res = JsonUtility.FromJson<PlayersSearchResponse>(json);
             return res;
+        }
+
+        public async Task<string> CreateSocketToken()
+        {
+            Talo.IdentityCheck();
+
+            var uri = new Uri($"{baseUrl}/socket-token");
+
+            try
+            {
+                var json = await Call(uri, "POST");
+                var res = JsonUtility.FromJson<PlayersSocketTokenResponse>(json);
+                return res.socketToken;
+            }
+            catch (Exception ex)
+            {
+                Debug.LogWarning($"Failed to create socket token: {ex.Message}");
+                return "";
+            }
         }
     }
 }

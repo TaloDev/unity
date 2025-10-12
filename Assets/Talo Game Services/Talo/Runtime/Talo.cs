@@ -7,9 +7,22 @@ namespace TaloGameServices
 {
     public class Talo
     {
+        public static event Action OnConnectionLost;
+        public static event Action OnConnectionRestored;
+
         private static bool _testMode;
 
         internal static bool TestMode => _testMode;
+
+        internal static void InvokeConnectionLost()
+        {
+            OnConnectionLost?.Invoke();
+        }
+
+        internal static void InvokeConnectionRestored()
+        {
+            OnConnectionRestored?.Invoke();
+        }
 
         internal static EventsAPI _events;
         internal static PlayersAPI _players;
@@ -217,6 +230,16 @@ namespace TaloGameServices
 #endif
             _testMode = false;
             return _testMode;
+        }
+
+        internal static void HandleConnectionLost()
+        {
+            OnConnectionLost?.Invoke();
+        }
+        
+        internal static void HandleConnectionRestored()
+        {
+            OnConnectionRestored?.Invoke();
         }
     }
 }

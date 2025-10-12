@@ -130,11 +130,6 @@ namespace TaloGameServices
 
         public async Task ResetConnection()
         {
-            if (!identified)
-            {
-                return;
-            }
-
             CloseConnection();
             socketAuthenticated = false;
             identified = false;
