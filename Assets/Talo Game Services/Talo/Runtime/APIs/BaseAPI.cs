@@ -101,6 +101,8 @@ namespace TaloGameServices
                     Debug.Log($"--> {method} {uri} [{www.responseCode}] {www.downloadHandler.text}");
                 }
 
+                await Talo.Continuity.HandlePostResponseHealthCheck(uri.ToString(), www.result);
+
                 if (www.result == UnityWebRequest.Result.Success)
                 {
                     return www.downloadHandler.text;
