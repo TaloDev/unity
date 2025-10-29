@@ -44,6 +44,17 @@ namespace TaloGameServices
             return res.playerStat;
         }
 
+        public async Task<PlayerStat[]> ListPlayerStats()
+        {
+            Talo.IdentityCheck();
+
+            var uri = new Uri($"{baseUrl}/player-stats");
+
+            var json = await Call(uri, "GET");
+            var res = JsonUtility.FromJson<PlayerStatsListResponse>(json);
+            return res.playerStats;
+        }
+
         public async Task<StatsPutResponse> Track(string internalName, float change = 1f)
         {
             Talo.IdentityCheck();
