@@ -231,15 +231,5 @@ namespace TaloGameServices
             _testMode = false;
             return _testMode;
         }
-
-        internal static void HandleConnectionLost()
-        {
-            OnConnectionLost?.Invoke();
-        }
-        
-        internal static void HandleConnectionRestored()
-        {
-            OnConnectionRestored?.Invoke();
-        }
     }
 }
