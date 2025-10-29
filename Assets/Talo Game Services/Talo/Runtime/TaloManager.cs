@@ -48,7 +48,7 @@ namespace TaloGameServices
             }
         }
 
-        private void Update()
+        private async void Update()
         {
             if (Application.platform == RuntimePlatform.WebGLPlayer)
             {
@@ -65,7 +65,7 @@ namespace TaloGameServices
                 tmrContinuity += Time.deltaTime;
                 if (tmrContinuity >= 10f)
                 {
-                    Talo.Continuity.ProcessRequests();
+                    await Talo.Continuity.ProcessRequests();
                     tmrContinuity = 0;
                 }
             }

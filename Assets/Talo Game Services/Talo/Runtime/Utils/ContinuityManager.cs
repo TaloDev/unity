@@ -2,7 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.IO;
+using System.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.Networking;
 
 namespace TaloGameServices
 {
@@ -79,7 +81,7 @@ namespace TaloGameServices
             WriteRequests();
         }
 
-        public async void ProcessRequests()
+        public async Task ProcessRequests()
         {
             if (!HasRequests() || !await Talo.HealthCheck.Ping()) return;
 
@@ -121,6 +123,34 @@ namespace TaloGameServices
         {
             _requests.Clear();
             WriteRequests();
+        }
+
+        public async Task HandlePostResponseHealthCheck(string url, UnityWebRequest.Result result)
+        {
+            if (url.Contains("/health-check"))
+            {
+                return;
+            }
+
+            var isConnectionError = result == UnityWebRequest.Result.ConnectionError;
+            var isDataProcessingError = result == UnityWebRequest.Result.DataProcessingError;
+
+            if (result == UnityWebRequest.Result.Success)
+            {
+                // if offline mode is enabled, check if it shouldn't be
+                if (Talo.HealthCheck.GetLastStatus() == HealthCheckStatus.FAILED)
+                {
+                    await Talo.HealthCheck.Ping();
+                }
+            }
+            else if (isConnectionError || isDataProcessingError)
+            {
+                // if offline mode isn't enabled, check if it should be
+                if (Talo.HealthCheck.GetLastStatus() != HealthCheckStatus.FAILED)
+                {
+                    await Talo.HealthCheck.Ping();
+                }
+            }
         }
     }
 }

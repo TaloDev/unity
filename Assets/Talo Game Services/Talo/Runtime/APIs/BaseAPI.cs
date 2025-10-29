@@ -9,7 +9,7 @@ namespace TaloGameServices
     public class BaseAPI
     {
         // automatically updated with a pre-commit hook
-        private const string ClientVersion = "0.47.0";
+        private const string ClientVersion = "0.48.0";
 
         protected string baseUrl;
 
@@ -100,6 +100,8 @@ namespace TaloGameServices
                 {
                     Debug.Log($"--> {method} {uri} [{www.responseCode}] {www.downloadHandler.text}");
                 }
+
+                await Talo.Continuity.HandlePostResponseHealthCheck(uri.ToString(), www.result);
 
                 if (www.result == UnityWebRequest.Result.Success)
                 {
