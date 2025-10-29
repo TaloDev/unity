@@ -81,7 +81,7 @@ namespace TaloGameServices
             WriteRequests();
         }
 
-        public async void ProcessRequests()
+        public async Task ProcessRequests()
         {
             if (!HasRequests() || !await Talo.HealthCheck.Ping()) return;
 
