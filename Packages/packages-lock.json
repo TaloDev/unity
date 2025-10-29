@@ -57,7 +57,7 @@
       }
     },
     "com.unity.toolchain.macos-arm64-linux-x86_64": {
-      "version": "2.0.4",
+      "version": "2.0.5",
       "depth": 0,
       "source": "registry",
       "dependencies": {
