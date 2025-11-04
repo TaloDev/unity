@@ -129,7 +129,7 @@ namespace TaloGameServices
             var res = JsonUtility.FromJson<PlayersUpdateResponse>(json);
             var player = res.player;
 
-            if (options.postMergeIdentityService != "")
+            if (!string.IsNullOrEmpty(options.postMergeIdentityService))
             {
                 var alias = player.GetAlias(options.postMergeIdentityService);
                 if (alias != null)
