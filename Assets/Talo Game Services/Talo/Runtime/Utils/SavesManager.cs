@@ -140,12 +140,12 @@ namespace TaloGameServices
             WriteOfflineSavesContent(offlineContent);
         }
 
-        public void DeleteSave(int saveId)
+        public void DeleteSave(int saveId, bool unloadIfCurrentSave)
         {
             _allSaves = _allSaves.Where((existingSave) => existingSave.id != saveId).ToList();
             DeleteOfflineSave(saveId);
 
-            if (_currentSave?.id == saveId)
+            if (unloadIfCurrentSave && _currentSave?.id == saveId)
             {
                 UnloadCurrentSave();
             }

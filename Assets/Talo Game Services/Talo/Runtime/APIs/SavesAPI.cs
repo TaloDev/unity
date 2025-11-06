@@ -241,7 +241,7 @@ namespace TaloGameServices
             savesManager.UnloadCurrentSave();
         }
 
-        public async Task DeleteSave(int saveId)
+        public async Task DeleteSave(int saveId, bool unloadIfCurrentSave = false)
         {
             var _ = savesManager.FindSaveByID(saveId);
 
@@ -252,7 +252,7 @@ namespace TaloGameServices
                 await Call(uri, "DELETE");
             }
 
-            savesManager.DeleteSave(saveId);
+            savesManager.DeleteSave(saveId, unloadIfCurrentSave);
         }
     }
 }
