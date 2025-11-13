@@ -5,6 +5,11 @@ using System.IO;
 
 namespace TaloGameServices
 {
+    public class MergeOptions
+    {
+        public string postMergeIdentityService = "";
+    }
+
     public class PlayersAPI : BaseAPI
     {
         public event Action<Player> OnIdentified;
@@ -113,14 +118,27 @@ namespace TaloGameServices
             return Talo.CurrentPlayer;
         }
 
-        public async Task<Player> Merge(string playerId1, string playerId2)
+        public async Task<Player> Merge(string playerId1, string playerId2, MergeOptions options = null)
         {
+            options ??= new MergeOptions();
+
             var uri = new Uri($"{baseUrl}/merge");
             string content = JsonUtility.ToJson(new PlayersMergeRequest(playerId1, playerId2));
             var json = await Call(uri, "POST", content);
 
             var res = JsonUtility.FromJson<PlayersUpdateResponse>(json);
-            return res.player;
+            var player = res.player;
+
+            if (!string.IsNullOrEmpty(options.postMergeIdentityService))
+            {
+                var alias = player.GetAlias(options.postMergeIdentityService);
+                if (alias != null)
+                {
+                    await Identify(alias.service, alias.identifier);
+                }
+            }
+
+            return player;
         }
 
         public async Task<Player> Find(string playerId)

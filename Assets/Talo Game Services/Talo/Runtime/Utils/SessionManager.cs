@@ -10,9 +10,9 @@ namespace TaloGameServices
         public void HandleSessionCreated(PlayerAuthSessionResponse res)
         {
             Talo.CurrentAlias = res.alias;
-            Talo.Socket.SetSocketToken(res.socketToken);
-            Talo.Players.InvokeIdentifiedEvent();
             SaveSession(res.sessionToken);
+            Talo.Players.InvokeIdentifiedEvent();
+            Talo.Socket.SetSocketToken(res.socketToken);
         }
 
         private void SaveSession(string sessionToken)
