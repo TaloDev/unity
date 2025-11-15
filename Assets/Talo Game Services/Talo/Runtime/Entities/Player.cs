@@ -1,7 +1,6 @@
 ﻿using UnityEngine;
 using System.Linq;
 using System;
-using System.Threading.Tasks;
 
 namespace TaloGameServices
 {
@@ -17,23 +16,23 @@ namespace TaloGameServices
             return JsonUtility.ToJson(this);
         }
 
-        public async Task SetProp(string key, string value, bool update = true)
+        public void SetProp(string key, string value, bool update = true)
         {
             base.SetProp(key, value);
 
             if (update)
             {
-                await Talo.Players.Update();
+                Talo.Players.DebounceUpdate();
             }
         }
 
-        public async Task DeleteProp(string key, bool update = true)
+        public void DeleteProp(string key, bool update = true)
         {
             base.DeleteProp(key);
 
             if (update)
             {
-                await Talo.Players.Update();
+                Talo.Players.DebounceUpdate();
             }
         }
 

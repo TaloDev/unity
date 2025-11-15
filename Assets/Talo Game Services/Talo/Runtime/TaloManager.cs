@@ -48,7 +48,7 @@ namespace TaloGameServices
             }
         }
 
-        private async void Update()
+        private void Update()
         {
             if (Application.platform == RuntimePlatform.WebGLPlayer)
             {
@@ -65,9 +65,29 @@ namespace TaloGameServices
                 tmrContinuity += Time.deltaTime;
                 if (tmrContinuity >= 10f)
                 {
-                    await Talo.Continuity.ProcessRequests();
+                    ProcessContinuityRequests();
                     tmrContinuity = 0;
                 }
+            }
+
+            ProcessDebouncedUpdates();
+        }
+
+        private async void ProcessContinuityRequests()
+        {
+            await Talo.Continuity.ProcessRequests();
+        }
+
+        private async void ProcessDebouncedUpdates()
+        {
+            if (Talo.HasIdentity())
+            {
+                await Talo.Players.ProcessPendingUpdates();
+            }
+
+            if (Talo.Saves.Current != null)
+            {
+                await Talo.Saves.ProcessPendingUpdates();
             }
         }
 

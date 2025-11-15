@@ -2,7 +2,6 @@ using System.Collections;
 using NUnit.Framework;
 using UnityEngine.TestTools;
 using UnityEngine;
-using System.Threading.Tasks;
 
 namespace TaloGameServices.Test
 {
@@ -41,7 +40,7 @@ namespace TaloGameServices.Test
             yield return Talo.Events.Track("test-event");
             Assert.IsNotEmpty(Talo.Events.queue);
 
-            Talo.Players.ClearIdentity();
+            _ = Talo.Players.ClearIdentity();
             Assert.IsNull(Talo.CurrentAlias);
             Assert.IsTrue(eventMock.identityCleared);
             Assert.IsEmpty(Talo.Events.queue);
