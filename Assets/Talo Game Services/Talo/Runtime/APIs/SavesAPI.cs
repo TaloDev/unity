@@ -6,8 +6,13 @@ using System.Collections.Generic;
 
 namespace TaloGameServices
 {
-    public class SavesAPI : BaseAPI
+    public class SavesAPI : DebouncedAPI<SavesAPI.DebouncedOperation>
     {
+        public enum DebouncedOperation
+        {
+            Update
+        }
+
         internal SavesManager savesManager;
         internal SavesContentManager contentManager;
 
@@ -186,9 +191,37 @@ namespace TaloGameServices
             return savesManager.CreateSave(save);
         }
 
+        protected override async Task ExecuteDebouncedOperation(DebouncedOperation operation)
+        {
+            switch (operation)
+            {
+                case DebouncedOperation.Update:
+                    if (savesManager.CurrentSave != null)
+                    {
+                        await UpdateSave(savesManager.CurrentSave.id);
+                    }
+                    break;
+            }
+        }
+
+        public new void DebounceUpdate()
+        {
+            Debounce(DebouncedOperation.Update);
+        }
+
         public async Task<GameSave> UpdateCurrentSave(string newName = "")
         {
-            return await UpdateSave(savesManager.CurrentSave.id, newName);
+            // if the save is being renamed, sync it immediately
+            if (!string.IsNullOrEmpty(newName))
+            {
+                return await UpdateSave(savesManager.CurrentSave.id, newName);
+            }
+
+            // else, update the save locally and queue it for syncing
+            var save = savesManager.CurrentSave;
+            save.content = contentManager.Content;
+            DebounceUpdate();
+            return save;
         }
 
         public async Task<GameSave> UpdateSave(int saveId, string newName = "")

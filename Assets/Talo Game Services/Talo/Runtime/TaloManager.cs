@@ -69,6 +69,21 @@ namespace TaloGameServices
                     tmrContinuity = 0;
                 }
             }
+
+            await ProcessDebouncedUpdates();
+        }
+
+        private async void ProcessDebouncedUpdates()
+        {
+            if (Talo.HasIdentity())
+            {
+                await Talo.Players.ProcessPendingUpdates();
+            }
+
+            if (Talo.Saves.Current != null)
+            {
+                await Talo.Saves.ProcessPendingUpdates();
+            }
         }
 
         public void ResetFlushTimer()
