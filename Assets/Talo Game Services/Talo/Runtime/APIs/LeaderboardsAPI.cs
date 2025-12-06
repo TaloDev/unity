@@ -110,7 +110,7 @@ namespace TaloGameServices
             var json = await Call(uri, "POST", Prop.SanitiseJson(content));
 
             var res = JsonUtility.FromJson<LeaderboardEntryResponse>(json);
-            _entriesManager.UpsertEntry(internalName, res.entry);
+            _entriesManager.UpsertEntry(internalName, res.entry, true);
 
             return (res.entry, res.updated);
         }

@@ -16,7 +16,7 @@ namespace TaloGameServices
             return _currentEntries[internalName];
         }
 
-        public void UpsertEntry(string internalName, LeaderboardEntry entry)
+        public void UpsertEntry(string internalName, LeaderboardEntry entry, bool bumpPositions = false)
         {
             if (!_currentEntries.ContainsKey(internalName))
             {
@@ -31,9 +31,15 @@ namespace TaloGameServices
             int insertPosition = FindInsertPosition(entries, entry);
             entries.Insert(insertPosition, entry);
 
-            for (int idx = 0; idx < entries.Count; idx++)
+            if (bumpPositions)
             {
-                entries[idx].position = idx;
+                foreach (var e in entries)
+                {
+                    if (e.id != entry.id && e.position >= entry.position)
+                    {
+                        e.position += 1;
+                    }
+                }
             }
         }
 
