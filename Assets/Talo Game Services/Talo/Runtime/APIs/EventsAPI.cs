@@ -80,15 +80,15 @@ namespace TaloGameServices
         {
             Talo.IdentityCheck();
 
-            var eventsToSend = queue.ToArray();
-            if (eventsToSend.Length == 0)
-            {
-                return;
-            }
-
             if (lockFlushes)
             {
                 flushAttemptedDuringLock = true;
+                return;
+            }
+
+            var eventsToSend = queue.ToArray();
+            if (eventsToSend.Length == 0)
+            {
                 return;
             }
 
@@ -103,13 +103,15 @@ namespace TaloGameServices
 
                 await Call(uri, "POST", content);
                 OnFlushed.Invoke();
-
-                eventsToFlush.Clear();
-                lockFlushes = false;
             }
             catch (Exception ex)
             {
                 Debug.LogError(ex.Message);
+            }
+            finally
+            {
+                eventsToFlush.Clear();
+                lockFlushes = false;
             }
             
             if (flushAttemptedDuringLock)
