@@ -10,8 +10,13 @@ namespace TaloGameServices
         public string postMergeIdentityService = "";
     }
 
-    public class PlayersAPI : BaseAPI
+    public class PlayersAPI : DebouncedAPI<PlayersAPI.DebouncedOperation>
     {
+        public enum DebouncedOperation
+        {
+            Update
+        }
+
         public event Action<Player> OnIdentified;
         public event Action OnIdentificationStarted;
         public event Action OnIdentificationFailed;
@@ -101,6 +106,21 @@ namespace TaloGameServices
             }
 
             return Talo.CurrentPlayer;
+        }
+
+        protected override async Task ExecuteDebouncedOperation(DebouncedOperation operation)
+        {
+            switch (operation)
+            {
+                case DebouncedOperation.Update:
+                    await Update();
+                    break;
+            }
+        }
+
+        public void DebounceUpdate()
+        {
+            Debounce(DebouncedOperation.Update);
         }
 
         public async Task<Player> Update()

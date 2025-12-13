@@ -8,12 +8,12 @@ namespace TaloGameServices.Sample.Playground
     {
         public string key;
 
-        public async void OnButtonClick()
+        public void OnButtonClick()
         {
-            await DeleteProp();
+            DeleteProp();
         }
 
-        private async Task DeleteProp()
+        private void DeleteProp()
         {
             if (string.IsNullOrEmpty(key))
             {
@@ -23,7 +23,7 @@ namespace TaloGameServices.Sample.Playground
 
             try
             {
-                await Talo.CurrentPlayer.DeleteProp(key);
+                Talo.CurrentPlayer.DeleteProp(key);
                 ResponseMessage.SetText($"{key} deleted");
             }
             catch (Exception ex)

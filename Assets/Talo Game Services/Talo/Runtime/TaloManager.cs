@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 namespace TaloGameServices
@@ -42,13 +43,20 @@ namespace TaloGameServices
 
         private async void DoFlush()
         {
-            if (Talo.HasIdentity())
+            try
             {
-                await Talo.Events.Flush();
+                if (Talo.HasIdentity())
+                {
+                    await Talo.Events.Flush();
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"Failed to flush events: {ex}");
             }
         }
 
-        private async void Update()
+        private void Update()
         {
             if (Application.platform == RuntimePlatform.WebGLPlayer)
             {
@@ -65,9 +73,43 @@ namespace TaloGameServices
                 tmrContinuity += Time.deltaTime;
                 if (tmrContinuity >= 10f)
                 {
-                    await Talo.Continuity.ProcessRequests();
+                    ProcessContinuityRequests();
                     tmrContinuity = 0;
                 }
+            }
+
+            ProcessDebouncedUpdates();
+        }
+
+        private async void ProcessContinuityRequests()
+        {
+            try
+            {
+                await Talo.Continuity.ProcessRequests();
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"Failed to process continuity requests: {ex}");
+            }
+        }
+
+        private async void ProcessDebouncedUpdates()
+        {
+            try
+            {
+                if (Talo.HasIdentity())
+                {
+                    await Talo.Players.ProcessPendingUpdates();
+                }
+
+                if (Talo.Saves.Current != null)
+                {
+                    await Talo.Saves.ProcessPendingUpdates();
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"Failed to process debounced updates: {ex}");
             }
         }
 

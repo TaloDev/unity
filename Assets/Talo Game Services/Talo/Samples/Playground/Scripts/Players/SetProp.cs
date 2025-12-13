@@ -7,12 +7,12 @@ namespace TaloGameServices.Sample.Playground
     {
         public string key, value;
 
-        public async void OnButtonClick()
+        public void OnButtonClick()
         {
-            await UpdateProp();
+            UpdateProp();
         }
 
-        private async Task UpdateProp()
+        private void UpdateProp()
         {
             if (string.IsNullOrEmpty(key) || string.IsNullOrEmpty(value))
             {
@@ -22,7 +22,7 @@ namespace TaloGameServices.Sample.Playground
 
             try
             {
-                await Talo.CurrentPlayer.SetProp(key, value);
+                Talo.CurrentPlayer.SetProp(key, value);
                 ResponseMessage.SetText($"{key} set to {value}");
             }
             catch (System.Exception ex)

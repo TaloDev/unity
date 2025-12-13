@@ -34,5 +34,8 @@ namespace TaloGameServices
 
         [Tooltip("If enabled, Talo will automatically cache the player after a successful online identification for use in later offline sessions")]
         public bool cachePlayerOnIdentify = true;
+
+        [Tooltip("Number of seconds to wait before sending debounced requests (e.g. player updates, save updates and health checks)")]
+        public float debounceTimerSeconds = 1f;
     }
 }
