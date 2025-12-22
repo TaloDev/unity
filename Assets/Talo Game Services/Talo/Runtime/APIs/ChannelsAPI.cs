@@ -11,12 +11,14 @@ namespace TaloGameServices
         public int page = 0;
         public string propKey = "";
         public string propValue = "";
+        public string search = "";
 
         public string ToQueryString()
         {
             var query = new Dictionary<string, string> { ["page"] = page.ToString() };
             if (!string.IsNullOrEmpty(propKey)) query["propKey"] = propKey;
             if (!string.IsNullOrEmpty(propValue)) query["propValue"] = propValue;
+            if (!string.IsNullOrEmpty(search)) query["search"] = search;
 
             return string.Join("&", query.Select((param) => $"{param.Key}={param.Value}"));
         }
