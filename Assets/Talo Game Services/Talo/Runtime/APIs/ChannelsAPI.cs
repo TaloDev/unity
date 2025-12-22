@@ -20,7 +20,7 @@ namespace TaloGameServices
             if (!string.IsNullOrEmpty(propValue)) query["propValue"] = propValue;
             if (!string.IsNullOrEmpty(search)) query["search"] = search;
 
-            return string.Join("&", query.Select((param) => $"{param.Key}={param.Value}"));
+            return string.Join("&", query.Select((param) => $"{param.Key}={Uri.EscapeDataString(param.Value.Trim())}"));
         }
     }
 
@@ -35,7 +35,7 @@ namespace TaloGameServices
             if (!string.IsNullOrEmpty(propKey)) query["propKey"] = propKey;
             if (!string.IsNullOrEmpty(propValue)) query["propValue"] = propValue;
 
-            return string.Join("&", query.Select((param) => $"{param.Key}={param.Value}"));
+            return string.Join("&", query.Select((param) => $"{param.Key}={Uri.EscapeDataString(param.Value.Trim())}"));
         }
     }
 
@@ -59,7 +59,7 @@ namespace TaloGameServices
             if (!string.IsNullOrEmpty(propValue)) query["propValue"] = propValue;
             if (!string.IsNullOrEmpty(playerGroupId)) query["playerGroupId"] = playerGroupId;
 
-            return string.Join("&", query.Select((param) => $"{param.Key}={param.Value}"));
+            return string.Join("&", query.Select((param) => $"{param.Key}={Uri.EscapeDataString(param.Value.Trim())}"));
         }
     }
 
