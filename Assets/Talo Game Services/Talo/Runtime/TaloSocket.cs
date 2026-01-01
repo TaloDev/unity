@@ -133,7 +133,11 @@ namespace TaloGameServices
             CloseConnection();
             socketAuthenticated = false;
             identified = false;
-            await OpenConnection();
+
+            if (Talo.Settings.autoConnectSocket)
+            {
+                await OpenConnection();
+            }
         }
     }
 }
