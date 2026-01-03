@@ -50,7 +50,7 @@ namespace TaloGameServices
 
         private async Task<Player> HandleIdentifySuccess(PlayerAlias alias, string socketToken = "")
         {
-            if (!Talo.IsOffline())
+            if (!Talo.IsOffline() && Talo.Socket.IsIdentified())
             {
                 await Talo.Socket.ResetConnection();
             }
