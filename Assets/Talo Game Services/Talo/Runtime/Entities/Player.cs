@@ -10,6 +10,7 @@ namespace TaloGameServices
         public string id;
         public PlayerAlias[] aliases;
         public GroupStub[] groups;
+        public PlayerPresence presence;
 
         public override string ToString()
         {
