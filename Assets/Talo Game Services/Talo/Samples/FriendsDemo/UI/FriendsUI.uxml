@@ -1,0 +1,41 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Assets/Talo%20Game%20Services/Talo/Samples/FriendsDemo/UI/FriendsUI.uss?fileID=7433441132597879392&amp;guid=be711d9fdb0534bbd94141593b8e9916&amp;type=3#FriendsUI" />
+    <ui:VisualElement style="justify-content: flex-start; align-items: flex-start; background-color: rgb(31, 41, 55); min-height: 100%; flex-direction: column; padding-top: 40px; padding-right: 40px; padding-bottom: 40px; padding-left: 40px;">
+        <ui:VisualElement style="flex-direction: row; justify-content: space-between; width: 100%; margin-bottom: 20px;">
+            <ui:Label text="Friends Demo" style="font-size: 28px; color: rgb(255, 255, 255); -unity-font-style: bold;" />
+            <ui:Label name="player-name" text="You are: Loading..." class="feed-message-cyan" style="font-size: 18px;" />
+        </ui:VisualElement>
+        <ui:VisualElement style="flex-grow: 1; flex-direction: row; width: 100%; height: 100%;">
+            <ui:VisualElement name="left-panel" style="width: 25%; height: 100%; padding-right: 0; padding-top: 0; padding-bottom: 0; padding-left: 0; flex-shrink: 0; flex-grow: 1; flex-basis: 25%;">
+                <ui:VisualElement style="flex-grow: 1; flex-shrink: 0; flex-basis: 50%;">
+                    <ui:Label text="Online Players" style="font-size: 18px; color: rgb(255, 255, 255); -unity-font-style: bold; margin-bottom: 10px;" />
+                    <ui:ScrollView name="online-players" style="flex-grow: 1; background-color: rgba(0, 0, 0, 0.3); border-radius: 8px; padding: 10px; margin-bottom: 20px; flex-shrink: 1; height: auto; max-height: 200px;" />
+                </ui:VisualElement>
+                <ui:VisualElement style="flex-grow: 1; flex-shrink: 0; flex-basis: 50%;">
+                    <ui:Label text="My Friends" style="font-size: 18px; color: rgb(255, 255, 255); -unity-font-style: bold; margin-bottom: 10px; margin-top: 10px;" />
+                    <ui:ScrollView name="friends-list" style="flex-grow: 1; background-color: rgba(0, 0, 0, 0.3); border-radius: 8px; padding: 10px; height: auto; flex-shrink: 1; max-height: 200px;" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+            <ui:VisualElement name="middle-panel" style="flex-grow: 0; height: 100%; padding-left: 20px; padding-right: 20px; justify-content: space-between; flex-shrink: 0; flex-basis: 50%;">
+                <ui:VisualElement style="flex-grow: 1; flex-shrink: 1;">
+                    <ui:Label text="Activity Feed" style="font-size: 18px; color: rgb(255, 255, 255); -unity-font-style: bold; margin-bottom: 10px;" />
+                    <ui:ScrollView name="activity-feed" style="flex-grow: 1; background-color: rgba(0, 0, 0, 0.3); border-radius: 8px; padding: 10px; flex-shrink: 1; height: auto; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0; min-height: auto;" />
+                </ui:VisualElement>
+                <ui:VisualElement style="flex-direction: row; margin-top: 20px; align-items: center; flex-grow: 0; flex-shrink: 0;">
+                    <ui:TextField picking-mode="Ignore" name="broadcast-input" placeholder-text="Share an update with your friends..." hide-placeholder-on-focus="true" style="flex-grow: 1; height: 55px; font-size: 14px; flex-shrink: 1;" />
+                    <ui:Button text="Broadcast" display-tooltip-when-elided="true" name="broadcast-btn" style="height: 55px; margin-left: 10px; font-size: 16px; margin-top: 0;" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+            <ui:VisualElement name="right-panel" style="width: 25%; height: 100%; padding-left: 0; padding-top: 0; padding-right: 0; padding-bottom: 0; flex-shrink: 0; flex-grow: 1; flex-basis: 25%;">
+                <ui:VisualElement name="VisualElement" style="flex-grow: 1; flex-shrink: 0; flex-basis: 50%;">
+                    <ui:Label text="Incoming Requests" style="font-size: 16px; color: rgb(255, 255, 255); -unity-font-style: bold; margin-bottom: 10px;" />
+                    <ui:ScrollView name="incoming-requests" style="flex-grow: 1; background-color: rgba(0, 0, 0, 0.3); border-radius: 8px; padding: 10px; margin-bottom: 20px; flex-shrink: 1; height: auto; margin-top: 0; margin-right: 0; margin-left: 0; max-height: 200px;" />
+                </ui:VisualElement>
+                <ui:VisualElement style="flex-grow: 1; flex-shrink: 0; flex-basis: 50%;">
+                    <ui:Label text="Outgoing Requests" style="font-size: 16px; color: rgb(255, 255, 255); -unity-font-style: bold; margin-bottom: 10px; margin-top: 10px;" />
+                    <ui:ScrollView name="outgoing-requests" style="flex-grow: 1; background-color: rgba(0, 0, 0, 0.3); border-radius: 8px; padding: 10px; flex-shrink: 1; height: auto; max-height: 200px;" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

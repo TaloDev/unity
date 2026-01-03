@@ -89,7 +89,7 @@ namespace TaloGameServices
         public event Action<Channel, ChannelStoragePropError[]> OnChannelStoragePropsFailedToSet;
         public event Action<Channel, ChannelStorageProp[], ChannelStorageProp[]> OnChannelStoragePropsUpdated;
 
-        private ChannelStorageManager _storageManager = new ChannelStorageManager();
+        private readonly ChannelStorageManager _storageManager = new ();
 
         public ChannelsAPI() : base("v1/game-channels")
         {
