@@ -19,6 +19,12 @@ namespace TaloGameServices
         private void Awake()
         {
             socket = gameObject.AddComponent<WebSocketConnection>();
+            socket.DesiredConfig = new WebSocketConfig
+            {
+                PingInterval = TimeSpan.FromSeconds(30),
+                PingMessage = new WebSocketMessage("v1.heartbeat")
+            };
+
             socket.MessageReceived += HandleMessage;
             socket.StateChanged += HandleStateChange;
         }
@@ -138,6 +144,11 @@ namespace TaloGameServices
             {
                 await OpenConnection();
             }
+        }
+
+        public bool IsIdentified()
+        {
+            return identified;
         }
     }
 }
