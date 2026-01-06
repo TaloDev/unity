@@ -11,14 +11,16 @@ namespace TaloGameServices
         public int page = 0;
         public string propKey = "";
         public string propValue = "";
+        public string search = "";
 
         public string ToQueryString()
         {
             var query = new Dictionary<string, string> { ["page"] = page.ToString() };
             if (!string.IsNullOrEmpty(propKey)) query["propKey"] = propKey;
             if (!string.IsNullOrEmpty(propValue)) query["propValue"] = propValue;
+            if (!string.IsNullOrEmpty(search)) query["search"] = search;
 
-            return string.Join("&", query.Select((param) => $"{param.Key}={param.Value}"));
+            return string.Join("&", query.Select((param) => $"{param.Key}={Uri.EscapeDataString(param.Value.Trim())}"));
         }
     }
 
@@ -33,7 +35,7 @@ namespace TaloGameServices
             if (!string.IsNullOrEmpty(propKey)) query["propKey"] = propKey;
             if (!string.IsNullOrEmpty(propValue)) query["propValue"] = propValue;
 
-            return string.Join("&", query.Select((param) => $"{param.Key}={param.Value}"));
+            return string.Join("&", query.Select((param) => $"{param.Key}={Uri.EscapeDataString(param.Value.Trim())}"));
         }
     }
 
@@ -57,7 +59,7 @@ namespace TaloGameServices
             if (!string.IsNullOrEmpty(propValue)) query["propValue"] = propValue;
             if (!string.IsNullOrEmpty(playerGroupId)) query["playerGroupId"] = playerGroupId;
 
-            return string.Join("&", query.Select((param) => $"{param.Key}={param.Value}"));
+            return string.Join("&", query.Select((param) => $"{param.Key}={Uri.EscapeDataString(param.Value.Trim())}"));
         }
     }
 
@@ -87,7 +89,7 @@ namespace TaloGameServices
         public event Action<Channel, ChannelStoragePropError[]> OnChannelStoragePropsFailedToSet;
         public event Action<Channel, ChannelStorageProp[], ChannelStorageProp[]> OnChannelStoragePropsUpdated;
 
-        private ChannelStorageManager _storageManager = new ChannelStorageManager();
+        private readonly ChannelStorageManager _storageManager = new ();
 
         public ChannelsAPI() : base("v1/game-channels")
         {

@@ -1,0 +1,92 @@
+.unity-button {
+    margin-top: 16px;
+    padding-top: 16px;
+    padding-bottom: 16px;
+    font-size: 20px;
+    -unity-font-style: normal;
+    margin-right: 0;
+    margin-left: 0;
+    margin-bottom: 0;
+    border-radius: 8px;
+    background-color: #6366f1;
+    border-width: 0;
+    color: white;
+}
+
+.unity-base-field__input {
+    padding: 16px;
+    margin: 0;
+    background-color: white;
+    color: black;
+    border-radius: 8px;
+    font-size: 16px;
+}
+
+.unity-base-field {
+    margin-left: 0;
+    margin-right: 0;
+    margin-bottom: 0;
+    padding: 0;
+}
+
+.player-item {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px;
+    margin-bottom: 4px;
+    background-color: rgba(255, 255, 255, 0.05);
+    border-radius: 6px;
+}
+
+.player-item:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.player-name {
+    color: rgb(255, 255, 255);
+    font-size: 14px;
+}
+
+.player-status {
+    color: rgb(100, 255, 100);
+    font-size: 12px;
+}
+
+.small-button {
+    font-size: 12px;
+    padding: 6px 12px;
+    margin: 0;
+    height: 28px;
+}
+
+.feed-message {
+    color: rgb(200, 200, 200);
+    font-size: 14px;
+    padding: 6px;
+    margin-bottom: 4px;
+}
+
+.feed-message-system {
+    color: rgb(150, 150, 150);
+}
+
+.feed-message-cyan {
+    color: rgb(100, 200, 255);
+}
+
+.feed-message-green {
+    color: rgb(100, 255, 100);
+}
+
+.feed-message-yellow {
+    color: rgb(255, 255, 100);
+}
+
+.feed-message-red {
+    color: rgb(255, 100, 100);
+}
+
+.feed-message-blue {
+    color: rgb(100, 150, 255);
+}
