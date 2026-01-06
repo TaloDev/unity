@@ -40,7 +40,8 @@ You'll need to init the submodules after cloning: `git submodule update --init`.
 - 🔒 **Authentication**: a registration/login flow, showing how to create player accounts and authenticate them.
 - 🎮 **Playground**: a text-based playground allowing you to test identifying, events, stats and leaderboards.
 - 💬 **Chat**: showing how to send messages between players in a chat room using channels.
-- 🤝 **Channel storage**: showing how to store data that can be accessed by other players using channels.
+- 📦 **Channel storage**: showing how to store data that can be accessed by other players using channels.
+- 🤝 **Friends list**: a friends list UI with friend statuses, incoming/outgoing requests and player-to-player broadcasts.
 
 ## Links
 
