@@ -16,7 +16,7 @@ namespace TaloGameServices
             return _currentEntries[internalName];
         }
 
-        public void UpsertEntry(string internalName, LeaderboardEntry upsertEntry, bool bumpPositions = false)
+        public void UpsertEntry(string internalName, LeaderboardEntry entryToUpsert, bool bumpPositions = false)
         {
             if (!_currentEntries.ContainsKey(internalName))
             {
@@ -26,20 +26,20 @@ namespace TaloGameServices
             var entries = _currentEntries[internalName];
             
             // ensure there isn't an existing entry
-            entries.RemoveAll((e) => e.id == upsertEntry.id);
+            entries.RemoveAll((e) => e.id == entryToUpsert.id);
             
-            int insertPosition = FindInsertPosition(entries, upsertEntry);
-            entries.Insert(insertPosition, upsertEntry);
+            int insertPosition = FindInsertPosition(entries, entryToUpsert);
+            entries.Insert(insertPosition, entryToUpsert);
 
             if (bumpPositions)
             {
                 // if we find a collision, bump subsequent entries down by 1
-                int collisionIndex = entries.FindIndex((e) => e.id != upsertEntry.id && e.position == upsertEntry.position);
+                int collisionIndex = entries.FindIndex((e) => e.id != entryToUpsert.id && e.position == entryToUpsert.position);
                 if (collisionIndex != -1)
                 {
                     for (int i = collisionIndex; i < entries.Count; i++)
                     {
-                        if (entries[i].id != upsertEntry.id)
+                        if (entries[i].id != entryToUpsert.id)
                         {
                             entries[i].position += 1;
                         }
