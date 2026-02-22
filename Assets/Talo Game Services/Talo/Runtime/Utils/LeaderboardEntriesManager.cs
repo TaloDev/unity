@@ -5,7 +5,7 @@ namespace TaloGameServices
 {
     public class LeaderboardEntriesManager
     {
-        private Dictionary<string, List<LeaderboardEntry>> _currentEntries = new Dictionary<string, List<LeaderboardEntry>>();
+        private readonly Dictionary<string, List<LeaderboardEntry>> _currentEntries = new();
 
         public List<LeaderboardEntry> GetEntries(string internalName)
         {
@@ -16,7 +16,7 @@ namespace TaloGameServices
             return _currentEntries[internalName];
         }
 
-        public void UpsertEntry(string internalName, LeaderboardEntry entry, bool bumpPositions = false)
+        public void UpsertEntry(string internalName, LeaderboardEntry upsertEntry, bool bumpPositions = false)
         {
             if (!_currentEntries.ContainsKey(internalName))
             {
@@ -26,18 +26,23 @@ namespace TaloGameServices
             var entries = _currentEntries[internalName];
             
             // ensure there isn't an existing entry
-            entries.RemoveAll((e) => e.id == entry.id);
+            entries.RemoveAll((e) => e.id == upsertEntry.id);
             
-            int insertPosition = FindInsertPosition(entries, entry);
-            entries.Insert(insertPosition, entry);
+            int insertPosition = FindInsertPosition(entries, upsertEntry);
+            entries.Insert(insertPosition, upsertEntry);
 
             if (bumpPositions)
             {
-                foreach (var e in entries)
+                // find any collisions and bump any subsequent entries down by 1
+                int collisionIndex = entries.FindIndex((e) => e.id != upsertEntry.id && e.position == upsertEntry.position);
+                if (collisionIndex != -1)
                 {
-                    if (e.id != entry.id && e.position >= entry.position)
+                    for (int i = collisionIndex; i < entries.Count; i++)
                     {
-                        e.position += 1;
+                        if (entries[i].id != upsertEntry.id)
+                        {
+                            entries[i].position += 1;
+                        }
                     }
                 }
             }
