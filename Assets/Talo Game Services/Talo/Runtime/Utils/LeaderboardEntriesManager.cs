@@ -33,7 +33,7 @@ namespace TaloGameServices
 
             if (bumpPositions)
             {
-                // find any collisions and bump any subsequent entries down by 1
+                // if we find a collision, bump subsequent entries down by 1
                 int collisionIndex = entries.FindIndex((e) => e.id != upsertEntry.id && e.position == upsertEntry.position);
                 if (collisionIndex != -1)
                 {
