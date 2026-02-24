@@ -6,7 +6,7 @@ namespace TaloGameServices
 {
     public class PlayerAuthAPI : BaseAPI
     {
-        private SessionManager _sessionManager = new();
+        private readonly SessionManager _sessionManager = new();
 
         public SessionManager SessionManager => _sessionManager;
         
@@ -112,6 +112,19 @@ namespace TaloGameServices
                 newEmail = newEmail
             });
             await Call(uri, "POST", content);
+        }
+
+        public async Task ChangeIdentifier(string currentPassword, string newIdentifier)
+        {
+            var uri = new Uri($"{baseUrl}/change_identifier");
+            string content = JsonUtility.ToJson(new PlayerAuthChangeIdentifierRequest {
+                currentPassword = currentPassword,
+                newIdentifier = newIdentifier
+            });
+            var json = await Call(uri, "POST", content);
+
+            var res = JsonUtility.FromJson<PlayerAuthChangeIdentifierResponse>(json);
+            _sessionManager.HandleIdentifierUpdated(res);
         }
 
         public async Task ForgotPassword(string email)
