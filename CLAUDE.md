@@ -49,6 +49,8 @@ Events are batched and flushed on application quit/pause/focus loss. On WebGL, e
 ### Debouncing
 Player updates and save updates are debounced to prevent excessive API calls during rapid property changes. APIs that need debouncing inherit from `DebouncedAPI<TOperation>` (a generic base class) and define a `DebouncedOperation` enum for type-safe operation keys. The base class uses a dictionary to track multiple debounced operations independently.
 
+The debounce is **leading and trailing**: the first call fires immediately (leading), and if further calls arrive during the debounce window they are coalesced into a single trailing call executed after the window closes. The window is defined by `debounceTimerSeconds` (default: 1s) and resets on each subsequent call.
+
 To add debouncing to an API:
 1. Define a public `enum DebouncedOperation` with your debounced operations
 2. Inherit from `DebouncedAPI<YourAPI.DebouncedOperation>`
@@ -56,7 +58,7 @@ To add debouncing to an API:
 4. Implement `ExecuteDebouncedOperation(DebouncedOperation operation)` with a switch statement
 5. The base class's `ProcessPendingUpdates()` is called by `TaloManager.Update()` every frame
 
-Example: `PlayersAPI` defines `enum DebouncedOperation { Update }` and inherits from `DebouncedAPI<PlayersAPI.DebouncedOperation>`. When `Player.SetProp()` is called, it calls `Debounce(DebouncedOperation.Update)`, which queues the update to be executed after `debounceTimerSeconds` (default: 1s). Multiple property changes within the debounce window result in a single API call.
+Example: `PlayersAPI` defines `enum DebouncedOperation { Update }` and inherits from `DebouncedAPI<PlayersAPI.DebouncedOperation>`. When `Player.SetProp()` is called, it calls `Debounce(DebouncedOperation.Update)`. The first call fires immediately; subsequent calls within the debounce window result in a single trailing API call at the end of the window.
 
 ## Common Development Commands
 

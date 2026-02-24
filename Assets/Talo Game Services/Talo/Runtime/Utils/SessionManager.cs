@@ -15,10 +15,15 @@ namespace TaloGameServices
             Talo.Socket.SetSocketToken(res.socketToken);
         }
 
+        private void SetIdentifierPlayerPref()
+        {
+            PlayerPrefs.SetString("TaloSessionIdentifier", Talo.CurrentAlias.identifier);
+        }
+
         private void SaveSession(string sessionToken)
         {
             PlayerPrefs.SetString("TaloSessionToken", sessionToken);
-            PlayerPrefs.SetString("TaloSessionIdentifier", Talo.CurrentAlias.identifier);
+            SetIdentifierPlayerPref();
         }
 
         public async Task ClearSession()
@@ -41,6 +46,13 @@ namespace TaloGameServices
         public bool CheckForSession()
         {
             return !string.IsNullOrEmpty(GetSessionToken());
+        }
+
+        public void HandleIdentifierUpdated(PlayerAuthChangeIdentifierResponse res)
+        {
+            Talo.CurrentAlias = res.alias;
+            Talo.CurrentAlias.WriteOfflineAlias();
+            SetIdentifierPlayerPref();
         }
     }
 }
