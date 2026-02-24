@@ -30,7 +30,7 @@ jobs:
           dest: ${{ env.OUTPUT_DIR }}/${{ env.OUTPUT_FILE }}
 
       - name: Upload to itch
-        uses: manleydev/butler-publish-itchio-action@master
+        uses: XanatosX/butler-publish-itchio-action@master
         env:
           BUTLER_CREDENTIALS: ${{ secrets.BUTLER_CREDENTIALS }}
           CHANNEL: package
