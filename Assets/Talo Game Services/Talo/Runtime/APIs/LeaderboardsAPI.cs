@@ -10,6 +10,7 @@ namespace TaloGameServices
     {
         public int page = 0;
         public int aliasId = -1;
+        public string playerId = "";
         public bool includeArchived = false;
         public string propKey = "";
         public string propValue = "";
@@ -20,6 +21,7 @@ namespace TaloGameServices
         {
             var query = new Dictionary<string, string> { ["page"] = page.ToString() };
             if (aliasId != -1) query["aliasId"] = aliasId.ToString();
+            if (!string.IsNullOrEmpty(playerId)) query["playerId"] = playerId;
             if (includeArchived) query["withDeleted"] = "1";
             if (!string.IsNullOrEmpty(propKey)) query["propKey"] = propKey;
             if (!string.IsNullOrEmpty(propValue)) query["propValue"] = propValue;
@@ -32,7 +34,7 @@ namespace TaloGameServices
 
     public class LeaderboardsAPI : BaseAPI
     {
-        private LeaderboardEntriesManager _entriesManager = new();
+        private readonly LeaderboardEntriesManager _entriesManager = new();
 
         public LeaderboardsAPI() : base("v1/leaderboards") { }
 
@@ -65,6 +67,7 @@ namespace TaloGameServices
             return res;
         }
 
+        [Obsolete("Use GetEntries(string internalName, GetEntriesOptions options) with the aliasId or playerId option instead.")]
         public async Task<LeaderboardEntriesResponse> GetEntriesForCurrentPlayer(string internalName, GetEntriesOptions options = null)
         {
             Talo.IdentityCheck();
@@ -86,7 +89,7 @@ namespace TaloGameServices
             });
         }
 
-        [Obsolete("Use GetEntriesForCurrentPlayer(string internalName, GetEntriesOptions options) instead.")]
+        [Obsolete("Use GetEntries(string internalName, GetEntriesOptions options) with the aliasId or playerId option instead.")]
         public async Task<LeaderboardEntriesResponse> GetEntriesForCurrentPlayer(string internalName, int page, bool includeArchived = false)
         {
             Talo.IdentityCheck();
