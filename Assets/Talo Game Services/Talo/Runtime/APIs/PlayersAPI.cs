@@ -22,7 +22,7 @@ namespace TaloGameServices
         public event Action OnIdentificationFailed;
         public event Action OnIdentityCleared;
 
-        private readonly string offlineDataPath = Application.persistentDataPath + "/ta.bin";
+        public static readonly string offlineDataPath = Application.persistentDataPath + "/ta.bin";
 
         public PlayersAPI() : base("v1/players")
         {
@@ -83,7 +83,7 @@ namespace TaloGameServices
 
                 var res = JsonUtility.FromJson<PlayersIdentifyResponse>(json);
                 var alias = res.alias;
-                WriteOfflineAlias(alias);
+                alias.WriteOfflineAlias();
                 return await HandleIdentifySuccess(alias, res.socketToken);
             }
             catch
@@ -133,7 +133,7 @@ namespace TaloGameServices
 
             var res = JsonUtility.FromJson<PlayersUpdateResponse>(json);
             Talo.CurrentPlayer = res.player;
-            WriteOfflineAlias(Talo.CurrentAlias);
+            Talo.CurrentAlias.WriteOfflineAlias();
 
             return Talo.CurrentPlayer;
         }
@@ -189,13 +189,6 @@ namespace TaloGameServices
                     throw new Exception("No offline player alias found.");
                 }
             }
-        }
-
-        private void WriteOfflineAlias(PlayerAlias alias)
-        {
-            if (!Talo.Settings.cachePlayerOnIdentify) return;
-            var content = JsonUtility.ToJson(alias);
-            Talo.Crypto.WriteFileContent(offlineDataPath, content);
         }
 
         private PlayerAlias GetOfflineAlias()

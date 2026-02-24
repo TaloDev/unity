@@ -51,6 +51,7 @@ namespace TaloGameServices
         public void HandleIdentifierUpdated(PlayerAuthChangeIdentifierResponse res)
         {
             Talo.CurrentAlias = res.alias;
+            Talo.CurrentAlias.WriteOfflineAlias();
             SetIdentifierPlayerPref();
         }
     }
