@@ -60,23 +60,6 @@ To add debouncing to an API:
 
 Example: `PlayersAPI` defines `enum DebouncedOperation { Update }` and inherits from `DebouncedAPI<PlayersAPI.DebouncedOperation>`. When `Player.SetProp()` is called, it calls `Debounce(DebouncedOperation.Update)`. The first call fires immediately; subsequent calls within the debounce window result in a single trailing API call at the end of the window.
 
-## Common Development Commands
-
-### Running Tests
-Tests use Unity Test Framework with NUnit. Run via Unity Editor:
-- **Test Runner Window**: Window > General > Test Runner
-- **Run All Tests**: Select "PlayMode" or "EditMode" tab and click "Run All"
-
-CI runs tests via GitHub Actions (`.github/workflows/ci.yml`) using Unity 6000.0.59f2.
-
-### Building the Package
-The package is built via GitHub Actions (`.github/workflows/create-release.yml`) on tagged releases:
-- Creates `talo.unitypackage` from `Assets/Talo Game Services/**/*`
-- Uploads to itch.io and GitHub releases
-
-### Version Management
-Version is stored in `Assets/Talo Game Services/Talo/VERSION`. A pre-commit hook (`.git/hooks/pre-commit`) automatically updates `ClientVersion` in `BaseAPI.cs` to match the VERSION file.
-
 ## Key Configuration
 
 ### TaloSettings
@@ -108,13 +91,7 @@ The SDK detects when running under NUnit (checks for `nunit.framework` assembly)
 - `SocketException` - WebSocket errors
 - `ContinuityReplayException` - Continuity replay failures
 
-### Saves System
-Game saves support local caching and offline operation via `SavesManager`. The manager handles loading, creating, updating, and deleting saves with automatic continuity support.
-
 ## Git Workflow
 
-- Main branch: `develop`
 - Submodules: Required for WebSocket dependency
-- Pre-commit hook: Auto-updates version in BaseAPI.cs
-- CI: Runs tests on every push
-- Releases: Manual workflow dispatch creates Unity package and GitHub release
+- Pre-commit hook: Auto-updates version in BaseAPI.cs using the content from `Assets/Talo Game Services/Talo/VERSION`

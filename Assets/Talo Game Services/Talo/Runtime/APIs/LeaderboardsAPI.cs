@@ -16,6 +16,7 @@ namespace TaloGameServices
         public string propValue = "";
         public string startDate = "";
         public string endDate = "";
+        public string aliasService = "";
 
         public string ToQueryString()
         {
@@ -27,9 +28,17 @@ namespace TaloGameServices
             if (!string.IsNullOrEmpty(propValue)) query["propValue"] = propValue;
             if (!string.IsNullOrEmpty(startDate)) query["startDate"] = startDate;
             if (!string.IsNullOrEmpty(endDate)) query["endDate"] = endDate;
+            if (!string.IsNullOrEmpty(aliasService)) query["aliasService"] = aliasService;
 
             return string.Join("&", query.Select((param) => $"{param.Key}={param.Value}"));
         }
+    }
+
+    public class GetCachedEntriesOptions
+    {
+        public int aliasId = -1;
+        public string playerId = "";
+        public string aliasService = "";
     }
 
     public class LeaderboardsAPI : BaseAPI
@@ -38,11 +47,18 @@ namespace TaloGameServices
 
         public LeaderboardsAPI() : base("v1/leaderboards") { }
 
-        public List<LeaderboardEntry> GetCachedEntries(string internalName)
+        public List<LeaderboardEntry> GetCachedEntries(string internalName, GetCachedEntriesOptions options = null)
         {
-            return _entriesManager.GetEntries(internalName);
+            options ??= new GetCachedEntriesOptions();
+
+            return _entriesManager.GetEntries(internalName).FindAll(e =>
+                (options.aliasId == -1 || e.playerAlias.id == options.aliasId) &&
+                (string.IsNullOrEmpty(options.playerId) || e.playerAlias.player.id == options.playerId) &&
+                (string.IsNullOrEmpty(options.aliasService) || e.playerAlias.service == options.aliasService)
+            );
         }
 
+        [Obsolete("Use GetCachedEntries(string internalName, GetCachedEntriesOptions options) with the aliasId or playerId option instead.")]
         public List<LeaderboardEntry> GetCachedEntriesForCurrentPlayer(string internalName)
         {
             Talo.IdentityCheck();
