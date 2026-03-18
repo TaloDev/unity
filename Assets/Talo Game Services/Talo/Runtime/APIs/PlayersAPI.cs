@@ -108,6 +108,12 @@ namespace TaloGameServices
             return Talo.CurrentPlayer;
         }
 
+        public async Task<Player> IdentifyGooglePlayGames(string authCode)
+        {
+            await Identify("google_play_games", authCode);
+            return Talo.CurrentPlayer;
+        }
+
         protected override async Task ExecuteDebouncedOperation(DebouncedOperation operation)
         {
             switch (operation)
