@@ -18,7 +18,7 @@ namespace TaloGameServices
 
     public class SocketException : Exception
     {
-        private SocketError errorData;
+        private readonly SocketError errorData;
 
         public string Req => errorData?.req ?? "unknown";
         public SocketErrorCode ErrorCode => GetErrorCode();

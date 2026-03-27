@@ -26,11 +26,14 @@ namespace TaloGameServices
             SetIdentifierPlayerPref();
         }
 
-        public async Task ClearSession()
+        public async Task ClearSession(bool resetSocket = true)
         {
             Talo.CurrentAlias = null;
             PlayerPrefs.DeleteKey("TaloSessionToken");
-            await Talo.Socket.ResetConnection();
+            if (resetSocket)
+            {
+                await Talo.Socket.ResetConnection();
+            }
         }
 
         public string GetSessionToken()
@@ -48,11 +51,23 @@ namespace TaloGameServices
             return !string.IsNullOrEmpty(GetSessionToken());
         }
 
+        private void SetNewAlias(PlayerAlias alias)
+        {
+            Talo.CurrentAlias = alias;
+            alias.WriteOfflineAlias();
+        }
+
         public void HandleIdentifierUpdated(PlayerAuthChangeIdentifierResponse res)
         {
-            Talo.CurrentAlias = res.alias;
-            Talo.CurrentAlias.WriteOfflineAlias();
+            SetNewAlias(res.alias);
             SetIdentifierPlayerPref();
+        }
+
+        public async Task HandleAccountMigrated(PlayerAuthMigrateAccountResponse res)
+        {
+            await ClearSession(false);
+            SetNewAlias(res.alias);
+            Talo.Players.InvokeIdentifiedEvent();
         }
     }
 }

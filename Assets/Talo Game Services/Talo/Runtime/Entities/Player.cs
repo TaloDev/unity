@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Linq;
 using System;
+using System.Collections.Generic;
 
 namespace TaloGameServices
 {
@@ -30,6 +31,46 @@ namespace TaloGameServices
         public void DeleteProp(string key, bool update = true)
         {
             base.DeleteProp(key);
+
+            if (update)
+            {
+                Talo.Players.DebounceUpdate();
+            }
+        }
+
+        public void SetPropArray(string key, IEnumerable<string> values, bool update = true)
+        {
+            base.SetPropArray(key, values);
+
+            if (update)
+            {
+                Talo.Players.DebounceUpdate();
+            }
+        }
+
+        public void DeletePropArray(string key, bool update = true)
+        {
+            base.DeletePropArray(key);
+
+            if (update)
+            {
+                Talo.Players.DebounceUpdate();
+            }
+        }
+
+        public void InsertIntoPropArray(string key, string value, bool update = true)
+        {
+            base.InsertIntoPropArray(key, value);
+
+            if (update)
+            {
+                Talo.Players.DebounceUpdate();
+            }
+        }
+
+        public void RemoveFromPropArray(string key, string value, bool update = true)
+        {
+            base.RemoveFromPropArray(key, value);
 
             if (update)
             {

@@ -4,7 +4,7 @@ using UnityEngine.TestTools;
 using System;
 
 namespace TaloGameServices.Test {
-    internal class GetPropTest
+    internal class LiveConfigGetPropTest
     {
         [UnityTest]
         public IEnumerator GetProp_WithALiveConfigThatHasValues_ReturnsCorrectValue()
@@ -41,7 +41,7 @@ namespace TaloGameServices.Test {
         {
             var config = new LiveConfig(new[] { new Prop(("halloweenEventEnabled", "True")) });
 
-            Assert.AreEqual(true, config.GetProp<bool>("halloweenEventEnabled", false));
+            Assert.AreEqual(true, config.GetProp("halloweenEventEnabled", false));
 
             yield return null;
         }
@@ -51,7 +51,7 @@ namespace TaloGameServices.Test {
         {
             var config = new LiveConfig(new[] { new Prop(("maxLevel", "60")) });
 
-            Assert.AreEqual(60, config.GetProp<int>("maxLevel", 0));
+            Assert.AreEqual(60, config.GetProp("maxLevel", 0));
 
             yield return null;
         }

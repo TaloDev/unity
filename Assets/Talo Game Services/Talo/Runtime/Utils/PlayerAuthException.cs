@@ -15,7 +15,8 @@ namespace TaloGameServices
         PASSWORD_RESET_CODE_INVALID,
         VERIFICATION_EMAIL_REQUIRED,
         INVALID_EMAIL,
-        NEW_IDENTIFIER_MATCHES_CURRENT_IDENTIFIER
+        NEW_IDENTIFIER_MATCHES_CURRENT_IDENTIFIER,
+        INVALID_MIGRATION_TARGET
     }
 
     public class PlayerAuthException : Exception
