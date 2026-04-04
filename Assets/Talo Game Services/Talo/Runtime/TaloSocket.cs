@@ -22,11 +22,18 @@ namespace TaloGameServices
             socket.DesiredConfig = new WebSocketConfig
             {
                 PingInterval = TimeSpan.FromSeconds(30),
-                PingMessage = new WebSocketMessage("v1.heartbeat")
+                PingMessage = new WebSocketMessage("v1.heartbeat"),
+                MaxReceiveBytes = 1024 * 1024, // 1 MB
+                MaxSendBytes = 1024 * 1024, // 1 MB
             };
 
             socket.MessageReceived += HandleMessage;
             socket.StateChanged += HandleStateChange;
+
+            socket.ErrorMessageReceived += (connection, error) =>
+            {
+                Debug.LogError($"WebSocket error: {error}");
+            };
         }
 
         private async void Start()

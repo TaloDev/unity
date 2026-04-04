@@ -193,7 +193,10 @@ namespace TaloGameServices
 
             if (Settings.autoStartSession)
             {
-                _playerAuth.StartSession();
+                _ = _playerAuth.StartSession().ContinueWith((t) =>
+                {
+                    Debug.LogException(t.Exception.InnerException ?? t.Exception);
+                }, System.Threading.Tasks.TaskContinuationOptions.OnlyOnFaulted);
             }
         }
 

@@ -1,4 +1,4 @@
-﻿using System.Threading.Tasks;
+using System.Threading.Tasks;
 using UnityEngine;
 
 namespace TaloGameServices
@@ -7,29 +7,43 @@ namespace TaloGameServices
     {
         public int verificationAliasId;
 
+        private string _sessionToken;
+
         public void HandleSessionCreated(PlayerAuthSessionResponse res)
         {
             Talo.CurrentAlias = res.alias;
-            SaveSession(res.sessionToken);
+            SaveSession(res.sessionToken, res.refreshToken);
             Talo.Players.InvokeIdentifiedEvent();
             Talo.Socket.SetSocketToken(res.socketToken);
         }
 
+        public void HandleSessionRefreshed(string sessionToken, string refreshToken)
+        {
+            SaveSession(sessionToken, refreshToken);
+        }
+
         private void SetIdentifierPlayerPref()
         {
+            if (Talo.CurrentAlias == null)
+            {
+                return;
+            }
+
             PlayerPrefs.SetString("TaloSessionIdentifier", Talo.CurrentAlias.identifier);
         }
 
-        private void SaveSession(string sessionToken)
+        private void SaveSession(string sessionToken, string refreshToken)
         {
-            PlayerPrefs.SetString("TaloSessionToken", sessionToken);
+            _sessionToken = sessionToken;
+            PlayerPrefs.SetString("TaloRefreshToken", refreshToken);
             SetIdentifierPlayerPref();
         }
 
         public async Task ClearSession(bool resetSocket = true)
         {
             Talo.CurrentAlias = null;
-            PlayerPrefs.DeleteKey("TaloSessionToken");
+            _sessionToken = null;
+            PlayerPrefs.DeleteKey("TaloRefreshToken");
             if (resetSocket)
             {
                 await Talo.Socket.ResetConnection();
@@ -38,7 +52,12 @@ namespace TaloGameServices
 
         public string GetSessionToken()
         {
-            return PlayerPrefs.GetString("TaloSessionToken");
+            return _sessionToken;
+        }
+
+        public string GetRefreshToken()
+        {
+            return PlayerPrefs.GetString("TaloRefreshToken");
         }
 
         public string GetSessionIdentifier()
@@ -46,9 +65,27 @@ namespace TaloGameServices
             return PlayerPrefs.GetString("TaloSessionIdentifier");
         }
 
-        public bool CheckForSession()
+        public async Task<bool> CheckForSession()
         {
-            return !string.IsNullOrEmpty(GetSessionToken());
+            if (!string.IsNullOrEmpty(_sessionToken))
+            {
+                return true;
+            }
+
+            if (!string.IsNullOrEmpty(GetRefreshToken()))
+            {
+                try
+                {
+                    await Talo.PlayerAuth.Refresh();
+                }
+                catch
+                {
+                    return false;
+                }
+                return true;
+            }
+
+            return false;
         }
 
         private void SetNewAlias(PlayerAlias alias)

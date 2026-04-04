@@ -9,7 +9,7 @@ namespace TaloGameServices
     public class BaseAPI
     {
         // automatically updated with a pre-commit hook
-        private const string ClientVersion = "0.55.0";
+        private const string ClientVersion = "0.56.0";
 
         protected string baseUrl;
 
@@ -134,6 +134,12 @@ namespace TaloGameServices
                     }
                     else
                     {
+                        if (errorCode == "INVALID_SESSION" && Talo.CurrentAlias != null && !Talo.PlayerAuth.IsRefreshing)
+                        {
+                            await Talo.PlayerAuth.Refresh();
+                            return await Call(uri, method, content, headers, continuity);
+                        }
+
                         throw new PlayerAuthException(errorCode, new Exception(message));
                     }
                 }

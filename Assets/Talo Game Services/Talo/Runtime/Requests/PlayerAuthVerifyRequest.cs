@@ -5,5 +5,6 @@ namespace TaloGameServices
     {
         public int aliasId;
         public string code;
+        public bool withRefresh;
     }
 }

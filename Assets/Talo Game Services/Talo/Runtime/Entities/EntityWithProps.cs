@@ -42,20 +42,10 @@ namespace TaloGameServices
             prop.value = null;
         }
 
-        private string ToArrayKey(string key)
-        {
-            if (key.EndsWith("[]"))
-            {
-                return key;
-            }
-
-            return $"{key}[]";
-        }
-
         public IReadOnlyList<string> GetPropArray(string key)
         {
             var items = props
-                .Where((prop) => prop.key == ToArrayKey(key) && prop.value != null)
+                .Where((prop) => prop.key == Prop.ToArrayKey(key) && prop.value != null)
                 .Select((prop) => prop.value);
 
             return items.ToList().AsReadOnly();
@@ -63,7 +53,7 @@ namespace TaloGameServices
 
         private void EnsurePropArraySentinelRemoved(string key)
         {
-            var arrayKey = ToArrayKey(key);
+            var arrayKey = Prop.ToArrayKey(key);
 
             var hasSentinel = props.Any((prop) => prop.key == arrayKey && prop.value == null);
             if (hasSentinel)
@@ -81,7 +71,7 @@ namespace TaloGameServices
                 throw new Exception($"Values for prop array {key} must contain at least one non-empty value");
             }
 
-            var arrayKey = ToArrayKey(key);
+            var arrayKey = Prop.ToArrayKey(key);
             props = props.Where((prop) => prop.key != arrayKey).ToArray();
 
             props = props.Concat(validValues.Select((value) => new Prop((arrayKey, value)))).ToArray();
@@ -89,7 +79,7 @@ namespace TaloGameServices
 
         public void DeletePropArray(string key)
         {
-            var arrayKey = ToArrayKey(key);
+            var arrayKey = Prop.ToArrayKey(key);
 
             if (!props.Any((prop) => prop.key == arrayKey))
             {
@@ -110,7 +100,7 @@ namespace TaloGameServices
                 throw new Exception($"Value for prop array {key} cannot be null or empty");
             }
 
-            var arrayKey = ToArrayKey(key);
+            var arrayKey = Prop.ToArrayKey(key);
 
             var hasDupe = props.Any((prop) => prop.key == arrayKey && prop.value == value);
             if (!hasDupe)
@@ -123,18 +113,18 @@ namespace TaloGameServices
         private void EnsurePropArrayHasSentinel(string key)
         {
             var hasItems = props
-                .Where((prop) => prop.key == ToArrayKey(key))
+                .Where((prop) => prop.key == Prop.ToArrayKey(key))
                 .Any();
 
             if (!hasItems)
             {
-                props = props.Append(new Prop((ToArrayKey(key), null))).ToArray();
+                props = props.Append(new Prop((Prop.ToArrayKey(key), null))).ToArray();
             }
         }
 
         public void RemoveFromPropArray(string key, string value)
         {
-            var arrayKey = ToArrayKey(key);
+            var arrayKey = Prop.ToArrayKey(key);
             EnsurePropArraySentinelRemoved(key);
 
             if (!props.Any((prop) => prop.key == arrayKey && prop.value == value))

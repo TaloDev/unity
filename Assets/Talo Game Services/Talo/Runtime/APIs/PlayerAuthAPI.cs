@@ -6,25 +6,59 @@ namespace TaloGameServices
 {
     public class PlayerAuthAPI : BaseAPI
     {
+        internal bool IsRefreshing { get; private set; }
+
         private readonly SessionManager _sessionManager = new();
 
         public SessionManager SessionManager => _sessionManager;
-        
         public event Action OnSessionFound;
         public event Action OnSessionNotFound;
 
         public PlayerAuthAPI() : base("v1/players/auth") {}
 
-        public void StartSession()
+        public async Task StartSession()
         {
-            if (_sessionManager.CheckForSession())
+            if (await _sessionManager.CheckForSession())
             {
                 OnSessionFound?.Invoke();
-                _ = Talo.Players.Identify("talo", _sessionManager.GetSessionIdentifier());
+                await Talo.Players.Identify("talo", _sessionManager.GetSessionIdentifier());
             }
             else
             {
                 OnSessionNotFound?.Invoke();
+            }
+        }
+
+        public async Task Refresh()
+        {
+            IsRefreshing = true;
+
+            try
+            {
+                var refreshToken = _sessionManager.GetRefreshToken();
+                if (string.IsNullOrEmpty(refreshToken))
+                {
+                    throw new Exception("No refresh token found");
+                }
+
+                var uri = new Uri($"{baseUrl}/refresh");
+                string content = JsonUtility.ToJson(new PlayerAuthRefreshRequest
+                {
+                    refreshToken = refreshToken
+                });
+                var json = await Call(uri, "POST", content);
+
+                var res = JsonUtility.FromJson<PlayerAuthRefreshResponse>(json);
+                _sessionManager.HandleSessionRefreshed(res.sessionToken, res.refreshToken);
+            }
+            catch
+            {
+                await _sessionManager.ClearSession();
+                throw;
+            }
+            finally
+            {
+                IsRefreshing = false;
             }
         }
 
@@ -41,7 +75,8 @@ namespace TaloGameServices
                 identifier = identifier,
                 password = password,
                 email = email,
-                verificationEnabled = verificationEnabled
+                verificationEnabled = verificationEnabled,
+                withRefresh = true
             });
             var json = await Call(uri, "POST", content);
 
@@ -54,7 +89,8 @@ namespace TaloGameServices
             var uri = new Uri($"{baseUrl}/login");
             string content = JsonUtility.ToJson(new PlayerAuthLoginRequest {
                 identifier = identifier,
-                password = password
+                password = password,
+                withRefresh = true
             });
 
             var json = await Call(uri, "POST", content);
@@ -78,7 +114,8 @@ namespace TaloGameServices
             var uri = new Uri($"{baseUrl}/verify");
             string content = JsonUtility.ToJson(new PlayerAuthVerifyRequest {
                 aliasId = _sessionManager.verificationAliasId,
-                code = code
+                code = code,
+                withRefresh = true
             });
             var json = await Call(uri, "POST", content);
 

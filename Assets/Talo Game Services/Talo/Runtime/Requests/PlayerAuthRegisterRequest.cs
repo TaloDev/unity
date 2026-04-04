@@ -7,5 +7,6 @@ namespace TaloGameServices
         public string password;
         public string email;
         public bool verificationEnabled;
+        public bool withRefresh;
     }
 }

@@ -5,6 +5,10 @@ namespace TaloGameServices
     [System.Serializable]
     public class Prop
     {
+        public static string ToArrayKey(string key) {
+            return key.EndsWith("[]") ? key : $"{key}[]";
+        }
+
         public string key, value;
 
         public Prop((string, string) propTuple)
@@ -20,7 +24,7 @@ namespace TaloGameServices
 
         public static string SanitiseJson(string json)
         {
-            string match = "\"key\":\"(\\w+)\",\"value\":\"\"";
+            string match = "\"key\":\"([^\"]+)\",\"value\":\"\"";
             string replacement = "\"key\":\"$1\",\"value\":null";
             return Regex.Replace(json, match, replacement);
         }

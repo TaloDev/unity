@@ -6,5 +6,6 @@
         public PlayerAlias alias;
         public string sessionToken;
         public string socketToken;
+        public string refreshToken;
     }
 }

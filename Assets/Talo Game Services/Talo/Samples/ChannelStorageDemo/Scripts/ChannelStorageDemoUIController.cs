@@ -73,36 +73,69 @@ namespace TaloGameServices.Sample.ChannelStorageDemo
             if (!string.IsNullOrEmpty(propKey))
             {
                 propKeyField.value = propKey;
-                var existingProp = await Talo.Channels.GetStorageProp(demoChannel.id, propKey);
-                if (existingProp != null)
+                if (propKey.EndsWith("[]"))
                 {
-                    propValueField.value = existingProp.value;
-                    OnChannelStoragePropsUpdated(demoChannel, new ChannelStorageProp[] { existingProp }, Array.Empty<ChannelStorageProp>());
+                    var existingProps = await Talo.Channels.GetStoragePropArray(demoChannel.id, propKey);
+                    if (existingProps.Length > 0)
+                    {
+                        propValueField.value = string.Join(", ", existingProps.Select((p) => p.value));
+                        OnChannelStoragePropsUpdated(demoChannel, existingProps, Array.Empty<ChannelStorageProp>());
+                    }
+                }
+                else
+                {
+                    var existingProp = await Talo.Channels.GetStorageProp(demoChannel.id, propKey);
+                    if (existingProp != null)
+                    {
+                        propValueField.value = existingProp.value;
+                        OnChannelStoragePropsUpdated(demoChannel, new ChannelStorageProp[] { existingProp }, Array.Empty<ChannelStorageProp>());
+                    }
                 }
             }
         }
 
-        private void OnChannelStoragePropsUpdated(Channel channel, ChannelStorageProp[] upsertedProps, ChannelStorageProp[] deletedProps)
+        private async void OnChannelStoragePropsUpdated(Channel channel, ChannelStorageProp[] upsertedProps, ChannelStorageProp[] deletedProps)
         {
             if (channel.id != demoChannel.id)
-                return;
-
-            foreach (var prop in upsertedProps)
             {
-                if (prop.key == propKeyField.text)
-                {
-                    propLiveValueLabel.text = $"{prop.key} live value is: {prop.value}";
-                    propUpdatedLabel.text = $"{prop.key} was last updated by {(prop.lastUpdatedBy.id == Talo.CurrentAlias.id ? "you" : prop.lastUpdatedBy.identifier)} at {prop.updatedAt}.";
-                }
+                return;
             }
 
-            foreach (var prop in deletedProps)
+            var currentKey = propKeyField.value;
+            var isArray = currentKey.EndsWith("[]");
+
+            var matchingUpserted = upsertedProps.Where((p) => p.key == currentKey).ToArray();
+            if (matchingUpserted.Length > 0)
             {
-                if (prop.key == propKeyField.text)
+                var lastProp = matchingUpserted.Last();
+                if (isArray)
                 {
-                    propLiveValueLabel.text = $"{prop.key} live value is: (deleted)";
-                    propUpdatedLabel.text = $"{prop.key} was deleted by {(prop.lastUpdatedBy.id == Talo.CurrentAlias.id ? "you" : prop.lastUpdatedBy.identifier)} at {prop.updatedAt}.";
+                    var current = await Talo.Channels.GetStoragePropArray(demoChannel.id, currentKey);
+                    propLiveValueLabel.text = $"{currentKey} live values are: [{string.Join(", ", current.Select((p) => p.value))}]";
                 }
+                else
+                {
+                    propLiveValueLabel.text = $"{currentKey} live value is: {lastProp.value}";
+                }
+                propUpdatedLabel.text = $"{currentKey} was last updated by {(lastProp.lastUpdatedBy.id == Talo.CurrentAlias.id ? "you" : lastProp.lastUpdatedBy.identifier)} at {lastProp.updatedAt}.";
+            }
+
+            var matchingDeleted = deletedProps.Where((p) => p.key == currentKey).ToArray();
+            if (matchingDeleted.Length > 0)
+            {
+                var lastProp = matchingDeleted.Last();
+                if (isArray)
+                {
+                    var remaining = await Talo.Channels.GetStoragePropArray(demoChannel.id, currentKey);
+                    propLiveValueLabel.text = remaining.Length == 0
+                        ? $"{currentKey} live values are: (deleted)"
+                        : $"{currentKey} live values are: [{string.Join(", ", remaining.Select((p) => p.value))}]";
+                }
+                else
+                {
+                    propLiveValueLabel.text = $"{currentKey} live value is: (deleted)";
+                }
+                propUpdatedLabel.text = $"{currentKey} was deleted by {(lastProp.lastUpdatedBy.id == Talo.CurrentAlias.id ? "you" : lastProp.lastUpdatedBy.identifier)} at {lastProp.updatedAt}.";
             }
         }
 
@@ -127,7 +160,19 @@ namespace TaloGameServices.Sample.ChannelStorageDemo
                 return;
             }
 
-            await Talo.Channels.SetStorageProps(demoChannel.id, (propKeyField.value, propValueField.value));
+            var key = propKeyField.value;
+            if (key.EndsWith("[]"))
+            {
+                var items = propValueField.value.Split(',')
+                    .Select((s) => s.Trim())
+                    .Where((s) => !string.IsNullOrEmpty(s))
+                    .ToArray();
+                await Talo.Channels.SetStoragePropArray(demoChannel.id, key, items);
+            }
+            else
+            {
+                await Talo.Channels.SetStorageProps(demoChannel.id, (key, propValueField.value));
+            }
         }
 
         private async void OnDeleteButtonClicked()
@@ -135,11 +180,6 @@ namespace TaloGameServices.Sample.ChannelStorageDemo
             if (string.IsNullOrEmpty(propKeyField.value))
             {
                 propUpdatedLabel.text = "No prop key set";
-                return;
-            }
-            if (string.IsNullOrEmpty(propValueField.value))
-            {
-                propUpdatedLabel.text = "No prop value set";
                 return;
             }
 
