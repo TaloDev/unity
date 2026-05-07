@@ -44,7 +44,15 @@ namespace TaloGameServices
         public static PlayerAlias CurrentAlias
         {
             get => _currentAlias;
-            set => _currentAlias = value;
+            set
+            {
+                _currentAlias = value;
+
+                if (value?.player != null && (value.player.aliases?.Length ?? 0) == 0)
+                {
+                    value.player.aliases = new[] { value };
+                }
+            }
         }
 
         public static Player CurrentPlayer
@@ -53,13 +61,13 @@ namespace TaloGameServices
             set => _currentAlias.player = value;
         }
 
-        private static CryptoManager _crypto;
+        private static readonly CryptoManager _crypto;
         public static CryptoManager Crypto => _crypto;
 
-        private static ContinuityManager _continuity;
+        private static readonly ContinuityManager _continuity;
         public static ContinuityManager Continuity => _continuity;
 
-        private static TaloSocket _socket;
+        private static readonly TaloSocket _socket;
         public static TaloSocket Socket => _socket;
 
         public static TaloSettings Settings => UnityEngine.Object.FindFirstObjectByType<TaloManager>().settings;
