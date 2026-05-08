@@ -94,15 +94,15 @@ namespace TaloGameServices
             }
         }
 
-        public async Task<Player> IdentifySteam(string ticket, string identity = "")
+        public async Task<Player> IdentifySteam(string ticket, string identityClient = "")
         {
-            if (string.IsNullOrEmpty(identity))
+            if (string.IsNullOrEmpty(identityClient))
             {
                 await Identify("steam", ticket);
             }
             else
             {
-                await Identify("steam", $"{identity}:{ticket}");
+                await Identify("steam", $"{identityClient}:{ticket}");
             }
 
             return Talo.CurrentPlayer;
@@ -111,6 +111,30 @@ namespace TaloGameServices
         public async Task<Player> IdentifyGooglePlayGames(string authCode)
         {
             await Identify("google_play_games", authCode);
+            return Talo.CurrentPlayer;
+        }
+
+        public async Task<Player> IdentifyGameCenter(
+            string publicKeyUrl,
+            byte[] signature,
+            byte[] salt,
+            ulong timestamp,
+            string playerId
+        )
+        {
+            var payload = new PlayersGameCenterIdentifier
+            {
+                publicKeyUrl = publicKeyUrl,
+                signature = Convert.ToBase64String(signature),
+                salt = Convert.ToBase64String(salt),
+                timestamp = timestamp,
+                playerId = playerId,
+                bundleId = Application.identifier
+            };
+
+            var identifier = Uri.EscapeDataString(JsonUtility.ToJson(payload));
+
+            await Identify("game_center", identifier);
             return Talo.CurrentPlayer;
         }
 

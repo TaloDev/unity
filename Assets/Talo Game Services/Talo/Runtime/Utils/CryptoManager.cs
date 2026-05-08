@@ -10,7 +10,7 @@ namespace TaloGameServices
     {
         private readonly string _keyPath = Application.persistentDataPath + "/ti.bin";
 
-        private IFileHandler<string> _fileHandler;
+        private readonly IFileHandler<string> _fileHandler;
 
         public CryptoManager()
         {
@@ -50,70 +50,63 @@ namespace TaloGameServices
 
         private byte[] GetAESKey()
         {
-            using (var sha256 = SHA256.Create())
-            {
-                return sha256.ComputeHash(Encoding.UTF8.GetBytes(SystemInfo.deviceUniqueIdentifier));
-            }
+            using var sha256 = SHA256.Create();
+            return sha256.ComputeHash(Encoding.UTF8.GetBytes(SystemInfo.deviceUniqueIdentifier));
         }
 
         private string EncryptString(byte[] key, string text)
         {
-            using (Aes aes = Aes.Create())
-            {
-                aes.Key = key;
-                aes.GenerateIV();
+            using Aes aes = Aes.Create();
+            aes.Key = key;
+            aes.GenerateIV();
 
-                var encryptor = aes.CreateEncryptor(aes.Key, aes.IV);
-                using (var ms = new MemoryStream())
-                {
-                    ms.Write(aes.IV, 0, aes.IV.Length);
+            var encryptor = aes.CreateEncryptor(aes.Key, aes.IV);
+            using var ms = new MemoryStream();
+            ms.Write(aes.IV, 0, aes.IV.Length);
 
-                    using (CryptoStream cs = new CryptoStream(ms, encryptor, CryptoStreamMode.Write))
-                    using (StreamWriter sw = new StreamWriter(cs))
-                    {
-                        sw.Write(text);
-                        sw.Flush();
-                        cs.FlushFinalBlock();
-                        return Convert.ToBase64String(ms.ToArray());
-                    }
-                }
-            }
+            using CryptoStream cs = new(ms, encryptor, CryptoStreamMode.Write);
+            using StreamWriter sw = new(cs);
+
+            sw.Write(text);
+            sw.Flush();
+            cs.FlushFinalBlock();
+
+            return Convert.ToBase64String(ms.ToArray());
         }
 
         private string DecryptString(byte[] key, string text)
         {
             var fullCipher = Convert.FromBase64String(text);
 
-            using (var aes = Aes.Create())
-            {
-                aes.Key = key;
+            using var aes = Aes.Create();
+            aes.Key = key;
 
-                var iv = new byte[aes.BlockSize / 8];
-                Array.Copy(fullCipher, iv, iv.Length);
+            var iv = new byte[aes.BlockSize / 8];
+            Array.Copy(fullCipher, iv, iv.Length);
 
-                var cipherBytes = new byte[fullCipher.Length - iv.Length];
-                Array.Copy(fullCipher, iv.Length, cipherBytes, 0, cipherBytes.Length);
+            var cipherBytes = new byte[fullCipher.Length - iv.Length];
+            Array.Copy(fullCipher, iv.Length, cipherBytes, 0, cipherBytes.Length);
 
-                aes.IV = iv;
+            aes.IV = iv;
 
-                var decryptor = aes.CreateDecryptor(aes.Key, aes.IV);
-                using (var ms = new MemoryStream(cipherBytes))
-                using (var cs = new CryptoStream(ms, decryptor, CryptoStreamMode.Read))
-                using (var sr = new StreamReader(cs))
-                {
-                    return sr.ReadToEnd();
-                }
-            }
+            var decryptor = aes.CreateDecryptor(aes.Key, aes.IV);
+            using var ms = new MemoryStream(cipherBytes);
+            using var cs = new CryptoStream(ms, decryptor, CryptoStreamMode.Read);
+            using var sr = new StreamReader(cs);
+
+            return sr.ReadToEnd();
         }
 
         private byte[] HexStringToByteArray(string hex)
         {
             var numberChars = hex.Length;
             var bytes = new byte[numberChars / 2];
+
             for (var i = 0; i < numberChars; i += 2)
             {
                 bytes[i / 2] = Convert.ToByte(hex.Substring(i, 2), 16);
             }
+
             return bytes;
         }
     }
