@@ -45,6 +45,8 @@ namespace TaloGameServices
     {
         private readonly LeaderboardEntriesManager _entriesManager = new();
 
+        public event Action<RejectedProp[]> OnPropsRejected;
+
         public LeaderboardsAPI() : base("v1/leaderboards") { }
 
         public List<LeaderboardEntry> GetCachedEntries(string internalName, GetCachedEntriesOptions options = null)
@@ -126,12 +128,24 @@ namespace TaloGameServices
 
             var uri = new Uri($"{baseUrl}/{internalName}/entries");
             var content = JsonUtility.ToJson(new LeaderboardsPostRequest { score = score, props = props });
-            var json = await Call(uri, "POST", Prop.SanitiseJson(content));
 
-            var res = JsonUtility.FromJson<LeaderboardEntryResponse>(json);
-            _entriesManager.UpsertEntry(internalName, res.entry, true);
+            try
+            {
+                var json = await Call(uri, "POST", Prop.SanitiseJson(content));
 
-            return (res.entry, res.updated);
+                var res = JsonUtility.FromJson<LeaderboardEntryResponse>(json);
+                _entriesManager.UpsertEntry(internalName, res.entry, true);
+
+                return (res.entry, res.updated);
+            }
+            catch (RequestException ex)
+            {
+                if (ex.IsBadRequest())
+                {
+                    RejectedProp.TryEmit(ex.responseBody, OnPropsRejected);
+                }
+                throw;
+            }
         }
     }
 }

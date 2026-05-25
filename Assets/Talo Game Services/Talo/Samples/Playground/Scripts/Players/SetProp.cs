@@ -1,11 +1,21 @@
 using UnityEngine;
-using System.Threading.Tasks;
+using System;
 
 namespace TaloGameServices.Sample.Playground
 {
     public class SetProp : MonoBehaviour
     {
         public string key, value;
+
+        private void OnEnable()
+        {
+            Talo.Players.OnPropsRejected += OnPropsRejected;
+        }
+
+        private void OnDisable()
+        {
+            Talo.Players.OnPropsRejected -= OnPropsRejected;
+        }
 
         public void OnButtonClick()
         {
@@ -30,6 +40,12 @@ namespace TaloGameServices.Sample.Playground
                 ResponseMessage.SetText(ex.Message);
                 throw;
             }
+        }
+
+        private void OnPropsRejected(RejectedProp[] rejectedProps)
+        {
+            var reasons = string.Join(", ", Array.ConvertAll(rejectedProps, (rp) => $"[{rp.key}] {rp.message}"));
+            ResponseMessage.SetText($"Rejected props: {reasons}");
         }
     }
 }

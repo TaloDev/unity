@@ -7,6 +7,8 @@ namespace TaloGameServices
 {
     public class FeedbackAPI : BaseAPI
     {
+        public event Action<RejectedProp[]> OnPropsRejected;
+
         public FeedbackAPI() : base("v1/game-feedback") { }
 
         public async Task<FeedbackCategory[]> GetCategories()
@@ -26,7 +28,18 @@ namespace TaloGameServices
             var propsArray = props.Select((propTuples) => new Prop(propTuples)).ToArray();
             var content = JsonUtility.ToJson(new FeedbackPostRequest { comment = comment, props = propsArray });
 
-            await Call(uri, "POST", content);
+            try
+            {
+                await Call(uri, "POST", content);
+            }
+            catch (RequestException ex)
+            {
+                if (ex.IsBadRequest())
+                {
+                    RejectedProp.TryEmit(ex.responseBody, OnPropsRejected);
+                }
+                throw;
+            }
         }
     }
 }

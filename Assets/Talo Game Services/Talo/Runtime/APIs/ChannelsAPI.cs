@@ -86,6 +86,7 @@ namespace TaloGameServices
         public event Action<Channel, PlayerAlias> OnOwnershipTransferred;
         public event Action<Channel> OnChannelDeleted;
         public event Action<Channel, string[]> OnChannelUpdated;
+        public event Action<RejectedProp[]> OnChannelPropsRejected;
         public event Action<Channel, ChannelStoragePropError[]> OnChannelStoragePropsFailedToSet;
         public event Action<Channel, ChannelStorageProp[], ChannelStorageProp[]> OnChannelStoragePropsUpdated;
 
@@ -180,10 +181,22 @@ namespace TaloGameServices
                 @private = options.isPrivate,
                 temporaryMembership = options.temporaryMembership
             });
-            var json = await Call(uri, "POST", content);
 
-            var res = JsonUtility.FromJson<ChannelResponse>(json);
-            return res.channel;
+            try
+            {
+                var json = await Call(uri, "POST", content);
+
+                var res = JsonUtility.FromJson<ChannelResponse>(json);
+                return res.channel;
+            }
+            catch (RequestException ex)
+            {
+                if (ex.IsBadRequest())
+                {
+                    RejectedProp.TryEmit(ex.responseBody, OnChannelPropsRejected);
+                }
+                throw;
+            }
         }
 
         public async Task<Channel> Create(CreateChannelOptions options)
@@ -254,10 +267,22 @@ namespace TaloGameServices
             {
                 content = JsonUtility.ToJson(new ChannelsUpdateOwnerRequest { name = name, newOwnerAliasId = newOwnerAliasId, props = props });
             }
-            var json = await Call(uri, "PUT", content);
 
-            var res = JsonUtility.FromJson<ChannelResponse>(json);
-            return res.channel;
+            try
+            {
+                var json = await Call(uri, "PUT", content);
+
+                var res = JsonUtility.FromJson<ChannelResponse>(json);
+                return res.channel;
+            }
+            catch (RequestException ex)
+            {
+                if (ex.IsBadRequest())
+                {
+                    RejectedProp.TryEmit(ex.responseBody, OnChannelPropsRejected);
+                }
+                throw;
+            }
         }
 
         public async Task Delete(int channelId)

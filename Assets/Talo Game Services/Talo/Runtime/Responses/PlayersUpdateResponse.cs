@@ -4,5 +4,6 @@
     public class PlayersUpdateResponse
     {
         public Player player;
+        public RejectedProp[] rejectedProps;
     }
 }

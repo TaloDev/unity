@@ -9,7 +9,7 @@ namespace TaloGameServices
     public class BaseAPI
     {
         // automatically updated with a pre-commit hook
-        private const string ClientVersion = "0.57.0";
+        private const string ClientVersion = "0.58.0";
 
         protected string baseUrl;
 
@@ -130,7 +130,7 @@ namespace TaloGameServices
 
                     if (string.IsNullOrEmpty(errorCode))
                     {
-                        throw new RequestException(www.responseCode, new Exception(message));
+                        throw new RequestException(www.responseCode, new Exception(message), www.downloadHandler.text);
                     }
                     else
                     {

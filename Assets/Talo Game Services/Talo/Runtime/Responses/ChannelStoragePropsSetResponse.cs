@@ -7,6 +7,7 @@ namespace TaloGameServices
     {
         public string key;
         public string error;
+        public string message;
     }
 
     [Serializable]

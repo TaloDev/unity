@@ -16,7 +16,9 @@ namespace TaloGameServices
         VERIFICATION_EMAIL_REQUIRED,
         INVALID_EMAIL,
         NEW_IDENTIFIER_MATCHES_CURRENT_IDENTIFIER,
-        INVALID_MIGRATION_TARGET
+        INVALID_MIGRATION_TARGET,
+        EMAIL_TAKEN,
+        IDENTIFIER_PROFANITY
     }
 
     public class PlayerAuthException : Exception

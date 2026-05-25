@@ -143,7 +143,7 @@ namespace TaloGameServices.Sample.ChannelStorageDemo
         {
             foreach (var prop in errors)
             {
-                Debug.Log($"{prop.key}: {prop.error}");
+                Debug.Log($"{prop.key}: {prop.message} ({prop.error})");
             }
         }
 

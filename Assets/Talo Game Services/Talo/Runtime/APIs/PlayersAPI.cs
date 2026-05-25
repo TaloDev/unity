@@ -21,6 +21,7 @@ namespace TaloGameServices
         public event Action OnIdentificationStarted;
         public event Action OnIdentificationFailed;
         public event Action OnIdentityCleared;
+        public event Action<RejectedProp[]> OnPropsRejected;
 
         public static readonly string offlineDataPath = Application.persistentDataPath + "/ta.bin";
 
@@ -164,6 +165,11 @@ namespace TaloGameServices
             var res = JsonUtility.FromJson<PlayersUpdateResponse>(json);
             Talo.CurrentPlayer = res.player;
             Talo.CurrentAlias.WriteOfflineAlias();
+
+            if (res.rejectedProps != null && res.rejectedProps.Length > 0)
+            {
+                OnPropsRejected?.Invoke(res.rejectedProps);
+            }
 
             return Talo.CurrentPlayer;
         }

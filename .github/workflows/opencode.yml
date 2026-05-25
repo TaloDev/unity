@@ -36,6 +36,3 @@ jobs:
           OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
         with:
           model: opencode-go/deepseek-v4-flash
-          prompt: |
-            If you are asked for a code review, use the @code-reviewer subagent.
-            Follow the instructions about how to structure and post your review.
