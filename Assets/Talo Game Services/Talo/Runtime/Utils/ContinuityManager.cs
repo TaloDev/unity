@@ -21,18 +21,18 @@ namespace TaloGameServices
     [Serializable]
     public class ContinuityContent
     {
-        public List<Request> requests = new List<Request>();
+        public List<Request> requests = new();
     }
 
     public class ContinuityManager
     {
         private readonly string _continuityPath = Application.persistentDataPath + "/tc.bin";
 
-        private List<Request> _requests;
+        private readonly List<Request> _requests;
 
-        private ContinuityAPI _api = new ContinuityAPI();
+        private readonly ContinuityAPI _api = new();
 
-        private string[] _excludedEndpoints = {
+        private readonly string[] _excludedEndpoints = {
             "/health-check",
             "/players/auth",
             "/players/identify",
@@ -74,7 +74,7 @@ namespace TaloGameServices
                 uri = uri.ToString(),
                 method = method,
                 content = content,
-                headers = (headers ?? new List<HttpHeader>()).Where((h) => h.key != "Authorization").ToList(),
+                headers = (headers ?? new List<HttpHeader>()).Where((h) => h.key != "Authorization" && h.key != "X-Talo-Signature").ToList(),
                 timestamp = timestamp
             });
 
@@ -96,12 +96,17 @@ namespace TaloGameServices
 
                 var uri = new Uri(request.uri);
                 var headers = request.headers.Concat(new List<HttpHeader> {
-                    new HttpHeader("Authorization", $"Bearer {Talo.Settings.accessKey}")
+                    new("Authorization", $"Bearer {Talo.Settings.accessKey}")
                 }).ToList();
 
                 if (request.headers.Find((h) => h.key == "X-Talo-Continuity-Timestamp") == null)
                 {
                     headers.Add(new HttpHeader("X-Talo-Continuity-Timestamp", request.timestamp.ToString()));
+                }
+
+                if (Talo.Settings.verificationEnabled)
+                {
+                    headers.Add(new HttpHeader("X-Talo-Signature", CryptoManager.CreateRequestSignature(request.content)));
                 }
 
                 try

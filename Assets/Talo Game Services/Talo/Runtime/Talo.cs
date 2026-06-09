@@ -1,6 +1,6 @@
 using System;
 using System.Linq;
-using NUnit.Framework;
+using System.Reflection;
 using UnityEngine;
 
 namespace TaloGameServices
@@ -215,7 +215,10 @@ namespace TaloGameServices
 
         public static bool IsOffline()
         {
-            if (TestMode) return RequestMock.Offline;
+            if (TestMode)
+            {
+                return RequestMock.Offline;
+            }
             return Application.internetReachability == NetworkReachability.NotReachable || Settings.offlineMode;
         }
 
@@ -229,7 +232,9 @@ namespace TaloGameServices
             {
                 try
                 {
-                    _testMode = TestContext.CurrentContext.Test.ID != null;
+                    _testMode = assembly.GetType("NUnit.Framework.TestContext")
+                        ?.GetProperty("CurrentContext", BindingFlags.Static | BindingFlags.Public)
+                        ?.GetValue(null) != null;
                     return _testMode;
                 }
                 catch

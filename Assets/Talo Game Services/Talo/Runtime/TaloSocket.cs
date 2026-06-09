@@ -107,6 +107,12 @@ namespace TaloGameServices
             {
                 Debug.Log($"<-- WSS {request.req} {data}");
             }
+
+            if (Talo.Settings.verificationEnabled && identified)
+            {
+                data = CryptoManager.CreateRequestSignature(data) + "\n" + data;
+            }
+
             socket.AddOutgoingMessage(data);
         }
 

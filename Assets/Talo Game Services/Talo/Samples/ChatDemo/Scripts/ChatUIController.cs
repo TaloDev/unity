@@ -9,7 +9,7 @@ namespace TaloGameServices.Sample.ChatDemo
         public string playerUsername;
         private int activeChannelId;
 
-        private List<string> messages = new List<string>();
+        private readonly List<string> messages = new();
         private VisualElement root;
         private ListView messagesList;
         private VisualElement channelsList;

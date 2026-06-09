@@ -9,7 +9,7 @@ namespace TaloGameServices
     public class BaseAPI
     {
         // automatically updated with a pre-commit hook
-        private const string ClientVersion = "0.58.0";
+        private const string ClientVersion = "0.59.0";
 
         protected string baseUrl;
 
@@ -23,7 +23,7 @@ namespace TaloGameServices
             return new Uri(baseUrl);
         }
 
-        private List<HttpHeader> BuildHeaders()
+        private List<HttpHeader> BuildHeaders(string requestBody = "")
         {
             var headers = new List<HttpHeader>
             {
@@ -39,6 +39,11 @@ namespace TaloGameServices
             {
                 headers.Add(new HttpHeader("X-Talo-Player", Talo.CurrentPlayer.id));
                 headers.Add(new HttpHeader("X-Talo-Alias", Talo.CurrentAlias.id.ToString()));
+
+                if (Talo.Settings.verificationEnabled)
+                {
+                    headers.Add(new HttpHeader("X-Talo-Signature", CryptoManager.CreateRequestSignature(requestBody)));
+                }
             }
 
             var sessionToken = Talo.PlayerAuth.SessionManager.GetSessionToken();
@@ -65,7 +70,7 @@ namespace TaloGameServices
 
             var continuityTimestamp = DateTimeOffset.Now.ToUnixTimeMilliseconds();
 
-            var allHeaders = continuity ? headers : BuildHeaders();
+            var allHeaders = continuity ? headers : BuildHeaders(content);
 
             if (Talo.Settings.logRequests && Debug.isDebugBuild)
             {

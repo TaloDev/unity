@@ -37,5 +37,14 @@ namespace TaloGameServices
 
         [Tooltip("Number of seconds to wait before sending debounced requests (e.g. player updates, save updates and health checks)")]
         public float debounceTimerSeconds = 1f;
+
+        [Tooltip("Enable request verification to prevent replay attacks and tampering - this must also be enabled in the dashboard")]
+        public bool verificationEnabled = false;
+
+        [Tooltip("The version of the verification key being used")]
+        public string verificationKeyVersion = "";
+
+        [Tooltip("The value for the verification key version")]
+        public string verificationKeyValue = "";
     }
 }

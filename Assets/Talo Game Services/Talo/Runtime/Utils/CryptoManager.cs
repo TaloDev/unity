@@ -6,6 +6,14 @@ using System.Text;
 
 namespace TaloGameServices
 {
+    [Serializable]
+    internal struct SignatureHeader
+    {
+        public string rid;
+        public string payload;
+        public long timestamp;
+    }
+
     public class CryptoManager
     {
         private readonly string _keyPath = Application.persistentDataPath + "/ti.bin";
@@ -108,6 +116,39 @@ namespace TaloGameServices
             }
 
             return bytes;
+        }
+
+        public static string CreateRequestSignature(string requestBody)
+        {
+            var keyVersion = Talo.Settings.verificationKeyVersion;
+            var keyValue = Talo.Settings.verificationKeyValue;
+
+            if (string.IsNullOrEmpty(keyVersion) || string.IsNullOrEmpty(keyValue))
+            {
+                throw new InvalidOperationException("Verification is enabled but verificationKeyVersion or verificationKeyValue is missing. Please update your Talo Settings.");
+            }
+
+            var rid = Guid.NewGuid().ToString();
+
+            using var sha256 = SHA256.Create();
+            var bodyHashBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(requestBody));
+            var payload = BitConverter.ToString(bodyHashBytes).Replace("-", "").ToLower();
+
+            var timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+
+            var headerJson = JsonUtility.ToJson(new SignatureHeader {
+                rid = rid,
+                payload = payload,
+                timestamp = timestamp
+            });
+            var headerBytes = Encoding.UTF8.GetBytes(headerJson);
+            var headerB64 = Convert.ToBase64String(headerBytes);
+
+            using var hmac = new HMACSHA256(Encoding.UTF8.GetBytes(keyValue));
+            var signatureBytes = hmac.ComputeHash(Encoding.UTF8.GetBytes(headerB64));
+            var signatureB64 = Convert.ToBase64String(signatureBytes);
+
+            return $"{keyVersion}|{headerB64}.{signatureB64}";
         }
     }
 }
