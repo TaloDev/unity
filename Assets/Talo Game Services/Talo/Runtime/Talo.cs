@@ -1,6 +1,4 @@
 using System;
-using System.Linq;
-using System.Reflection;
 using UnityEngine;
 
 namespace TaloGameServices
@@ -10,9 +8,7 @@ namespace TaloGameServices
         public static event Action OnConnectionLost;
         public static event Action OnConnectionRestored;
 
-        private static bool _testMode;
-
-        internal static bool TestMode => _testMode;
+        internal static bool TestMode => TestModeFlag.IsEnabled;
 
         internal static void InvokeConnectionLost()
         {
@@ -153,7 +149,7 @@ namespace TaloGameServices
         {
             TaloManager tm;
 
-            if (!CheckTestMode())
+            if (!TestMode)
             {
                 var settings = Resources.Load<TaloSettings>("Talo Settings");
                 if (!settings)
@@ -202,7 +198,7 @@ namespace TaloGameServices
 
         public static bool HasIdentity()
         {
-            return _testMode || CurrentAlias != null;
+            return TestMode || CurrentAlias != null;
         }
 
         public static void IdentityCheck()
@@ -220,31 +216,6 @@ namespace TaloGameServices
                 return RequestMock.Offline;
             }
             return Application.internetReachability == NetworkReachability.NotReachable || Settings.offlineMode;
-        }
-
-        internal static bool CheckTestMode()
-        {
-#if UNITY_EDITOR
-            var assembly = AppDomain.CurrentDomain.GetAssemblies()
-                .FirstOrDefault((assembly) => assembly.FullName.ToLowerInvariant().StartsWith("nunit.framework"));
-
-            if (assembly != null)
-            {
-                try
-                {
-                    _testMode = assembly.GetType("NUnit.Framework.TestContext")
-                        ?.GetProperty("CurrentContext", BindingFlags.Static | BindingFlags.Public)
-                        ?.GetValue(null) != null;
-                    return _testMode;
-                }
-                catch
-                {
-                    return false;
-                }
-            }
-#endif
-            _testMode = false;
-            return _testMode;
         }
     }
 }
