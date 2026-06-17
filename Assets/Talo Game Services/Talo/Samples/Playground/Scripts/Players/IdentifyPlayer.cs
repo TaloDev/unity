@@ -43,7 +43,7 @@ namespace TaloGameServices.Sample.Playground
             var panel = GameObject.Find("APIs");
             if (panel != null)
             {
-                ResponseMessage.SetText("Identified!");
+                ResponseMessage.SetText($"Identified ({Talo.CurrentAlias.displayName})!");
                 panel.GetComponent<Image>().color = new Color(120 / 255f, 230 / 255f, 160 / 255f);
             }
         }

@@ -6,7 +6,7 @@ namespace TaloGameServices
     public class PlayerAlias
     {
         public int id;
-        public string service, identifier;
+        public string service, identifier, displayName;
         public Player player;
         public string lastSeenAt, createdAt, updatedAt;
 

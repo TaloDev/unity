@@ -6,7 +6,7 @@ namespace TaloGameServices
 {
     public class PlayerAuthAPI : BaseAPI
     {
-        internal bool IsRefreshing { get; private set; }
+        private Task _sessionRefreshRequest;
 
         private readonly SessionManager _sessionManager = new();
 
@@ -29,10 +29,19 @@ namespace TaloGameServices
             }
         }
 
-        public async Task Refresh()
+        public Task Refresh()
         {
-            IsRefreshing = true;
+            if (_sessionRefreshRequest != null)
+            {
+                return _sessionRefreshRequest;
+            }
 
+            _sessionRefreshRequest = DoRefresh();
+            return _sessionRefreshRequest;
+        }
+
+        private async Task DoRefresh()
+        {
             try
             {
                 var refreshToken = _sessionManager.GetRefreshToken();
@@ -58,7 +67,7 @@ namespace TaloGameServices
             }
             finally
             {
-                IsRefreshing = false;
+                _sessionRefreshRequest = null;
             }
         }
 
