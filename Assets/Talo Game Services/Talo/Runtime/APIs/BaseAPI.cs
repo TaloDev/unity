@@ -9,7 +9,7 @@ namespace TaloGameServices
     public class BaseAPI
     {
         // automatically updated with a pre-commit hook
-        private const string ClientVersion = "0.60.0";
+        private const string ClientVersion = "0.60.1";
 
         protected string baseUrl;
 

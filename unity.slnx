@@ -4,4 +4,5 @@
   <Project Path="asset-store-tools-editor.csproj" />
   <Project Path="Talo.Tests.csproj" />
   <Project Path="MikeSchweitzer.WebSocket.csproj" />
+  <Project Path="Assembly-CSharp-Editor.csproj" />
 </Solution>
