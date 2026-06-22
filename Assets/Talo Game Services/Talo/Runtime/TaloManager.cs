@@ -15,7 +15,18 @@ namespace TaloGameServices
             DontDestroyOnLoad(gameObject);
         }
 
-        public void OnReady()
+        private void Start()
+        {
+            if (Talo.Settings.autoStartSession)
+            {
+                _ = Talo.PlayerAuth.StartSession().ContinueWith((t) =>
+                {
+                    Debug.LogException(t.Exception.InnerException ?? t.Exception);
+                }, System.Threading.Tasks.TaskContinuationOptions.OnlyOnFaulted);
+            }
+        }
+
+        public void Setup()
         {
             Talo.Events.OnFlushed += ResetFlushTimer;
             Talo.Saves.Setup();

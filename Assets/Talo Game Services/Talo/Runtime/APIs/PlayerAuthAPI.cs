@@ -14,18 +14,48 @@ namespace TaloGameServices
         public event Action OnSessionFound;
         public event Action OnSessionNotFound;
 
+        private Task _sessionStartTask;
+        
         public PlayerAuthAPI() : base("v1/players/auth") {}
 
-        public async Task StartSession()
+
+        public Task StartSession()
         {
-            if (await _sessionManager.CheckForSession())
+            if (_sessionStartTask != null)
             {
-                OnSessionFound?.Invoke();
-                await Talo.Players.Identify("talo", _sessionManager.GetSessionIdentifier());
+                var baseWarning = "StartSession() is already in progress.";
+                if (Talo.Settings.autoStartSession)
+                {
+                    Debug.LogWarning($"{baseWarning} With autoStartSession enabled, avoid calling it manually in Awake(), Start() or OnEnable().");
+                }
+                else
+                {
+                    Debug.LogWarning($"{baseWarning} Ignoring this call.");
+                }
+                return _sessionStartTask;
             }
-            else
+
+            _sessionStartTask = DoStartSession();
+            return _sessionStartTask;
+        }
+
+        private async Task DoStartSession()
+        {
+            try
             {
-                OnSessionNotFound?.Invoke();
+                if (await _sessionManager.CheckForSession())
+                {
+                    OnSessionFound?.Invoke();
+                    await Talo.Players.Identify("talo", _sessionManager.GetSessionIdentifier());
+                }
+                else
+                {
+                    OnSessionNotFound?.Invoke();
+                }
+            }
+            finally
+            {
+                _sessionStartTask = null;
             }
         }
 

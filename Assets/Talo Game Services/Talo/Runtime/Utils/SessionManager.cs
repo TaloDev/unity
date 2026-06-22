@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using UnityEngine;
 
@@ -39,15 +40,35 @@ namespace TaloGameServices
             SetIdentifierPlayerPref();
         }
 
-        public async Task ClearSession(bool resetSocket = true)
+        public async Task<bool> ClearSession(bool resetSocket = true)
         {
-            Talo.CurrentAlias = null;
+            if (!Talo.HasIdentity())
+            {
+                return false;
+            }
+
             _sessionToken = null;
+            Talo.CurrentAlias = null;
+            PlayerAlias.DeleteOfflineAlias();
+
             PlayerPrefs.DeleteKey("TaloRefreshToken");
+
+            Talo.Events.ClearQueue();
+            Talo.Continuity.ClearRequests();
+
             if (resetSocket)
             {
-                await Talo.Socket.ResetConnection();
+                try
+                {
+                    await Talo.Socket.ResetConnection();
+                }
+                catch (Exception ex)
+                {
+                    Debug.LogWarning($"Error resetting socket: {ex.Message}");
+                }
             }
+
+            return true;
         }
 
         public string GetSessionToken()
@@ -70,6 +91,11 @@ namespace TaloGameServices
             if (!string.IsNullOrEmpty(_sessionToken))
             {
                 return true;
+            }
+
+            if (Talo.IsOffline())
+            {
+                return PlayerAlias.HasOfflineAlias();
             }
 
             if (!string.IsNullOrEmpty(GetRefreshToken()))

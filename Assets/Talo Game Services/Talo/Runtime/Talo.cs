@@ -185,15 +185,7 @@ namespace TaloGameServices
             _playerPresence = new PlayerPresenceAPI();
             _playerRelationships = new PlayerRelationshipsAPI();
 
-            tm.OnReady();
-
-            if (Settings.autoStartSession)
-            {
-                _ = _playerAuth.StartSession().ContinueWith((t) =>
-                {
-                    Debug.LogException(t.Exception.InnerException ?? t.Exception);
-                }, System.Threading.Tasks.TaskContinuationOptions.OnlyOnFaulted);
-            }
+            tm.Setup();
         }
 
         public static bool HasIdentity()

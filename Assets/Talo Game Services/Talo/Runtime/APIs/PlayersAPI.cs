@@ -1,7 +1,6 @@
 using System;
 using System.Threading.Tasks;
 using UnityEngine;
-using System.IO;
 
 namespace TaloGameServices
 {
@@ -22,8 +21,6 @@ namespace TaloGameServices
         public event Action OnIdentificationFailed;
         public event Action OnIdentityCleared;
         public event Action<RejectedProp[]> OnPropsRejected;
-
-        public static readonly string offlineDataPath = Application.persistentDataPath + "/ta.bin";
 
         public PlayersAPI() : base("v1/players")
         {
@@ -208,73 +205,33 @@ namespace TaloGameServices
 
         private async Task<Player> IdentifyOffline(string service, string identifier)
         {
-            var offlineAlias = GetOfflineAlias();
+            PlayerAlias offlineAlias;
+            try
+            {
+                offlineAlias = PlayerAlias.GetOfflineAlias();
+            }
+            catch
+            {
+                PlayerAlias.DeleteOfflineAlias();
+                OnIdentificationFailed?.Invoke();
+                throw new Exception("Failed to parse offline player alias");
+            }
+
             if (offlineAlias != null && offlineAlias.MatchesIdentifyRequest(service, identifier))
             {
                 return await HandleIdentifySuccess(offlineAlias);
             }
-            else
-            {
-                try
-                {
-                    File.Delete(offlineDataPath);
-                }
-                finally
-                {
-                    OnIdentificationFailed?.Invoke();
-                    throw new Exception("No offline player alias found.");
-                }
-            }
-        }
 
-        private PlayerAlias GetOfflineAlias()
-        {
-            if (!Talo.Settings.cachePlayerOnIdentify || !File.Exists(offlineDataPath)) return null;
-            return JsonUtility.FromJson<PlayerAlias>(Talo.Crypto.ReadFileContent(offlineDataPath));
-        }
-
-        private void DeleteOfflineAlias()
-        {
-            if (File.Exists(offlineDataPath))
-            {
-                try
-                {
-                    File.Delete(offlineDataPath);
-                }
-                catch (Exception ex)
-                {
-                    Debug.LogWarning($"Failed to delete offline player data: {ex.Message}");
-                }
-            }
+            OnIdentificationFailed?.Invoke();
+            throw new Exception("No offline player alias found");
         }
 
         public async Task ClearIdentity()
         {
-            Talo.IdentityCheck();
-
-            try
+            if (await Talo.PlayerAuth.SessionManager.ClearSession())
             {
-                DeleteOfflineAlias();
+                OnIdentityCleared?.Invoke();
             }
-            catch (Exception ex)
-            {
-                Debug.LogWarning($"Error deleting offline alias: {ex.Message}");
-            }
-
-            try
-            {
-                // clears the alias and resets the socket (doesn't require auth)
-                await Talo.PlayerAuth.SessionManager.ClearSession();
-            }
-            catch (Exception ex)
-            {
-                Debug.LogWarning($"Error clearing session: {ex.Message}");
-            }
-
-            Talo.Events.ClearQueue();
-            Talo.Continuity.ClearRequests();
-
-            OnIdentityCleared?.Invoke();
         }
 
         public async Task<PlayersSearchResponse> Search(string query)
