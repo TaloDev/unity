@@ -18,12 +18,6 @@ namespace TaloGameServices
             return res.stats;
         }
 
-        [Obsolete("Use Find(string internalName) instead.")]
-        public async Task<Stat> GetStat(string internalName)
-        {
-            return await Find(internalName);
-        }
-
         public async Task<Stat> Find(string internalName)
         {
             var uri = new Uri($"{baseUrl}/{internalName}");
