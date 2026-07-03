@@ -147,12 +147,6 @@ namespace TaloGameServices
             return res;
         }
 
-        [Obsolete("Use GetChannels(GetChannelsOptions options) instead.")]
-        public async Task<ChannelsIndexResponse> GetChannels(int page)
-        {
-            return await GetChannels(new GetChannelsOptions { page = page });
-        }
-
         public async Task<Channel[]> GetSubscribedChannels(GetSubscribedChannelsOptions options = null)
         {
             Talo.IdentityCheck();
