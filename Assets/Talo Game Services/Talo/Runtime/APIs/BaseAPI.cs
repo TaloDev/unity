@@ -145,7 +145,14 @@ namespace TaloGameServices
                             return await Call(uri, method, content, headers, continuity);
                         }
 
-                        throw new PlayerAuthException(errorCode, new Exception(message));
+                        if (uri.AbsolutePath.Contains("/v1/players/auth/"))
+                        {
+                            throw new PlayerAuthException(errorCode, new Exception(message));
+                        }
+                        else
+                        {
+                            throw new RequestException(www.responseCode, new Exception(message), www.downloadHandler.text);
+                        }
                     }
                 }
             }

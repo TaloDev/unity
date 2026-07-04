@@ -18,7 +18,7 @@ namespace TaloGameServices
 
         public event Action<PlayerAlias> OnIdentified;
         public event Action OnIdentificationStarted;
-        public event Action OnIdentificationFailed;
+        public event Action<IdentifyException> OnIdentificationFailed;
         public event Action OnIdentityCleared;
         public event Action<RejectedProp[]> OnPropsRejected;
 
@@ -75,21 +75,21 @@ namespace TaloGameServices
 
             var uri = new Uri($"{baseUrl}/identify?service={service}&identifier={identifier}");
 
+            PlayersIdentifyResponse res;
             try
             {
                 var json = await Call(uri, "GET");
-
-                var res = JsonUtility.FromJson<PlayersIdentifyResponse>(json);
-                var alias = res.alias;
-                alias.WriteOfflineAlias();
-                return await HandleIdentifySuccess(alias, res.socketToken);
+                res = JsonUtility.FromJson<PlayersIdentifyResponse>(json);
             }
-            catch
+            catch (Exception ex)
             {
                 await Talo.PlayerAuth.SessionManager.ClearSession();
-                OnIdentificationFailed?.Invoke();
+                OnIdentificationFailed?.Invoke(IdentifyException.FromException(ex));
                 throw;
             }
+
+            res.alias.WriteOfflineAlias();
+            return await HandleIdentifySuccess(res.alias, res.socketToken);
         }
 
         public async Task<PlayerAlias> IdentifySteam(string ticket, string identityClient = "")
@@ -209,7 +209,7 @@ namespace TaloGameServices
             catch
             {
                 PlayerAlias.DeleteOfflineAlias();
-                OnIdentificationFailed?.Invoke();
+                OnIdentificationFailed?.Invoke(new IdentifyException());
                 throw new Exception("Failed to parse offline player alias");
             }
 
@@ -218,7 +218,7 @@ namespace TaloGameServices
                 return await HandleIdentifySuccess(offlineAlias);
             }
 
-            OnIdentificationFailed?.Invoke();
+            OnIdentificationFailed?.Invoke(new IdentifyException());
             throw new Exception("No offline player alias found");
         }
 
