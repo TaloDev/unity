@@ -77,17 +77,6 @@ namespace TaloGameServices
             return res;
         }
 
-        [Obsolete("Use GetEntries(string internalName, GetEntriesOptions options) instead.")]
-        public async Task<LeaderboardEntriesResponse> GetEntries(string internalName, int page, int aliasId = -1, bool includeArchived = false)
-        {
-            return await GetEntries(internalName, new GetEntriesOptions
-            {
-                page = page,
-                aliasId = aliasId,
-                includeArchived = includeArchived
-            });
-        }
-
         public async Task<(LeaderboardEntry, bool)> AddEntry(string internalName, float score, params (string, string)[] propTuples)
         {
             Talo.IdentityCheck();
