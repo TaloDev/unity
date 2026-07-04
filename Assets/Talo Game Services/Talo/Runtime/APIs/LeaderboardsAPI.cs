@@ -85,17 +85,6 @@ namespace TaloGameServices
             return res;
         }
 
-        [Obsolete("Use GetEntries(string internalName, GetEntriesOptions options) with the aliasId or playerId option instead.")]
-        public async Task<LeaderboardEntriesResponse> GetEntriesForCurrentPlayer(string internalName, GetEntriesOptions options = null)
-        {
-            Talo.IdentityCheck();
-
-            options ??= new GetEntriesOptions();
-            options.aliasId = Talo.CurrentAlias.id;
-
-            return await GetEntries(internalName, options);
-        }
-
         [Obsolete("Use GetEntries(string internalName, GetEntriesOptions options) instead.")]
         public async Task<LeaderboardEntriesResponse> GetEntries(string internalName, int page, int aliasId = -1, bool includeArchived = false)
         {
@@ -105,19 +94,6 @@ namespace TaloGameServices
                 aliasId = aliasId,
                 includeArchived = includeArchived
             });
-        }
-
-        [Obsolete("Use GetEntries(string internalName, GetEntriesOptions options) with the aliasId or playerId option instead.")]
-        public async Task<LeaderboardEntriesResponse> GetEntriesForCurrentPlayer(string internalName, int page, bool includeArchived = false)
-        {
-            Talo.IdentityCheck();
-
-            return await GetEntries(internalName, new GetEntriesOptions
-            {
-                page = page,
-                aliasId = Talo.CurrentAlias.id,
-                includeArchived = includeArchived
-            }); 
         }
 
         public async Task<(LeaderboardEntry, bool)> AddEntry(string internalName, float score, params (string, string)[] propTuples)
