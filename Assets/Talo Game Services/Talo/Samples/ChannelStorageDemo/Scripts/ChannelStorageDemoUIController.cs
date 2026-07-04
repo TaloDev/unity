@@ -139,7 +139,7 @@ namespace TaloGameServices.Sample.ChannelStorageDemo
             }
         }
 
-        private void OnChannelStoragePropsFailedToSet(Channel channel, ChannelStoragePropError[] errors)
+        private void OnChannelStoragePropsFailedToSet(Channel channel, RejectedProp[] errors)
         {
             foreach (var prop in errors)
             {
