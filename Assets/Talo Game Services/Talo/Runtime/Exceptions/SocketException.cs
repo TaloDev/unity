@@ -21,29 +21,38 @@ namespace TaloGameServices
         private readonly SocketError errorData;
 
         public string Req => errorData?.req ?? "unknown";
-        public SocketErrorCode ErrorCode => GetErrorCode();
+        public SocketErrorCode ErrorCode { get; }
         public string Cause => errorData?.cause ?? "";
 
         public SocketException()
         {
+            ErrorCode = SocketErrorCode.API_ERROR;
         }
 
         public SocketException(SocketError errorData)
             : base(errorData.message)
         {
             this.errorData = errorData;
+            ErrorCode = ParseErrorCode(errorData?.errorCode);
         }
 
         public SocketException(SocketError errorData, Exception inner)
             : base(errorData.message, inner)
         {
             this.errorData = errorData;
+            ErrorCode = ParseErrorCode(errorData?.errorCode);
         }
 
-        private SocketErrorCode GetErrorCode()
+        private static SocketErrorCode ParseErrorCode(string errorCode)
         {
-            var errorCode = string.IsNullOrEmpty(errorData?.errorCode) ? "API_ERROR" : errorData.errorCode;
-            return (SocketErrorCode)Enum.Parse(typeof(SocketErrorCode), errorCode);
+            if (string.IsNullOrEmpty(errorCode))
+            {
+                return SocketErrorCode.API_ERROR;
+            }
+        
+            return Enum.TryParse(errorCode, out SocketErrorCode code)
+                ? code
+                : SocketErrorCode.API_ERROR;
         }
     }
 }

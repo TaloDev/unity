@@ -5,7 +5,7 @@ namespace TaloGameServices
 {
     public class ContinuityReplayException : Exception
     {
-        private List<Exception> _exceptions;
+        private readonly List<Exception> _exceptions;
         public List<Exception> Exceptions => _exceptions;
 
         public ContinuityReplayException(List<Exception> exceptions)
