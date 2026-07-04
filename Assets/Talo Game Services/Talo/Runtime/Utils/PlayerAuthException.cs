@@ -23,26 +23,35 @@ namespace TaloGameServices
 
     public class PlayerAuthException : Exception
     {
-        public PlayerAuthErrorCode ErrorCode => GetErrorCode();
+        public PlayerAuthErrorCode ErrorCode { get; }
 
         public PlayerAuthException()
         {
+            ErrorCode = PlayerAuthErrorCode.API_ERROR;
         }
 
         public PlayerAuthException(string errorCode)
             : base(errorCode)
         {
+            ErrorCode = ParseErrorCode(errorCode);
         }
 
         public PlayerAuthException(string errorCode, Exception inner)
             : base(errorCode, inner)
         {
+            ErrorCode = ParseErrorCode(errorCode);
         }
 
-        private PlayerAuthErrorCode GetErrorCode()
+        private static PlayerAuthErrorCode ParseErrorCode(string errorCode)
         {
-            var errorCode = string.IsNullOrEmpty(Message) ? "API_ERROR" : Message;
-            return (PlayerAuthErrorCode)Enum.Parse(typeof(PlayerAuthErrorCode), errorCode);
+            if (string.IsNullOrEmpty(errorCode))
+            {
+                return PlayerAuthErrorCode.API_ERROR;
+            }
+
+            return Enum.TryParse(errorCode, out PlayerAuthErrorCode code)
+                ? code
+                : PlayerAuthErrorCode.API_ERROR;
         }
     }
 }
