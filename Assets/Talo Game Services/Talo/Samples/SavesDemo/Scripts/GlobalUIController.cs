@@ -16,7 +16,7 @@ namespace TaloGameServices.Sample.SavesDemo
 
             if (Talo.CurrentAlias != null)
             {
-                OnIdentified(Talo.CurrentPlayer);
+                OnIdentified(Talo.CurrentAlias);
             }
         }
 
@@ -32,7 +32,7 @@ namespace TaloGameServices.Sample.SavesDemo
             Talo.Saves.OnSaveChosen -= OnSaveChosen;
         }
 
-        private async void OnIdentified(Player player)
+        private async void OnIdentified(PlayerAlias alias)
         {
             await Talo.Saves.GetSaves();
             SetDocumentVisibility(loginUI, DisplayStyle.None);

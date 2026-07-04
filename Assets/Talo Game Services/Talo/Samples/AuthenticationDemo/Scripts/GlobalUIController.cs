@@ -22,7 +22,7 @@ namespace TaloGameServices.Sample.AuthenticationDemo
             Talo.Players.OnIdentified -= OnIdentified;
         }
 
-        private void OnIdentified(Player player)
+        private void OnIdentified(PlayerAlias alias)
         {
             GoToGame();
         }

@@ -16,7 +16,7 @@ namespace TaloGameServices
             Update
         }
 
-        public event Action<Player> OnIdentified;
+        public event Action<PlayerAlias> OnIdentified;
         public event Action OnIdentificationStarted;
         public event Action OnIdentificationFailed;
         public event Action OnIdentityCleared;
@@ -43,10 +43,10 @@ namespace TaloGameServices
 
         public void InvokeIdentifiedEvent()
         {
-            OnIdentified?.Invoke(Talo.CurrentPlayer);
+            OnIdentified?.Invoke(Talo.CurrentAlias);
         }
 
-        private async Task<Player> HandleIdentifySuccess(PlayerAlias alias, string socketToken = "")
+        private async Task<PlayerAlias> HandleIdentifySuccess(PlayerAlias alias, string socketToken = "")
         {
             if (!Talo.IsOffline() && Talo.Socket.IsIdentified())
             {
@@ -61,10 +61,10 @@ namespace TaloGameServices
 
             InvokeIdentifiedEvent();
 
-            return alias.player;
+            return alias;
         }
 
-        public async Task<Player> Identify(string service, string identifier)
+        public async Task<PlayerAlias> Identify(string service, string identifier)
         {
             OnIdentificationStarted?.Invoke();
 
@@ -92,27 +92,24 @@ namespace TaloGameServices
             }
         }
 
-        public async Task<Player> IdentifySteam(string ticket, string identityClient = "")
+        public async Task<PlayerAlias> IdentifySteam(string ticket, string identityClient = "")
         {
             if (string.IsNullOrEmpty(identityClient))
             {
-                await Identify("steam", ticket);
+                return await Identify("steam", ticket);
             }
             else
             {
-                await Identify("steam", $"{identityClient}:{ticket}");
+                return await Identify("steam", $"{identityClient}:{ticket}");
             }
-
-            return Talo.CurrentPlayer;
         }
 
-        public async Task<Player> IdentifyGooglePlayGames(string authCode)
+        public async Task<PlayerAlias> IdentifyGooglePlayGames(string authCode)
         {
-            await Identify("google_play_games", authCode);
-            return Talo.CurrentPlayer;
+            return await Identify("google_play_games", authCode);
         }
 
-        public async Task<Player> IdentifyGameCenter(
+        public async Task<PlayerAlias> IdentifyGameCenter(
             string publicKeyUrl,
             byte[] signature,
             byte[] salt,
@@ -132,8 +129,7 @@ namespace TaloGameServices
 
             var identifier = Uri.EscapeDataString(JsonUtility.ToJson(payload));
 
-            await Identify("game_center", identifier);
-            return Talo.CurrentPlayer;
+            return await Identify("game_center", identifier);
         }
 
         protected override async Task ExecuteDebouncedOperation(DebouncedOperation operation)
@@ -203,7 +199,7 @@ namespace TaloGameServices
             return res.player;
         }
 
-        private async Task<Player> IdentifyOffline(string service, string identifier)
+        private async Task<PlayerAlias> IdentifyOffline(string service, string identifier)
         {
             PlayerAlias offlineAlias;
             try

@@ -19,9 +19,9 @@ namespace TaloGameServices.Sample.AuthenticationDemo
             Talo.Players.OnIdentified -= OnIdentified;
         }
 
-        private void OnIdentified(Player player)
+        private void OnIdentified(PlayerAlias alias)
         {
-            root.Q<Label>("title").text = $"Hi, {Talo.CurrentAlias.identifier}";
+            root.Q<Label>("title").text = $"Hi, {alias.identifier}";
         }
 
         private async void OnLogoutClick()
