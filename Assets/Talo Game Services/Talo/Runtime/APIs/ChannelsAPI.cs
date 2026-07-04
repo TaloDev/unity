@@ -87,7 +87,7 @@ namespace TaloGameServices
         public event Action<Channel> OnChannelDeleted;
         public event Action<Channel, string[]> OnChannelUpdated;
         public event Action<RejectedProp[]> OnChannelPropsRejected;
-        public event Action<Channel, ChannelStoragePropError[]> OnChannelStoragePropsFailedToSet;
+        public event Action<Channel, RejectedProp[]> OnChannelStoragePropsFailedToSet;
         public event Action<Channel, ChannelStorageProp[], ChannelStorageProp[]> OnChannelStoragePropsUpdated;
 
         private readonly ChannelStorageManager _storageManager = new ();
