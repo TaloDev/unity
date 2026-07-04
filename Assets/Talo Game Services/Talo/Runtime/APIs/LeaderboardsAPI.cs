@@ -60,14 +60,6 @@ namespace TaloGameServices
             );
         }
 
-        [Obsolete("Use GetCachedEntries(string internalName, GetCachedEntriesOptions options) with the aliasId or playerId option instead.")]
-        public List<LeaderboardEntry> GetCachedEntriesForCurrentPlayer(string internalName)
-        {
-            Talo.IdentityCheck();
-
-            return _entriesManager.GetEntries(internalName).FindAll(e => e.playerAlias.id == Talo.CurrentAlias.id);
-        }
-
         public async Task<LeaderboardEntriesResponse> GetEntries(string internalName, GetEntriesOptions options = null)
         {
             options ??= new GetEntriesOptions();
