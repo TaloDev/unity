@@ -38,12 +38,12 @@ namespace TaloGameServices.Sample.Playground
             }
         }
 
-        private void OnIdentified(Player player)
+        private void OnIdentified(PlayerAlias alias)
         {
             var panel = GameObject.Find("APIs");
             if (panel != null)
             {
-                ResponseMessage.SetText($"Identified ({Talo.CurrentAlias.displayName})!");
+                ResponseMessage.SetText($"Identified ({alias.displayName})!");
                 panel.GetComponent<Image>().color = new Color(120 / 255f, 230 / 255f, 160 / 255f);
             }
         }
