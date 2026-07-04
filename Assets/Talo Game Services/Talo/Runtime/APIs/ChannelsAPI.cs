@@ -199,19 +199,6 @@ namespace TaloGameServices
             return await SendCreateChannelRequest(options);
         }
 
-        [Obsolete("Use Create(CreateChannelOptions options) instead.")]
-        public async Task<Channel> Create(string name, bool autoCleanup = false, params (string, string)[] propTuples)
-        {
-            var options = new CreateChannelOptions
-            {
-                name = name,
-                autoCleanup = autoCleanup,
-                props = propTuples,
-                isPrivate = false
-            };
-            return await SendCreateChannelRequest(options);
-        }
-
         public async Task<Channel> Join(int channelId)
         {
             Talo.IdentityCheck();
