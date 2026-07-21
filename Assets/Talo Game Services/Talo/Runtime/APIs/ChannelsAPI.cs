@@ -67,9 +67,19 @@ namespace TaloGameServices
     {
         public string name;
         public (string, string)[] props = Array.Empty<(string, string)>();
-        public bool autoCleanup = false;
-        public bool isPrivate = false;
-        public bool temporaryMembership = false;
+        public bool autoCleanup;
+        public bool isPrivate;
+        public bool temporaryMembership;
+    }
+
+    public class UpdateChannelOptions
+    {
+        public string name = "";
+        public int newOwnerAliasId = -1;
+        public (string, string)[] props = null;
+        public bool? autoCleanup = null;
+        public bool? isPrivate = null;
+        public bool? temporaryMembership = null;
     }
 
     public enum ChannelLeavingReason
@@ -218,23 +228,24 @@ namespace TaloGameServices
             await Call(uri, "POST");
         }
 
-        public async Task<Channel> Update(int channelId, string name = "", int newOwnerAliasId = -1, params (string, string)[] propTuples)
+        public async Task<Channel> Update(int channelId, UpdateChannelOptions options = null)
         {
             Talo.IdentityCheck();
 
-            var props = propTuples.Select((propTuple) => new Prop(propTuple)).ToArray();
+            options ??= new UpdateChannelOptions();
 
             var uri = new Uri($"{baseUrl}/{channelId}");
 
-            var content = "";
-            if (newOwnerAliasId == -1)
-            {
-                content = JsonUtility.ToJson(new ChannelsUpdateRequest { name = name, props = props });
-            }
-            else
-            {
-                content = JsonUtility.ToJson(new ChannelsUpdateOwnerRequest { name = name, newOwnerAliasId = newOwnerAliasId, props = props });
-            }
+            var props = options.props?.Select((propTuple) => new Prop(propTuple)).ToArray();
+
+            var content = JsonUtils.BuildObject(
+                ("name", string.IsNullOrEmpty(options.name) ? null : options.name),
+                ("ownerAliasId", options.newOwnerAliasId == -1 ? null : options.newOwnerAliasId),
+                ("props", props),
+                ("autoCleanup", options.autoCleanup),
+                ("private", options.isPrivate),
+                ("temporaryMembership", options.temporaryMembership)
+            );
 
             try
             {
