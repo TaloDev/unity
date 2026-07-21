@@ -60,9 +60,9 @@ namespace TaloGameServices.Sample.ChannelStorageDemo
                 var createOptions = new CreateChannelOptions()
                 {
                     name = "Channel Storage Demo",
-                    props = new (string, string)[]
+                    props = new []
                     {
-                    ( "channel-storage-demo", "true" )
+                        ("channel-storage-demo", "true")
                     }
                 };
                 demoChannel = await Talo.Channels.Create(createOptions);
