@@ -74,9 +74,9 @@ namespace TaloGameServices
 
     public class UpdateChannelOptions
     {
-        public string name = "";
+        public string name;
         public int newOwnerAliasId = -1;
-        public (string, string)[] props = null;
+        public (string, string)[] props;
         public bool? autoCleanup = null;
         public bool? isPrivate = null;
         public bool? temporaryMembership = null;
