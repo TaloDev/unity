@@ -6,7 +6,9 @@ namespace TaloGameServices
     [System.Serializable]
     public class PlayerAlias
     {
-        private static readonly string offlineDataPath = Application.persistentDataPath + "/ta.bin";
+        private static string _offlineDataPath;
+        private static string OfflineDataPath =>
+            _offlineDataPath ??= Application.persistentDataPath + "/ta.bin";
 
         public int id;
         public string service, identifier, displayName;
@@ -26,12 +28,12 @@ namespace TaloGameServices
             }
 
             var content = JsonUtility.ToJson(this);
-            Talo.Crypto.WriteFileContent(offlineDataPath, content);
+            Talo.Crypto.WriteFileContent(OfflineDataPath, content);
         }
 
         public static bool HasOfflineAlias()
         {
-            return Talo.Settings.cachePlayerOnIdentify && File.Exists(offlineDataPath);
+            return Talo.Settings.cachePlayerOnIdentify && File.Exists(OfflineDataPath);
         }
 
         public static PlayerAlias GetOfflineAlias()
@@ -41,16 +43,16 @@ namespace TaloGameServices
                 return null;
             }
 
-            return JsonUtility.FromJson<PlayerAlias>(Talo.Crypto.ReadFileContent(offlineDataPath));
+            return JsonUtility.FromJson<PlayerAlias>(Talo.Crypto.ReadFileContent(OfflineDataPath));
         }
 
         public static void DeleteOfflineAlias()
         {
-            if (File.Exists(offlineDataPath))
+            if (File.Exists(OfflineDataPath))
             {
                 try
                 {
-                    File.Delete(offlineDataPath);
+                    File.Delete(OfflineDataPath);
                 }
                 catch (System.Exception ex)
                 {
