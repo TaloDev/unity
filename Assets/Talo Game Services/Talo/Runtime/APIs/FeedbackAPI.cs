@@ -7,8 +7,6 @@ namespace TaloGameServices
 {
     public class FeedbackAPI : BaseAPI
     {
-        public event Action<RejectedProp[]> OnPropsRejected;
-
         public FeedbackAPI() : base("v1/game-feedback") { }
 
         public async Task<FeedbackCategory[]> GetCategories()
@@ -20,7 +18,7 @@ namespace TaloGameServices
             return res.feedbackCategories;
         }
 
-        public async Task Send(string categoryInternalName, string comment, params (string, string)[] props)
+        public async Task<FeedbackSendResult> Send(string categoryInternalName, string comment, params (string, string)[] props)
         {
             Talo.IdentityCheck();
 
@@ -31,14 +29,27 @@ namespace TaloGameServices
             try
             {
                 await Call(uri, "POST", content);
+                return new FeedbackSendResult(true);
             }
             catch (RequestException ex)
             {
                 if (ex.IsBadRequest())
                 {
-                    RejectedProp.TryEmit(ex.responseBody, OnPropsRejected);
+                    return new FeedbackSendResult(false, RejectedProp.FromJson(ex.responseBody));
                 }
                 throw;
+            }
+        }
+
+        public class FeedbackSendResult
+        {
+            public bool Success { get; }
+            public RejectedProp[] RejectedProps { get; }
+
+            public FeedbackSendResult(bool success, RejectedProp[] rejectedProps = null)
+            {
+                Success = success;
+                RejectedProps = rejectedProps ?? Array.Empty<RejectedProp>();
             }
         }
     }

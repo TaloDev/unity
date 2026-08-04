@@ -24,9 +24,15 @@ namespace TaloGameServices.Sample.Playground
             try
             {
                 int score = UnityEngine.Random.Range(0, 10000);
-                (LeaderboardEntry entry, bool updated) = await Talo.Leaderboards.AddEntry(leaderboardInternalName, score);
+                var result = await Talo.Leaderboards.AddEntry(leaderboardInternalName, score);
 
-                ResponseMessage.SetText($"Entry with score {score} added, position is {entry.position}, it was {(updated ? "" : "not")} updated");
+                if (result.Entry == null)
+                {
+                    ResponseMessage.SetText("Failed to add entry");
+                    return;
+                }
+
+                ResponseMessage.SetText($"Entry with score {score} added, position is {result.Entry.position}, it was {(result.Updated ? "" : "not")} updated");
             }
             catch (Exception ex)
             {

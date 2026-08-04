@@ -99,14 +99,9 @@ namespace TaloGameServices.Test
         }
 
         [UnityTest]
-        public IEnumerator PropRejection_BothOnPropsRejectedAndOnPlayerUpdatedFire()
+        public IEnumerator PropRejection_OnPlayerUpdatedFiresWithRejectedProps()
         {
-            int rejectedCount = 0;
             Talo.Players.OnPlayerUpdated += _mock.OnUpdated;
-            Talo.Players.OnPropsRejected += _ =>
-            {
-                rejectedCount++;
-            };
 
             var uri = new Uri($"{Talo.Settings.apiUrl}/v1/players/uuid");
             RequestMock.ReplyOnce(uri, "PATCH", JsonUtility.ToJson(new PlayersUpdateResponse
@@ -115,9 +110,10 @@ namespace TaloGameServices.Test
                 rejectedProps = new[] { new RejectedProp { key = "k1", error = "PROP_VALUE_TOO_LONG", message = "too long" } }
             }));
 
-            Talo.CurrentPlayer.SetProp("k1", "v1-updated");
+            var result = Talo.CurrentPlayer.SetProp("k1", "v1-updated").GetAwaiter().GetResult();
 
-            Assert.AreEqual(1, rejectedCount);
+            Assert.AreEqual(1, result.RejectedProps.Length);
+            Assert.AreEqual("k1", result.RejectedProps[0].key);
             Assert.AreEqual(1, _mock.updatedCount);
             Assert.IsTrue(_mock.lastSuccess);
 

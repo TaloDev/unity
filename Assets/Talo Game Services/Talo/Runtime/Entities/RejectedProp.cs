@@ -35,14 +35,6 @@ namespace TaloGameServices
             return wrapper?.rejectedProps ?? Array.Empty<RejectedProp>();
         }
 
-        public static void TryEmit(string json, Action<RejectedProp[]> onRejected)
-        {
-            var rejectedProps = FromJson(json);
-            if (rejectedProps.Length > 0)
-            {
-                onRejected?.Invoke(rejectedProps);
-            }
-        }
     }
 
     [Serializable]
