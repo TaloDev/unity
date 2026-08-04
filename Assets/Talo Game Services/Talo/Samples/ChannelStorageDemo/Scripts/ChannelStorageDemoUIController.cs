@@ -65,7 +65,17 @@ namespace TaloGameServices.Sample.ChannelStorageDemo
                         ("channel-storage-demo", "true")
                     }
                 };
-                demoChannel = await Talo.Channels.Create(createOptions);
+                var createResult = await Talo.Channels.Create(createOptions);
+                if (createResult.Success)
+                {
+                    demoChannel = createResult.Channel;
+                }
+            }
+
+            if (demoChannel == null)
+            {
+                Debug.LogError("Failed to create or find a channel for the Channel Storage Demo");
+                return;
             }
 
             await Talo.Channels.Join(demoChannel.id);

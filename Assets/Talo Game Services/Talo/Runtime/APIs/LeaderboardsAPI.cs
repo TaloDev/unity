@@ -45,8 +45,6 @@ namespace TaloGameServices
     {
         private readonly LeaderboardEntriesManager _entriesManager = new();
 
-        public event Action<RejectedProp[]> OnPropsRejected;
-
         public LeaderboardsAPI() : base("v1/leaderboards") { }
 
         public List<LeaderboardEntry> GetCachedEntries(string internalName, GetCachedEntriesOptions options = null)
@@ -77,7 +75,7 @@ namespace TaloGameServices
             return res;
         }
 
-        public async Task<(LeaderboardEntry, bool)> AddEntry(string internalName, float score, params (string, string)[] propTuples)
+        public async Task<AddEntryResult> AddEntry(string internalName, float score, params (string, string)[] propTuples)
         {
             Talo.IdentityCheck();
 
@@ -93,15 +91,31 @@ namespace TaloGameServices
                 var res = JsonUtility.FromJson<LeaderboardEntryResponse>(json);
                 _entriesManager.UpsertEntry(internalName, res.entry, true);
 
-                return (res.entry, res.updated);
+                return new AddEntryResult(true, res.entry, res.updated);
             }
             catch (RequestException ex)
             {
                 if (ex.IsBadRequest())
                 {
-                    RejectedProp.TryEmit(ex.responseBody, OnPropsRejected);
+                    return new AddEntryResult(false, null, false, RejectedProp.FromJson(ex.responseBody));
                 }
                 throw;
+            }
+        }
+
+        public class AddEntryResult
+        {
+            public bool Success { get; }
+            public LeaderboardEntry Entry { get; }
+            public bool Updated { get; }
+            public RejectedProp[] RejectedProps { get; }
+
+            public AddEntryResult(bool success, LeaderboardEntry entry, bool updated, RejectedProp[] rejectedProps = null)
+            {
+                Success = success;
+                Entry = entry;
+                Updated = updated;
+                RejectedProps = rejectedProps ?? Array.Empty<RejectedProp>();
             }
         }
     }
