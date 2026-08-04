@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 namespace TaloGameServices
 {
-    public class SavesAPI : DebouncedAPI<SavesAPI.DebouncedOperation>
+    public class SavesAPI : DebouncedAPI<SavesAPI.DebouncedOperation, GameSave, SavesAPI.SaveUpdateResult>
     {
         public enum DebouncedOperation
         {
@@ -21,6 +21,7 @@ namespace TaloGameServices
 
         public event Action<GameSave> OnSaveChosen;
         public event Action<GameSave> OnSaveUnloaded;
+        public event Action<bool, GameSave> OnSaveUpdated;
 
         public GameSave[] All
         {
@@ -38,7 +39,11 @@ namespace TaloGameServices
         }
 
         public SavesAPI() : base("v1/game-saves")
-        { }
+        {
+            OnOperationSettled += (success, save) => {
+                OnSaveUpdated?.Invoke(success, success ? save : null);
+            };
+        }
 
         internal void Setup()
         {
@@ -191,7 +196,7 @@ namespace TaloGameServices
             return savesManager.CreateSave(save);
         }
 
-        protected override async Task ExecuteDebouncedOperation(DebouncedOperation operation)
+        protected override async Task<GameSave> ExecuteDebouncedOperation(DebouncedOperation operation)
         {
             switch (operation)
             {
@@ -199,18 +204,24 @@ namespace TaloGameServices
                     var currentSave = savesManager.CurrentSave;
                     if (currentSave != null)
                     {
-                        await UpdateSave(currentSave.id);
+                        return await UpdateSave(currentSave.id);
                     }
                     break;
             }
+            return null;
         }
 
-        public void DebounceUpdate()
+        protected override SaveUpdateResult BuildResult(bool success, GameSave updateData)
         {
-            Debounce(DebouncedOperation.Update);
+            return new SaveUpdateResult(success, success ? updateData : null);
         }
 
-        public async Task<GameSave> UpdateCurrentSave(string newName = "")
+        public Task<SaveUpdateResult> DebounceUpdate()
+        {
+            return Debounce(DebouncedOperation.Update);
+        }
+
+        public async Task<SaveUpdateResult> UpdateCurrentSave(string newName = "")
         {
             var currentSave = savesManager.CurrentSave;
             if (currentSave == null)
@@ -221,13 +232,16 @@ namespace TaloGameServices
             // if the save is being renamed, sync it immediately
             if (!string.IsNullOrEmpty(newName))
             {
-                return await UpdateSave(currentSave.id, newName);
+                var save = await UpdateSave(currentSave.id, newName);
+                var success = save != null;
+                var result = new SaveUpdateResult(success, save);
+                OnSaveUpdated?.Invoke(success, save);
+                return result;
             }
 
             // else, update the save locally and queue it for syncing
             currentSave.content = contentManager.Content;
-            DebounceUpdate();
-            return currentSave;
+            return await DebounceUpdate();
         }
 
         public async Task<GameSave> UpdateSave(int saveId, string newName = "")
@@ -238,7 +252,10 @@ namespace TaloGameServices
 
             if (Talo.IsOffline())
             {
-                if (!string.IsNullOrEmpty(newName)) save.name = newName;
+                if (!string.IsNullOrEmpty(newName))
+                {
+                    save.name = newName;
+                }
                 save.content = saveContent;
                 save.updatedAt = DateTime.UtcNow.ToString("O");
             }
@@ -254,7 +271,6 @@ namespace TaloGameServices
                 });
 
                 var json = await Call(uri, "PATCH", content);
-
                 var res = JsonUtility.FromJson<SavesPostResponse>(json);
                 save = res.save;
             }
@@ -292,6 +308,18 @@ namespace TaloGameServices
             }
 
             savesManager.DeleteSave(saveId, unloadIfCurrentSave);
+        }
+
+        public class SaveUpdateResult
+        {
+            public bool Success { get; }
+            public GameSave Save { get; }
+
+            public SaveUpdateResult(bool success, GameSave save = null)
+            {
+                Success = success;
+                Save = save;
+            }
         }
     }
 }

@@ -7,22 +7,12 @@ namespace TaloGameServices.Sample.Playground
     {
         public string key, value;
 
-        private void OnEnable()
-        {
-            Talo.Players.OnPropsRejected += OnPropsRejected;
-        }
-
-        private void OnDisable()
-        {
-            Talo.Players.OnPropsRejected -= OnPropsRejected;
-        }
-
         public void OnButtonClick()
         {
             UpdateProp();
         }
 
-        private void UpdateProp()
+        private async void UpdateProp()
         {
             if (string.IsNullOrEmpty(key) || string.IsNullOrEmpty(value))
             {
@@ -32,20 +22,21 @@ namespace TaloGameServices.Sample.Playground
 
             try
             {
-                Talo.CurrentPlayer.SetProp(key, value);
-                ResponseMessage.SetText($"{key} set to {value}");
+                var result = await Talo.CurrentPlayer.SetProp(key, value);
+
+                if (result.RejectedProps.Length > 0)
+                {
+                    var reasons = string.Join(", ", Array.ConvertAll(result.RejectedProps, (rp) => $"[{rp.key}] {rp.message}"));
+                    ResponseMessage.SetText($"Rejected props: {reasons}");
+                    return;
+                }
+
+                ResponseMessage.SetText($"{key} saved successfully");
             }
-            catch (System.Exception ex)
+            catch (Exception ex)
             {
                 ResponseMessage.SetText(ex.Message);
-                throw;
             }
-        }
-
-        private void OnPropsRejected(RejectedProp[] rejectedProps)
-        {
-            var reasons = string.Join(", ", Array.ConvertAll(rejectedProps, (rp) => $"[{rp.key}] {rp.message}"));
-            ResponseMessage.SetText($"Rejected props: {reasons}");
         }
     }
 }

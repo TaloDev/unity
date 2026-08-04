@@ -37,9 +37,24 @@ namespace TaloGameServices
             Talo.Events.OnFlushed -= ResetFlushTimer;
         }
 
-        private void OnApplicationQuit()
+        private async void OnApplicationQuit()
         {
-            DoFlush();
+            try
+            {
+                if (Talo.HasIdentity())
+                {
+                    await Talo.Events.Flush();
+                    await Talo.Players.FlushUpdates();
+                    if (Talo.Saves.Current != null)
+                    {
+                        await Talo.Saves.FlushUpdates();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"Failed to flush on quit: {ex}");
+            }
         }
 
         private void OnApplicationFocus(bool hasFocus)

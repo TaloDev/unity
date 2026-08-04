@@ -9,7 +9,7 @@ namespace TaloGameServices
         public string postMergeIdentityService = "";
     }
 
-    public class PlayersAPI : DebouncedAPI<PlayersAPI.DebouncedOperation>
+    public class PlayersAPI : DebouncedAPI<PlayersAPI.DebouncedOperation, RejectedProp[], PlayersAPI.PlayerUpdateResult>
     {
         public enum DebouncedOperation
         {
@@ -21,10 +21,12 @@ namespace TaloGameServices
         public event Action<IdentifyException> OnIdentificationFailed;
         public event Action OnIdentityCleared;
         public event Action<RejectedProp[]> OnPropsRejected;
+        public event Action<bool> OnPlayerUpdated;
 
         public PlayersAPI() : base("v1/players")
         {
             Talo.OnConnectionRestored += OnConnectionRestored;
+            OnOperationSettled += (success, _) => OnPlayerUpdated?.Invoke(success);
         }
 
         private async void OnConnectionRestored()
@@ -132,22 +134,36 @@ namespace TaloGameServices
             return await Identify("game_center", identifier);
         }
 
-        protected override async Task ExecuteDebouncedOperation(DebouncedOperation operation)
+        protected override async Task<RejectedProp[]> ExecuteDebouncedOperation(DebouncedOperation operation)
         {
-            switch (operation)
+            return operation switch
             {
-                case DebouncedOperation.Update:
-                    await Update();
-                    break;
-            }
+                DebouncedOperation.Update => await RunUpdate(),
+                _ => null,
+            };
         }
 
-        public void DebounceUpdate()
+        protected override PlayerUpdateResult BuildResult(bool success, RejectedProp[] updateData)
         {
-            Debounce(DebouncedOperation.Update);
+            if (!success)
+            {
+                return new PlayerUpdateResult(false);
+            }
+            return new PlayerUpdateResult(true, updateData);
+        }
+
+        public Task<PlayerUpdateResult> DebounceUpdate()
+        {
+            return Debounce(DebouncedOperation.Update);
         }
 
         public async Task<Player> Update()
+        {
+            await RunUpdate();
+            return Talo.CurrentPlayer;
+        }
+
+        private async Task<RejectedProp[]> RunUpdate()
         {
             Talo.IdentityCheck();
 
@@ -164,7 +180,7 @@ namespace TaloGameServices
                 OnPropsRejected?.Invoke(res.rejectedProps);
             }
 
-            return Talo.CurrentPlayer;
+            return res.rejectedProps ?? Array.Empty<RejectedProp>();
         }
 
         public async Task<Player> Merge(string playerId1, string playerId2, MergeOptions options = null)
@@ -256,6 +272,18 @@ namespace TaloGameServices
             {
                 Debug.LogWarning($"Failed to create socket token: {ex.Message}");
                 return "";
+            }
+        }
+
+        public class PlayerUpdateResult
+        {
+            public bool Success { get; }
+            public RejectedProp[] RejectedProps { get; }
+
+            public PlayerUpdateResult(bool success, RejectedProp[] rejectedProps = null)
+            {
+                Success = success;
+                RejectedProps = rejectedProps ?? Array.Empty<RejectedProp>();
             }
         }
     }

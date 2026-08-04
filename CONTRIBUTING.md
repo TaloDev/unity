@@ -36,7 +36,7 @@ Assets/Talo Game Services/Talo/
 
 Follow the patterns established in existing API and entity files:
 
-- All API classes inherit from `BaseAPI` (or `DebouncedAPI<TOperation>` when debouncing is needed)
+- All API classes inherit from `BaseAPI` (or `DebouncedAPI` when debouncing is needed)
 - Use `async`/`await` for all network operations
 - Request and response types live in their respective `Requests/` and `Responses/` folders
 

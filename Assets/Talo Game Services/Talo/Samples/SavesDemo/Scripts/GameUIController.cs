@@ -29,8 +29,6 @@ namespace TaloGameServices.Sample.SavesDemo
             updateSaveButton.clicked += async () =>
             {
                 await Talo.Saves.UpdateCurrentSave();
-                updateSaveButton.text = "Saved!";
-                Invoke("ResetUpdateSaveButtonText", 1f);
             };
 
             root.Q<Button>("back-btn").clicked += () =>
@@ -40,6 +38,22 @@ namespace TaloGameServices.Sample.SavesDemo
             };
 
             SetupLevelButtons();
+        }
+
+        private void OnEnable()
+        {
+            Talo.Saves.OnSaveUpdated += OnSaveUpdated;
+        }
+
+        private void OnDisable()
+        {
+            Talo.Saves.OnSaveUpdated -= OnSaveUpdated;
+        }
+
+        private void OnSaveUpdated(bool success, GameSave save)
+        {
+            updateSaveButton.text = success ? "Saved!" : "Save failed";
+            Invoke(nameof(ResetUpdateSaveButtonText), 1f);
         }
 
         private void SetupLevelButtons()
