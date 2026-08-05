@@ -32,7 +32,7 @@ namespace TaloGameServices.Test
             var tm = new GameObject().AddComponent<TaloManager>();
             tm.settings = ScriptableObject.CreateInstance<TaloSettings>();
             tm.settings.autoConnectSocket = false;
-            tm.settings.debounceTimerSeconds = 0.1f;
+            tm.settings.debounceTimerSeconds = 0f;
 
             Talo.CurrentAlias = new PlayerAlias() {
                 player = new Player() {
@@ -85,7 +85,7 @@ namespace TaloGameServices.Test
         }
 
         [UnityTest]
-        public IEnumerator LeadingCall_FiresOnSaveUpdated()
+        public IEnumerator TrailingCall_FiresOnSaveUpdated()
         {
             var api = BuildApiWithChosenSave(1, "Online Save");
             Talo.Saves.OnSaveUpdated += _mock.OnUpdated;
@@ -95,16 +95,16 @@ namespace TaloGameServices.Test
 
             _ = Talo.Saves.DebounceUpdate();
 
+            yield return null;
+
             Assert.AreEqual(1, _mock.updatedCount);
             Assert.IsTrue(_mock.lastSuccess);
             Assert.IsNotNull(_mock.lastSave);
             Assert.AreEqual(1, _mock.lastSave.id);
-
-            yield return null;
         }
 
         [UnityTest]
-        public IEnumerator LeadingAndTrailing_FireOnSaveUpdatedTwice()
+        public IEnumerator TrailingCall_FiresOnceForMultipleCalls()
         {
             var api = BuildApiWithChosenSave(1, "Online Save");
             Talo.Saves.OnSaveUpdated += _mock.OnUpdated;
@@ -115,49 +115,42 @@ namespace TaloGameServices.Test
             _ = Talo.Saves.DebounceUpdate();
             _ = Talo.Saves.DebounceUpdate();
 
+            yield return null;
+
             Assert.AreEqual(1, _mock.updatedCount);
 
             var result = Talo.Saves.FlushUpdates().GetAwaiter().GetResult();
-            Assert.AreEqual(DebouncedAPIBase.FlushResult.Success, result);
-            Assert.AreEqual(2, _mock.updatedCount);
-
-            yield return null;
+            Assert.AreEqual(DebouncedAPIBase.FlushResult.NothingPending, result);
+            Assert.AreEqual(1, _mock.updatedCount);
         }
 
         [UnityTest]
-        public IEnumerator HttpError_FiresOnSaveUpdatedWithFalse()
+        public IEnumerator TrailingCall_HttpError_FiresOnSaveUpdatedWithFalse()
         {
             BuildApiWithChosenSave(1, "Online Save");
             Talo.Saves.OnSaveUpdated += _mock.OnUpdated;
 
-            // no mock for update means the leading call's Debounce() fails
             _ = Talo.Saves.DebounceUpdate();
+
+            yield return null;
 
             Assert.AreEqual(1, _mock.updatedCount);
             Assert.IsFalse(_mock.lastSuccess);
             Assert.IsNull(_mock.lastSave);
-
-            yield return null;
         }
 
         [UnityTest]
-        public IEnumerator TrailingCall_FailsOnHttpError_ReturnsFlushResultFailure()
+        public IEnumerator TrailingCall_HttpError_FlushReturnsFailure()
         {
-            var api = BuildApiWithChosenSave(1, "Online Save");
+            BuildApiWithChosenSave(1, "Online Save");
             Talo.Saves.OnSaveUpdated += _mock.OnUpdated;
 
-            var uri = new Uri(api.GetUri() + "/1");
-            RequestMock.ReplyOnce(uri, "PATCH", PatchedSaveJson());
-
-            _ = Talo.Saves.DebounceUpdate();
             _ = Talo.Saves.DebounceUpdate();
 
-            Assert.AreEqual(1, _mock.updatedCount);
-            Assert.IsTrue(_mock.lastSuccess);
-
-            // trailing call has no mock so flush returns Failure (not throw)
             var flushResult = Talo.Saves.FlushUpdates().GetAwaiter().GetResult();
             Assert.AreEqual(DebouncedAPIBase.FlushResult.Failure, flushResult);
+            Assert.AreEqual(1, _mock.updatedCount);
+            Assert.IsFalse(_mock.lastSuccess);
 
             yield return null;
         }

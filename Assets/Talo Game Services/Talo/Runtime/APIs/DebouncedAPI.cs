@@ -50,31 +50,11 @@ namespace TaloGameServices
 
             var op = operations[operation];
 
-            if (!op.windowOpen && !op.isExecuting)
-            {
-                op.hasTrailingCallQueued = false;
-                op.isExecuting = true;
-                OpenWindow(op);
-
-                var pending = new List<TaskCompletionSource<TUpdateResult>>(op.pendingTasks);
-                op.pendingTasks.Clear();
-
-                return SettleLeading(operation, op, pending);
-            }
-            else
-            {
-                var tcs = new TaskCompletionSource<TUpdateResult>();
-                op.pendingTasks.Add(tcs);
-                op.hasTrailingCallQueued = true;
-                OpenWindow(op);
-                return tcs.Task;
-            }
-        }
-
-        private async Task<TUpdateResult> SettleLeading(TOperation operation, DebouncedOperation op, List<TaskCompletionSource<TUpdateResult>> pending)
-        {
-            (_, var result) = await RunAndSettle(operation, op, pending);
-            return result;
+            var tcs = new TaskCompletionSource<TUpdateResult>();
+            op.pendingTasks.Add(tcs);
+            op.hasTrailingCallQueued = true;
+            OpenWindow(op);
+            return tcs.Task;
         }
 
         private async Task<(bool success, TUpdateResult result)> RunAndSettle(TOperation operation, DebouncedOperation op, List<TaskCompletionSource<TUpdateResult>> pending)
@@ -118,22 +98,16 @@ namespace TaloGameServices
                 var windowClosed = Time.realtimeSinceStartup >= op.windowEndTime;
                 if (windowClosed)
                 {
-                    if (op.hasTrailingCallQueued)
+                    if (op.hasTrailingCallQueued && !op.isExecuting)
                     {
-                        if (!op.isExecuting)
-                        {
-                            // window closed with a trailing call pending: execute it
-                            keysToProcess.Add(kvp.Key);
-                        }
-                        else
-                        {
-                            // leading call still in-flight: delay trailing until it completes
-                            OpenWindow(op);
-                        }
+                        keysToProcess.Add(kvp.Key);
+                    }
+                    else if (op.isExecuting)
+                    {
+                        OpenWindow(op);
                     }
                     else if (op.windowOpen)
                     {
-                        // window closed with no trailing call: reset for the next leading call
                         op.windowOpen = false;
                     }
                 }

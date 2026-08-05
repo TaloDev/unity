@@ -29,7 +29,7 @@ namespace TaloGameServices.Test
             var tm = new GameObject().AddComponent<TaloManager>();
             tm.settings = ScriptableObject.CreateInstance<TaloSettings>();
             tm.settings.autoConnectSocket = false;
-            tm.settings.debounceTimerSeconds = 0.1f;
+            tm.settings.debounceTimerSeconds = 0f;
 
             Talo.CurrentAlias = new PlayerAlias() {
                 player = new Player() {
@@ -57,7 +57,7 @@ namespace TaloGameServices.Test
         }
 
         [UnityTest]
-        public IEnumerator LeadingCall_FiresOnPlayerUpdated()
+        public IEnumerator TrailingCall_FiresOnPlayerUpdated()
         {
             Talo.Players.OnPlayerUpdated += _mock.OnUpdated;
 
@@ -69,14 +69,14 @@ namespace TaloGameServices.Test
 
             Talo.CurrentPlayer.SetProp("k1", "v1-updated");
 
+            yield return null;
+
             Assert.AreEqual(1, _mock.updatedCount);
             Assert.IsTrue(_mock.lastSuccess);
-
-            yield return null;
         }
 
         [UnityTest]
-        public IEnumerator LeadingAndTrailing_FireOnPlayerUpdatedTwice()
+        public IEnumerator TrailingCall_FiresOnceForMultipleCalls()
         {
             Talo.Players.OnPlayerUpdated += _mock.OnUpdated;
 
@@ -89,13 +89,13 @@ namespace TaloGameServices.Test
             Talo.CurrentPlayer.SetProp("k1", "v1-updated");
             Talo.CurrentPlayer.SetProp("k2", "v2");
 
+            yield return null;
+
             Assert.AreEqual(1, _mock.updatedCount);
 
             var result = Talo.Players.FlushUpdates().GetAwaiter().GetResult();
-            Assert.AreEqual(DebouncedAPIBase.FlushResult.Success, result);
-            Assert.AreEqual(2, _mock.updatedCount);
-
-            yield return null;
+            Assert.AreEqual(DebouncedAPIBase.FlushResult.NothingPending, result);
+            Assert.AreEqual(1, _mock.updatedCount);
         }
 
         [UnityTest]
@@ -110,51 +110,44 @@ namespace TaloGameServices.Test
                 rejectedProps = new[] { new RejectedProp { key = "k1", error = "PROP_VALUE_TOO_LONG", message = "too long" } }
             }));
 
-            var result = Talo.CurrentPlayer.SetProp("k1", "v1-updated").GetAwaiter().GetResult();
+            var task = Talo.CurrentPlayer.SetProp("k1", "v1-updated");
+
+            yield return null;
+
+            var result = task.GetAwaiter().GetResult();
 
             Assert.AreEqual(1, result.RejectedProps.Length);
             Assert.AreEqual("k1", result.RejectedProps[0].key);
             Assert.AreEqual(1, _mock.updatedCount);
             Assert.IsTrue(_mock.lastSuccess);
-
-            yield return null;
         }
 
         [UnityTest]
-        public IEnumerator HttpError_FiresOnPlayerUpdatedWithFalse()
+        public IEnumerator TrailingCall_HttpError_FiresOnPlayerUpdatedWithFalse()
         {
             Talo.Players.OnPlayerUpdated += _mock.OnUpdated;
 
-            // no mock for update means the leading call's Debounce() fails
-
+            // no mock registered — RequestMock.HandleCall throws, simulating an HTTP error
             Talo.CurrentPlayer.SetProp("k1", "v1-updated");
+
+            yield return null;
 
             Assert.AreEqual(1, _mock.updatedCount);
             Assert.IsFalse(_mock.lastSuccess);
-
-            yield return null;
         }
 
         [UnityTest]
-        public IEnumerator TrailingCall_FailsOnHttpError_ReturnsFlushResultFailure()
+        public IEnumerator TrailingCall_HttpError_FlushReturnsFailure()
         {
             Talo.Players.OnPlayerUpdated += _mock.OnUpdated;
 
-            var uri = new Uri($"{Talo.Settings.apiUrl}/v1/players/uuid");
-            RequestMock.ReplyOnce(uri, "PATCH", JsonUtility.ToJson(new PlayersUpdateResponse
-            {
-                player = new Player { id = "uuid" }
-            }));
-
+            // no mock registered — RequestMock.HandleCall throws, simulating an HTTP error
             Talo.CurrentPlayer.SetProp("k1", "v1-updated");
-            Talo.CurrentPlayer.SetProp("k2", "v2");
 
-            Assert.AreEqual(1, _mock.updatedCount);
-            Assert.IsTrue(_mock.lastSuccess);
-
-            // trailing call has no mock so flush returns Failure (not throw)
             var flushResult = Talo.Players.FlushUpdates().GetAwaiter().GetResult();
             Assert.AreEqual(DebouncedAPIBase.FlushResult.Failure, flushResult);
+            Assert.AreEqual(1, _mock.updatedCount);
+            Assert.IsFalse(_mock.lastSuccess);
 
             yield return null;
         }
@@ -179,19 +172,18 @@ namespace TaloGameServices.Test
             }));
 
             Talo.CurrentPlayer.SetProp("k1", "v1-updated");
-            Talo.CurrentPlayer.SetProp("k2", "v2");
 
-            Assert.AreEqual(1, _mock.updatedCount);
+            Assert.AreEqual(0, _mock.updatedCount);
 
             var result = Talo.Players.FlushUpdates().GetAwaiter().GetResult();
             Assert.AreEqual(DebouncedAPIBase.FlushResult.Success, result);
-            Assert.AreEqual(2, _mock.updatedCount);
+            Assert.AreEqual(1, _mock.updatedCount);
 
             yield return null;
         }
 
         [UnityTest]
-        public IEnumerator SetProp_ReturnsResultInline()
+        public IEnumerator SetProp_ReturnsResult()
         {
             var uri = new Uri($"{Talo.Settings.apiUrl}/v1/players/uuid");
             RequestMock.ReplyOnce(uri, "PATCH", JsonUtility.ToJson(new PlayersUpdateResponse
@@ -199,12 +191,14 @@ namespace TaloGameServices.Test
                 player = new Player { id = "uuid" }
             }));
 
-            var result = Talo.CurrentPlayer.SetProp("k1", "v1-updated").GetAwaiter().GetResult();
+            var task = Talo.CurrentPlayer.SetProp("k1", "v1-updated");
+
+            yield return null;
+
+            var result = task.GetAwaiter().GetResult();
 
             Assert.IsTrue(result.Success);
             Assert.AreEqual(0, result.RejectedProps.Length);
-
-            yield return null;
         }
 
         [UnityTest]
