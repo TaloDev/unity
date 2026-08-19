@@ -1,6 +1,9 @@
-name: Unity tests
+name: Unit tests
 
-on: push
+on:
+  push:
+    branches: [develop]
+  pull_request:
 
 jobs:
   test:
