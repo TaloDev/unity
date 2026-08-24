@@ -13,8 +13,8 @@ namespace TaloGameServices
             public long status;
         }
 
-        private static List<RequestHandler> _permanentHandlers = new List<RequestHandler>();
-        private static List<RequestHandler> _oneTimeHandlers = new List<RequestHandler>();
+        private static readonly List<RequestHandler> _permanentHandlers = new();
+        private static readonly List<RequestHandler> _oneTimeHandlers = new();
         private static bool _offline;
 
         public static bool Offline

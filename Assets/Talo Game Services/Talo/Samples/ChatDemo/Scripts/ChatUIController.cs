@@ -132,7 +132,9 @@ namespace TaloGameServices.Sample.ChatDemo
                 return;
             }
 
-            var channel = await Talo.Channels.Create(new CreateChannelOptions() { name = channelName, autoCleanup = true });
+            var result = await Talo.Channels.Create(new CreateChannelOptions() { name = channelName, autoCleanup = true });
+
+            var channel = result.Channel;
             AddChannelToList(channel);
             channelNameField.value = "";
             activeChannelId = channel.id;

@@ -2,6 +2,7 @@
 using System.Linq;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace TaloGameServices
 {
@@ -18,64 +19,70 @@ namespace TaloGameServices
             return JsonUtility.ToJson(this);
         }
 
-        public void SetProp(string key, string value, bool update = true)
+        public Task<PlayersAPI.PlayerUpdateResult> SetProp(string key, string value, bool update = true)
         {
             base.SetProp(key, value);
 
             if (update)
             {
-                Talo.Players.DebounceUpdate();
+                return Talo.Players.DebounceUpdate();
             }
+            return Task.FromResult(new PlayersAPI.PlayerUpdateResult(true));
         }
 
-        public void DeleteProp(string key, bool update = true)
+        public Task<PlayersAPI.PlayerUpdateResult> DeleteProp(string key, bool update = true)
         {
             base.DeleteProp(key);
 
             if (update)
             {
-                Talo.Players.DebounceUpdate();
+                return Talo.Players.DebounceUpdate();
             }
+            return Task.FromResult(new PlayersAPI.PlayerUpdateResult(true));
         }
 
-        public void SetPropArray(string key, IEnumerable<string> values, bool update = true)
+        public Task<PlayersAPI.PlayerUpdateResult> SetPropArray(string key, IEnumerable<string> values, bool update = true)
         {
             base.SetPropArray(key, values);
 
             if (update)
             {
-                Talo.Players.DebounceUpdate();
+                return Talo.Players.DebounceUpdate();
             }
+            return Task.FromResult(new PlayersAPI.PlayerUpdateResult(true));
         }
 
-        public void DeletePropArray(string key, bool update = true)
+        public Task<PlayersAPI.PlayerUpdateResult> DeletePropArray(string key, bool update = true)
         {
             base.DeletePropArray(key);
 
             if (update)
             {
-                Talo.Players.DebounceUpdate();
+                return Talo.Players.DebounceUpdate();
             }
+            return Task.FromResult(new PlayersAPI.PlayerUpdateResult(true));
         }
 
-        public void InsertIntoPropArray(string key, string value, bool update = true)
+        public Task<PlayersAPI.PlayerUpdateResult> InsertIntoPropArray(string key, string value, bool update = true)
         {
             base.InsertIntoPropArray(key, value);
 
             if (update)
             {
-                Talo.Players.DebounceUpdate();
+                return Talo.Players.DebounceUpdate();
             }
+            return Task.FromResult(new PlayersAPI.PlayerUpdateResult(true));
         }
 
-        public void RemoveFromPropArray(string key, string value, bool update = true)
+        public Task<PlayersAPI.PlayerUpdateResult> RemoveFromPropArray(string key, string value, bool update = true)
         {
             base.RemoveFromPropArray(key, value);
 
             if (update)
             {
-                Talo.Players.DebounceUpdate();
+                return Talo.Players.DebounceUpdate();
             }
+            return Task.FromResult(new PlayersAPI.PlayerUpdateResult(true));
         }
 
         public bool IsInGroupID(string groupId)

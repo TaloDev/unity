@@ -67,9 +67,19 @@ namespace TaloGameServices
     {
         public string name;
         public (string, string)[] props = Array.Empty<(string, string)>();
-        public bool autoCleanup = false;
-        public bool isPrivate = false;
-        public bool temporaryMembership = false;
+        public bool autoCleanup;
+        public bool isPrivate;
+        public bool temporaryMembership;
+    }
+
+    public class UpdateChannelOptions
+    {
+        public string name;
+        public int newOwnerAliasId = -1;
+        public (string, string)[] props;
+        public bool? autoCleanup = null;
+        public bool? isPrivate = null;
+        public bool? temporaryMembership = null;
     }
 
     public enum ChannelLeavingReason
@@ -86,8 +96,7 @@ namespace TaloGameServices
         public event Action<Channel, PlayerAlias> OnOwnershipTransferred;
         public event Action<Channel> OnChannelDeleted;
         public event Action<Channel, string[]> OnChannelUpdated;
-        public event Action<RejectedProp[]> OnChannelPropsRejected;
-        public event Action<Channel, ChannelStoragePropError[]> OnChannelStoragePropsFailedToSet;
+        public event Action<Channel, RejectedProp[]> OnChannelStoragePropsFailedToSet;
         public event Action<Channel, ChannelStorageProp[], ChannelStorageProp[]> OnChannelStoragePropsUpdated;
 
         private readonly ChannelStorageManager _storageManager = new ();
@@ -147,12 +156,6 @@ namespace TaloGameServices
             return res;
         }
 
-        [Obsolete("Use GetChannels(GetChannelsOptions options) instead.")]
-        public async Task<ChannelsIndexResponse> GetChannels(int page)
-        {
-            return await GetChannels(new GetChannelsOptions { page = page });
-        }
-
         public async Task<Channel[]> GetSubscribedChannels(GetSubscribedChannelsOptions options = null)
         {
             Talo.IdentityCheck();
@@ -166,7 +169,7 @@ namespace TaloGameServices
             return res.channels;
         }
 
-        private async Task<Channel> SendCreateChannelRequest(CreateChannelOptions options)
+        private async Task<ChannelUpsertResult> SendCreateChannelRequest(CreateChannelOptions options)
         {
             Talo.IdentityCheck();
 
@@ -187,47 +190,21 @@ namespace TaloGameServices
                 var json = await Call(uri, "POST", content);
 
                 var res = JsonUtility.FromJson<ChannelResponse>(json);
-                return res.channel;
+                return new ChannelUpsertResult(true, res.channel);
             }
             catch (RequestException ex)
             {
                 if (ex.IsBadRequest())
                 {
-                    RejectedProp.TryEmit(ex.responseBody, OnChannelPropsRejected);
+                    return new ChannelUpsertResult(false, null, RejectedProp.FromJson(ex.responseBody));
                 }
                 throw;
             }
         }
 
-        public async Task<Channel> Create(CreateChannelOptions options)
+        public async Task<ChannelUpsertResult> Create(CreateChannelOptions options)
         {
             options ??= new CreateChannelOptions();
-            return await SendCreateChannelRequest(options);
-        }
-
-        [Obsolete("Use Create(CreateChannelOptions options) instead.")]
-        public async Task<Channel> Create(string name, bool autoCleanup = false, params (string, string)[] propTuples)
-        {
-            var options = new CreateChannelOptions
-            {
-                name = name,
-                autoCleanup = autoCleanup,
-                props = propTuples,
-                isPrivate = false
-            };
-            return await SendCreateChannelRequest(options);
-        }
-
-        [Obsolete("Use Create(CreateChannelOptions options) instead.")]
-        public async Task<Channel> CreatePrivate(string name, bool autoCleanup = false, params (string, string)[] propTuples)
-        {
-            var options = new CreateChannelOptions
-            {
-                name = name,
-                autoCleanup = autoCleanup,
-                props = propTuples,
-                isPrivate = true
-            };
             return await SendCreateChannelRequest(options);
         }
 
@@ -250,36 +227,37 @@ namespace TaloGameServices
             await Call(uri, "POST");
         }
 
-        public async Task<Channel> Update(int channelId, string name = "", int newOwnerAliasId = -1, params (string, string)[] propTuples)
+        public async Task<ChannelUpsertResult> Update(int channelId, UpdateChannelOptions options = null)
         {
             Talo.IdentityCheck();
 
-            var props = propTuples.Select((propTuple) => new Prop(propTuple)).ToArray();
+            options ??= new UpdateChannelOptions();
 
             var uri = new Uri($"{baseUrl}/{channelId}");
 
-            var content = "";
-            if (newOwnerAliasId == -1)
-            {
-                content = JsonUtility.ToJson(new ChannelsUpdateRequest { name = name, props = props });
-            }
-            else
-            {
-                content = JsonUtility.ToJson(new ChannelsUpdateOwnerRequest { name = name, newOwnerAliasId = newOwnerAliasId, props = props });
-            }
+            var props = options.props?.Select((propTuple) => new Prop(propTuple)).ToArray();
+
+            var content = JsonUtils.BuildObject(
+                ("name", string.IsNullOrEmpty(options.name) ? null : options.name),
+                ("ownerAliasId", options.newOwnerAliasId == -1 ? null : options.newOwnerAliasId),
+                ("props", props),
+                ("autoCleanup", options.autoCleanup),
+                ("private", options.isPrivate),
+                ("temporaryMembership", options.temporaryMembership)
+            );
 
             try
             {
                 var json = await Call(uri, "PUT", content);
 
                 var res = JsonUtility.FromJson<ChannelResponse>(json);
-                return res.channel;
+                return new ChannelUpsertResult(true, res.channel);
             }
             catch (RequestException ex)
             {
                 if (ex.IsBadRequest())
                 {
-                    RejectedProp.TryEmit(ex.responseBody, OnChannelPropsRejected);
+                    return new ChannelUpsertResult(false, null, RejectedProp.FromJson(ex.responseBody));
                 }
                 throw;
             }
@@ -420,6 +398,20 @@ namespace TaloGameServices
             }
 
             return Array.Empty<ChannelStorageProp>();
+        }
+
+        public class ChannelUpsertResult
+        {
+            public bool Success { get; }
+            public Channel Channel { get; }
+            public RejectedProp[] RejectedProps { get; }
+
+            public ChannelUpsertResult(bool success, Channel channel, RejectedProp[] rejectedProps = null)
+            {
+                Success = success;
+                Channel = channel;
+                RejectedProps = rejectedProps ?? Array.Empty<RejectedProp>();
+            }
         }
     }
 }

@@ -1,7 +1,7 @@
 ﻿<Solution>
-  <Project Path="Talo.Runtime.csproj" />
   <Project Path="Assembly-CSharp.csproj" />
   <Project Path="asset-store-tools-editor.csproj" />
+  <Project Path="Talo.Runtime.csproj" />
   <Project Path="Talo.Tests.csproj" />
   <Project Path="MikeSchweitzer.WebSocket.csproj" />
   <Project Path="Assembly-CSharp-Editor.csproj" />

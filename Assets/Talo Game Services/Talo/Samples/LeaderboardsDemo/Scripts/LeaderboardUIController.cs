@@ -42,14 +42,14 @@ namespace TaloGameServices.Sample.LeaderboardsDemo
             var team = UnityEngine.Random.Range(0, 2) == 0 ? "Blue" : "Red";
 
             await Talo.Players.Identify("username", username);
-            (LeaderboardEntry entry, bool updated) = await Talo.Leaderboards.AddEntry(
+            var result = await Talo.Leaderboards.AddEntry(
                 leaderboardName,
                 score,
                 ("team", team)
             );
 
             infoLabel.text = $"You scored {score} for the {team} team.";
-            if (updated) infoLabel.text += " Your highscore was updated!";
+            if (result.Updated) infoLabel.text += " Your highscore was updated!";
 
             entriesList.Rebuild();
         }

@@ -17,8 +17,15 @@ namespace TaloGameServices.Sample.Playground
 
             try
             {
-                await Talo.Feedback.Send(categoryInternalName, feedbackComment);
-                ResponseMessage.SetText($"Feedback sent for {categoryInternalName}: {feedbackComment}");
+                var result = await Talo.Feedback.Send(categoryInternalName, feedbackComment);
+                if (result.Success)
+                {
+                    ResponseMessage.SetText($"Feedback sent for {categoryInternalName}: {feedbackComment}");
+                }
+                else
+                {
+                    ResponseMessage.SetText("Failed to send feedback");
+                }
             }
             catch (Exception ex)
             {

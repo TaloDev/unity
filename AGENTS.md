@@ -45,18 +45,22 @@ The SDK supports offline operation via `TaloSettings.offlineMode`. When offline,
 Events are batched and flushed on application quit/pause/focus loss. On WebGL, events flush every `webGLEventFlushRate` seconds (default 30s) due to platform limitations.
 
 ### Debouncing
-Player updates and save updates are debounced to prevent excessive API calls during rapid property changes. APIs that need debouncing inherit from `DebouncedAPI<TOperation>` (a generic base class) and define a `DebouncedOperation` enum for type-safe operation keys. The base class uses a dictionary to track multiple debounced operations independently.
+Player updates and save updates are debounced to prevent excessive API calls during rapid property changes. APIs that need debouncing inherit from `DebouncedAPI<TOperation, TReturnData, TUpdateResult>` and define a `DebouncedOperation` enum for type-safe operation keys. The base class uses a dictionary to track multiple debounced operations independently.
 
-The debounce is **leading and trailing**: the first call fires immediately (leading), and if further calls arrive during the debounce window they are coalesced into a single trailing call executed after the window closes. The window is defined by `debounceTimerSeconds` (default: 1s) and resets on each subsequent call.
+The debounce is **trailing**: calls are coalesced into a single API call executed after the debounce window closes. The window is defined by `debounceTimerSeconds` (default: 1s) and resets on each subsequent call. All callers in the same window share the same `Task` result.
 
 To add debouncing to an API:
 1. Define a public `enum DebouncedOperation` with your debounced operations
-2. Inherit from `DebouncedAPI<YourAPI.DebouncedOperation>`
+2. Inherit from `DebouncedAPI<YourAPI.DebouncedOperation, TReturnData, TUpdateResult>`
 3. Call `Debounce(DebouncedOperation.YourOperation)` to queue an operation
 4. Implement `ExecuteDebouncedOperation(DebouncedOperation operation)` with a switch statement
 5. The base class's `ProcessPendingUpdates()` is called by `TaloManager.Update()` every frame
 
-Example: `PlayersAPI` defines `enum DebouncedOperation { Update }` and inherits from `DebouncedAPI<PlayersAPI.DebouncedOperation>`. When `Player.SetProp()` is called, it calls `Debounce(DebouncedOperation.Update)`. The first call fires immediately; subsequent calls within the debounce window result in a single trailing API call at the end of the window.
+Example: `PlayersAPI` defines `enum DebouncedOperation { Update }` and inherits from `DebouncedAPI<PlayersAPI.DebouncedOperation, RejectedProp[], PlayersAPI.PlayerUpdateResult>`. When `Player.SetProp()` is called, it calls `Debounce(DebouncedOperation.Update)`. The first call opens a window; subsequent calls within the window extend it. A single trailing API call fires at the end of the window.
+
+#### Debounced update completion signals
+
+`Player.SetProp(...)` returns `Task<PlayerUpdateResult>`, `Talo.Saves.UpdateCurrentSave()` returns `Task<SaveUpdateResult>`. All callers in the same debounce window share the same settle result. `FlushUpdates()` returns `FlushResult` (`NothingPending`, `Success`, `Failure`). `OnPlayerUpdated(bool)` / `OnSaveUpdated(bool, GameSave)` fire after each settle. `TaloManager.OnApplicationQuit()` flushes pending updates automatically.
 
 ## Key Configuration
 

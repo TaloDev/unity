@@ -9,7 +9,7 @@ namespace TaloGameServices
     public class BaseAPI
     {
         // automatically updated with a pre-commit hook
-        private const string ClientVersion = "0.60.2";
+        private const string ClientVersion = "1.0.0";
 
         protected string baseUrl;
 
@@ -145,7 +145,14 @@ namespace TaloGameServices
                             return await Call(uri, method, content, headers, continuity);
                         }
 
-                        throw new PlayerAuthException(errorCode, new Exception(message));
+                        if (uri.AbsolutePath.Contains("/v1/players/auth/"))
+                        {
+                            throw new PlayerAuthException(errorCode, new Exception(message));
+                        }
+                        else
+                        {
+                            throw new RequestException(www.responseCode, new Exception(message), www.downloadHandler.text);
+                        }
                     }
                 }
             }

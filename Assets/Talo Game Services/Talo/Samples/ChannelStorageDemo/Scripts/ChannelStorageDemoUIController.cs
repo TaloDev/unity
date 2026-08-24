@@ -60,12 +60,22 @@ namespace TaloGameServices.Sample.ChannelStorageDemo
                 var createOptions = new CreateChannelOptions()
                 {
                     name = "Channel Storage Demo",
-                    props = new (string, string)[]
+                    props = new []
                     {
-                    ( "channel-storage-demo", "true" )
+                        ("channel-storage-demo", "true")
                     }
                 };
-                demoChannel = await Talo.Channels.Create(createOptions);
+                var createResult = await Talo.Channels.Create(createOptions);
+                if (createResult.Success)
+                {
+                    demoChannel = createResult.Channel;
+                }
+            }
+
+            if (demoChannel == null)
+            {
+                Debug.LogError("Failed to create or find a channel for the Channel Storage Demo");
+                return;
             }
 
             await Talo.Channels.Join(demoChannel.id);
@@ -139,7 +149,7 @@ namespace TaloGameServices.Sample.ChannelStorageDemo
             }
         }
 
-        private void OnChannelStoragePropsFailedToSet(Channel channel, ChannelStoragePropError[] errors)
+        private void OnChannelStoragePropsFailedToSet(Channel channel, RejectedProp[] errors)
         {
             foreach (var prop in errors)
             {

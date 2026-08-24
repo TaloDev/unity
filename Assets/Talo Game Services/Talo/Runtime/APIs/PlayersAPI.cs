@@ -9,22 +9,23 @@ namespace TaloGameServices
         public string postMergeIdentityService = "";
     }
 
-    public class PlayersAPI : DebouncedAPI<PlayersAPI.DebouncedOperation>
+    public class PlayersAPI : DebouncedAPI<PlayersAPI.DebouncedOperation, RejectedProp[], PlayersAPI.PlayerUpdateResult>
     {
         public enum DebouncedOperation
         {
             Update
         }
 
-        public event Action<Player> OnIdentified;
+        public event Action<PlayerAlias> OnIdentified;
         public event Action OnIdentificationStarted;
-        public event Action OnIdentificationFailed;
+        public event Action<IdentifyException> OnIdentificationFailed;
         public event Action OnIdentityCleared;
-        public event Action<RejectedProp[]> OnPropsRejected;
+        public event Action<bool> OnPlayerUpdated;
 
         public PlayersAPI() : base("v1/players")
         {
             Talo.OnConnectionRestored += OnConnectionRestored;
+            OnOperationSettled += (success, _) => OnPlayerUpdated?.Invoke(success);
         }
 
         private async void OnConnectionRestored()
@@ -43,10 +44,10 @@ namespace TaloGameServices
 
         public void InvokeIdentifiedEvent()
         {
-            OnIdentified?.Invoke(Talo.CurrentPlayer);
+            OnIdentified?.Invoke(Talo.CurrentAlias);
         }
 
-        private async Task<Player> HandleIdentifySuccess(PlayerAlias alias, string socketToken = "")
+        private async Task<PlayerAlias> HandleIdentifySuccess(PlayerAlias alias, string socketToken = "")
         {
             if (!Talo.IsOffline() && Talo.Socket.IsIdentified())
             {
@@ -61,10 +62,10 @@ namespace TaloGameServices
 
             InvokeIdentifiedEvent();
 
-            return alias.player;
+            return alias;
         }
 
-        public async Task<Player> Identify(string service, string identifier)
+        public async Task<PlayerAlias> Identify(string service, string identifier)
         {
             OnIdentificationStarted?.Invoke();
 
@@ -75,44 +76,41 @@ namespace TaloGameServices
 
             var uri = new Uri($"{baseUrl}/identify?service={service}&identifier={identifier}");
 
+            PlayersIdentifyResponse res;
             try
             {
                 var json = await Call(uri, "GET");
-
-                var res = JsonUtility.FromJson<PlayersIdentifyResponse>(json);
-                var alias = res.alias;
-                alias.WriteOfflineAlias();
-                return await HandleIdentifySuccess(alias, res.socketToken);
+                res = JsonUtility.FromJson<PlayersIdentifyResponse>(json);
             }
-            catch
+            catch (Exception ex)
             {
                 await Talo.PlayerAuth.SessionManager.ClearSession();
-                OnIdentificationFailed?.Invoke();
+                OnIdentificationFailed?.Invoke(IdentifyException.FromException(ex));
                 throw;
             }
+
+            res.alias.WriteOfflineAlias();
+            return await HandleIdentifySuccess(res.alias, res.socketToken);
         }
 
-        public async Task<Player> IdentifySteam(string ticket, string identityClient = "")
+        public async Task<PlayerAlias> IdentifySteam(string ticket, string identityClient = "")
         {
             if (string.IsNullOrEmpty(identityClient))
             {
-                await Identify("steam", ticket);
+                return await Identify("steam", ticket);
             }
             else
             {
-                await Identify("steam", $"{identityClient}:{ticket}");
+                return await Identify("steam", $"{identityClient}:{ticket}");
             }
-
-            return Talo.CurrentPlayer;
         }
 
-        public async Task<Player> IdentifyGooglePlayGames(string authCode)
+        public async Task<PlayerAlias> IdentifyGooglePlayGames(string authCode)
         {
-            await Identify("google_play_games", authCode);
-            return Talo.CurrentPlayer;
+            return await Identify("google_play_games", authCode);
         }
 
-        public async Task<Player> IdentifyGameCenter(
+        public async Task<PlayerAlias> IdentifyGameCenter(
             string publicKeyUrl,
             byte[] signature,
             byte[] salt,
@@ -132,26 +130,39 @@ namespace TaloGameServices
 
             var identifier = Uri.EscapeDataString(JsonUtility.ToJson(payload));
 
-            await Identify("game_center", identifier);
-            return Talo.CurrentPlayer;
+            return await Identify("game_center", identifier);
         }
 
-        protected override async Task ExecuteDebouncedOperation(DebouncedOperation operation)
+        protected override async Task<RejectedProp[]> ExecuteDebouncedOperation(DebouncedOperation operation)
         {
-            switch (operation)
+            return operation switch
             {
-                case DebouncedOperation.Update:
-                    await Update();
-                    break;
-            }
+                DebouncedOperation.Update => await RunUpdate(),
+                _ => null,
+            };
         }
 
-        public void DebounceUpdate()
+        protected override PlayerUpdateResult BuildResult(bool success, RejectedProp[] updateData)
         {
-            Debounce(DebouncedOperation.Update);
+            if (!success)
+            {
+                return new PlayerUpdateResult(false);
+            }
+            return new PlayerUpdateResult(true, updateData);
+        }
+
+        public Task<PlayerUpdateResult> DebounceUpdate()
+        {
+            return Debounce(DebouncedOperation.Update);
         }
 
         public async Task<Player> Update()
+        {
+            await RunUpdate();
+            return Talo.CurrentPlayer;
+        }
+
+        private async Task<RejectedProp[]> RunUpdate()
         {
             Talo.IdentityCheck();
 
@@ -163,12 +174,7 @@ namespace TaloGameServices
             Talo.CurrentPlayer = res.player;
             Talo.CurrentAlias.WriteOfflineAlias();
 
-            if (res.rejectedProps != null && res.rejectedProps.Length > 0)
-            {
-                OnPropsRejected?.Invoke(res.rejectedProps);
-            }
-
-            return Talo.CurrentPlayer;
+            return res.rejectedProps ?? Array.Empty<RejectedProp>();
         }
 
         public async Task<Player> Merge(string playerId1, string playerId2, MergeOptions options = null)
@@ -203,7 +209,7 @@ namespace TaloGameServices
             return res.player;
         }
 
-        private async Task<Player> IdentifyOffline(string service, string identifier)
+        private async Task<PlayerAlias> IdentifyOffline(string service, string identifier)
         {
             PlayerAlias offlineAlias;
             try
@@ -213,7 +219,7 @@ namespace TaloGameServices
             catch
             {
                 PlayerAlias.DeleteOfflineAlias();
-                OnIdentificationFailed?.Invoke();
+                OnIdentificationFailed?.Invoke(new IdentifyException());
                 throw new Exception("Failed to parse offline player alias");
             }
 
@@ -222,7 +228,7 @@ namespace TaloGameServices
                 return await HandleIdentifySuccess(offlineAlias);
             }
 
-            OnIdentificationFailed?.Invoke();
+            OnIdentificationFailed?.Invoke(new IdentifyException());
             throw new Exception("No offline player alias found");
         }
 
@@ -260,6 +266,18 @@ namespace TaloGameServices
             {
                 Debug.LogWarning($"Failed to create socket token: {ex.Message}");
                 return "";
+            }
+        }
+
+        public class PlayerUpdateResult
+        {
+            public bool Success { get; }
+            public RejectedProp[] RejectedProps { get; }
+
+            public PlayerUpdateResult(bool success, RejectedProp[] rejectedProps = null)
+            {
+                Success = success;
+                RejectedProps = rejectedProps ?? Array.Empty<RejectedProp>();
             }
         }
     }

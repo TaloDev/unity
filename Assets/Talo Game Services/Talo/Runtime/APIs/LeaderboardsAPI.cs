@@ -45,8 +45,6 @@ namespace TaloGameServices
     {
         private readonly LeaderboardEntriesManager _entriesManager = new();
 
-        public event Action<RejectedProp[]> OnPropsRejected;
-
         public LeaderboardsAPI() : base("v1/leaderboards") { }
 
         public List<LeaderboardEntry> GetCachedEntries(string internalName, GetCachedEntriesOptions options = null)
@@ -58,14 +56,6 @@ namespace TaloGameServices
                 (string.IsNullOrEmpty(options.playerId) || e.playerAlias.player.id == options.playerId) &&
                 (string.IsNullOrEmpty(options.aliasService) || e.playerAlias.service == options.aliasService)
             );
-        }
-
-        [Obsolete("Use GetCachedEntries(string internalName, GetCachedEntriesOptions options) with the aliasId or playerId option instead.")]
-        public List<LeaderboardEntry> GetCachedEntriesForCurrentPlayer(string internalName)
-        {
-            Talo.IdentityCheck();
-
-            return _entriesManager.GetEntries(internalName).FindAll(e => e.playerAlias.id == Talo.CurrentAlias.id);
         }
 
         public async Task<LeaderboardEntriesResponse> GetEntries(string internalName, GetEntriesOptions options = null)
@@ -85,42 +75,7 @@ namespace TaloGameServices
             return res;
         }
 
-        [Obsolete("Use GetEntries(string internalName, GetEntriesOptions options) with the aliasId or playerId option instead.")]
-        public async Task<LeaderboardEntriesResponse> GetEntriesForCurrentPlayer(string internalName, GetEntriesOptions options = null)
-        {
-            Talo.IdentityCheck();
-
-            options ??= new GetEntriesOptions();
-            options.aliasId = Talo.CurrentAlias.id;
-
-            return await GetEntries(internalName, options);
-        }
-
-        [Obsolete("Use GetEntries(string internalName, GetEntriesOptions options) instead.")]
-        public async Task<LeaderboardEntriesResponse> GetEntries(string internalName, int page, int aliasId = -1, bool includeArchived = false)
-        {
-            return await GetEntries(internalName, new GetEntriesOptions
-            {
-                page = page,
-                aliasId = aliasId,
-                includeArchived = includeArchived
-            });
-        }
-
-        [Obsolete("Use GetEntries(string internalName, GetEntriesOptions options) with the aliasId or playerId option instead.")]
-        public async Task<LeaderboardEntriesResponse> GetEntriesForCurrentPlayer(string internalName, int page, bool includeArchived = false)
-        {
-            Talo.IdentityCheck();
-
-            return await GetEntries(internalName, new GetEntriesOptions
-            {
-                page = page,
-                aliasId = Talo.CurrentAlias.id,
-                includeArchived = includeArchived
-            }); 
-        }
-
-        public async Task<(LeaderboardEntry, bool)> AddEntry(string internalName, float score, params (string, string)[] propTuples)
+        public async Task<AddEntryResult> AddEntry(string internalName, float score, params (string, string)[] propTuples)
         {
             Talo.IdentityCheck();
 
@@ -136,15 +91,31 @@ namespace TaloGameServices
                 var res = JsonUtility.FromJson<LeaderboardEntryResponse>(json);
                 _entriesManager.UpsertEntry(internalName, res.entry, true);
 
-                return (res.entry, res.updated);
+                return new AddEntryResult(true, res.entry, res.updated);
             }
             catch (RequestException ex)
             {
                 if (ex.IsBadRequest())
                 {
-                    RejectedProp.TryEmit(ex.responseBody, OnPropsRejected);
+                    return new AddEntryResult(false, null, false, RejectedProp.FromJson(ex.responseBody));
                 }
                 throw;
+            }
+        }
+
+        public class AddEntryResult
+        {
+            public bool Success { get; }
+            public LeaderboardEntry Entry { get; }
+            public bool Updated { get; }
+            public RejectedProp[] RejectedProps { get; }
+
+            public AddEntryResult(bool success, LeaderboardEntry entry, bool updated, RejectedProp[] rejectedProps = null)
+            {
+                Success = success;
+                Entry = entry;
+                Updated = updated;
+                RejectedProps = rejectedProps ?? Array.Empty<RejectedProp>();
             }
         }
     }
