@@ -42,21 +42,22 @@ namespace TaloGameServices
 
         public async Task<bool> ClearSession(bool resetSocket = true)
         {
-            if (!Talo.HasIdentity())
-            {
-                return false;
-            }
+            var hadIdentity = Talo.HasIdentity();
 
             _sessionToken = null;
             Talo.CurrentAlias = null;
-            PlayerAlias.DeleteOfflineAlias();
+
+            if (hadIdentity)
+            {
+                PlayerAlias.DeleteOfflineAlias();
+            }
 
             PlayerPrefs.DeleteKey("TaloRefreshToken");
 
             Talo.Events.ClearQueue();
             Talo.Continuity.ClearRequests();
 
-            if (resetSocket)
+            if (resetSocket && hadIdentity)
             {
                 try
                 {
@@ -68,7 +69,7 @@ namespace TaloGameServices
                 }
             }
 
-            return true;
+            return hadIdentity;
         }
 
         public string GetSessionToken()
