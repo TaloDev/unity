@@ -1,5 +1,10 @@
 #!/bin/bash
 
+# VERSION is only bumped in the main worktree, so skip linked worktrees
+if [ "$(git rev-parse --git-dir)" != "$(git rev-parse --git-common-dir)" ]; then
+    exit 0
+fi
+
 cd "Assets/Talo Game Services/Talo"
 
 VERSION_FILE="VERSION"

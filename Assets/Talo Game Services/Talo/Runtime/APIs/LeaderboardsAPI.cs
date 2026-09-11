@@ -75,6 +75,16 @@ namespace TaloGameServices
             return res;
         }
 
+        public async Task<LeaderboardTopEntriesResponse> GetTopEntries(string internalName, int limit)
+        {
+            Talo.IdentityCheck();
+
+            var uri = new Uri($"{baseUrl}/{internalName}/entries/top?limit={limit}");
+            var json = await Call(uri, "GET");
+
+            return JsonUtility.FromJson<LeaderboardTopEntriesResponse>(json);
+        }
+
         public async Task<AddEntryResult> AddEntry(string internalName, float score, params (string, string)[] propTuples)
         {
             Talo.IdentityCheck();
