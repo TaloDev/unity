@@ -9,7 +9,7 @@ namespace TaloGameServices
     public class BaseAPI
     {
         // automatically updated with a pre-commit hook
-        private const string ClientVersion = "1.1.0";
+        private const string ClientVersion = "1.2.0";
 
         protected string baseUrl;
 
@@ -82,7 +82,7 @@ namespace TaloGameServices
                 return HandleOfflineRequest(uri, method, content, allHeaders);
             }
 
-            byte[] json = new System.Text.UTF8Encoding().GetBytes(content);
+            byte[] json = RequestBodyEncoder.Encode(content, Talo.Settings.compressRequests, out var gzipped);
 
             using (UnityWebRequest www = new(uri, method))
             {
@@ -92,6 +92,11 @@ namespace TaloGameServices
                 foreach (var header in allHeaders)
                 {
                     www.SetRequestHeader(header.key, header.value);
+                }
+
+                if (gzipped)
+                {
+                    www.SetRequestHeader("Content-Encoding", RequestBodyEncoder.GzipEncoding);
                 }
 
                 var op = www.SendWebRequest();

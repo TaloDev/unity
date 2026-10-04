@@ -46,5 +46,8 @@ namespace TaloGameServices
 
         [Tooltip("The value for the verification key version")]
         public string verificationKeyValue = "";
+
+        [Tooltip("Gzip request bodies above 1KB")]
+        public bool compressRequests = true;
     }
 }

@@ -90,7 +90,7 @@ namespace TaloGameServices.Sample.FriendsDemo
         {
             playerName = GenerateRandomName();
             await Talo.Players.Identify("username", playerName);
-            Talo.CurrentPlayer.SetProp("demo", "friendsDemo");
+            await Talo.CurrentPlayer.SetProp("demo", "friendsDemo");
 
             playerNameLabel.text = $"You are: {playerName}";
             SendIntroFeedMessages();
