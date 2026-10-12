@@ -7,5 +7,6 @@ namespace TaloGameServices
     {
         public int aliasId;
         public string relationshipType;
+        public Prop[] props;
     }
 }
