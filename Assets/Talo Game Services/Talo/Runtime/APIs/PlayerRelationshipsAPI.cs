@@ -174,19 +174,58 @@ namespace TaloGameServices
             Talo.Socket.Send(new SocketRequest<PlayerRelationshipsBroadcastRequest>("v1.player-relationships.broadcast", payload));
         }
 
-        public async Task<PlayerAliasSubscription> SubscribeTo(int playerAliasId, RelationshipType relationshipType)
+        public async Task<SubscriptionUpsertResult> SubscribeTo(int playerAliasId, RelationshipType relationshipType, params (string, string)[] propTuples)
         {
             Talo.IdentityCheck();
 
             var request = new PlayerRelationshipsSubscribeToRequest
             {
                 aliasId = playerAliasId,
-                relationshipType = PlayerAliasSubscription.RelationshipTypeToString(relationshipType)
+                relationshipType = PlayerAliasSubscription.RelationshipTypeToString(relationshipType),
+                props = propTuples.Select((propTuple) => new Prop(propTuple)).ToArray()
             };
 
-            var json = await Call(GetUri(), "POST", JsonUtility.ToJson(request));
-            var response = JsonUtility.FromJson<PlayerRelationshipsSubscriptionResponse>(json);
-            return response.subscription;
+            try
+            {
+                var json = await Call(GetUri(), "POST", Prop.SanitiseJson(JsonUtility.ToJson(request)));
+                var response = JsonUtility.FromJson<PlayerRelationshipsSubscriptionResponse>(json);
+
+                return new SubscriptionUpsertResult(true, response.subscription);
+            }
+            catch (RequestException ex)
+            {
+                if (ex.IsBadRequest())
+                {
+                    return new SubscriptionUpsertResult(false, null, RejectedProp.FromJson(ex.responseBody));
+                }
+                throw;
+            }
+        }
+
+        public async Task<SubscriptionUpsertResult> UpdateSubscriptionProps(int subscriptionId, params (string, string)[] propTuples)
+        {
+            Talo.IdentityCheck();
+
+            var request = new PlayerRelationshipsUpdatePropsRequest
+            {
+                props = propTuples.Select((propTuple) => new Prop(propTuple)).ToArray()
+            };
+
+            try
+            {
+                var json = await Call(new Uri($"{baseUrl}/{subscriptionId}"), "PATCH", Prop.SanitiseJson(JsonUtility.ToJson(request)));
+                var response = JsonUtility.FromJson<PlayerRelationshipsSubscriptionResponse>(json);
+
+                return new SubscriptionUpsertResult(true, response.subscription);
+            }
+            catch (RequestException ex)
+            {
+                if (ex.IsBadRequest())
+                {
+                    return new SubscriptionUpsertResult(false, null, RejectedProp.FromJson(ex.responseBody));
+                }
+                throw;
+            }
         }
 
         public async Task RevokeSubscription(int subscriptionId)
@@ -278,6 +317,20 @@ namespace TaloGameServices
             var uri = new Uri($"{baseUrl}/subscriptions?{queryString}");
             var json = await Call(uri, "GET");
             return JsonUtility.FromJson<PlayerRelationshipsSubscriptionsListResponse>(json);
+        }
+
+        public class SubscriptionUpsertResult
+        {
+            public bool Success { get; }
+            public PlayerAliasSubscription Subscription { get; }
+            public RejectedProp[] RejectedProps { get; }
+
+            public SubscriptionUpsertResult(bool success, PlayerAliasSubscription subscription, RejectedProp[] rejectedProps = null)
+            {
+                Success = success;
+                Subscription = subscription;
+                RejectedProps = rejectedProps ?? Array.Empty<RejectedProp>();
+            }
         }
     }
 }
