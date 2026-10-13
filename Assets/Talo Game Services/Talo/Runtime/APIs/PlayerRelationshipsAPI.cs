@@ -162,13 +162,14 @@ namespace TaloGameServices
             return subscription.subscriber;
         }
 
-        public void Broadcast(string message)
+        public void Broadcast(string message, int[] playerAliasIds = null)
         {
             Talo.IdentityCheck();
 
             var payload = new PlayerRelationshipsBroadcastRequest
             {
-                message = message
+                message = message,
+                aliasIds = playerAliasIds
             };
 
             Talo.Socket.Send(new SocketRequest<PlayerRelationshipsBroadcastRequest>("v1.player-relationships.broadcast", payload));
