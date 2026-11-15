@@ -121,7 +121,7 @@ namespace TaloGameServices
                 {
                     if (www.responseCode > 500 || www.result != UnityWebRequest.Result.ProtocolError)
                     {
-                        Talo.Continuity.PushRequest(uri, method, content, headers, continuityTimestamp);
+                        Talo.Continuity.PushRequest(uri, method, content, allHeaders, continuityTimestamp);
                     }
 
                     string message = "";

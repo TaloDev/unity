@@ -26,6 +26,18 @@ namespace TaloGameServices
 
     public class ContinuityManager
     {
+        internal const string AuthorizationHeader = "Authorization";
+        internal const string SignatureHeader = "X-Talo-Signature";
+        internal const string ContinuityTimestampHeader = "X-Talo-Continuity-Timestamp";
+
+        // ProcessRequests writes these headers on every retry.
+        // PushRequest strips them so the queue keeps one copy and the first continuity timestamp wins.
+        private static readonly string[] _replayBuiltHeaders = {
+            AuthorizationHeader,
+            SignatureHeader,
+            ContinuityTimestampHeader
+        };
+
         private readonly string _continuityPath = Application.persistentDataPath + "/tc.bin";
 
         private readonly List<Request> _requests;
@@ -56,6 +68,8 @@ namespace TaloGameServices
             Talo.Crypto.WriteFileContent(_continuityPath, content);
         }
 
+        internal IReadOnlyList<Request> Requests => _requests;
+
         public bool HasRequests()
         {
             return _requests.Count > 0;
@@ -74,11 +88,28 @@ namespace TaloGameServices
                 uri = uri.ToString(),
                 method = method,
                 content = content,
-                headers = (headers ?? new List<HttpHeader>()).Where((h) => h.key != "Authorization" && h.key != "X-Talo-Signature").ToList(),
-                timestamp = timestamp
+                headers = (headers ?? new List<HttpHeader>()).Where((h) => !Array.Exists(_replayBuiltHeaders, (k) => k == h.key)).ToList(),
+                timestamp = ReadContinuityTimestamp(headers) ?? timestamp
             });
 
             WriteRequests();
+        }
+
+        // a request that fails again during replay keeps the timestamp it was first queued with
+        private static long? ReadContinuityTimestamp(List<HttpHeader> headers)
+        {
+            var header = headers?.Find((h) => h.key == ContinuityTimestampHeader);
+            if (header == null)
+            {
+                return null;
+            }
+
+            if (!long.TryParse(header.value, out var value))
+            {
+                return null;
+            }
+
+            return value;
         }
 
         public async Task ProcessRequests()
@@ -96,17 +127,17 @@ namespace TaloGameServices
 
                 var uri = new Uri(request.uri);
                 var headers = request.headers.Concat(new List<HttpHeader> {
-                    new("Authorization", $"Bearer {Talo.Settings.accessKey}")
+                    new(AuthorizationHeader, $"Bearer {Talo.Settings.accessKey}")
                 }).ToList();
 
-                if (request.headers.Find((h) => h.key == "X-Talo-Continuity-Timestamp") == null)
+                if (request.headers.Find((h) => h.key == ContinuityTimestampHeader) == null)
                 {
-                    headers.Add(new HttpHeader("X-Talo-Continuity-Timestamp", request.timestamp.ToString()));
+                    headers.Add(new HttpHeader(ContinuityTimestampHeader, request.timestamp.ToString()));
                 }
 
                 if (Talo.Settings.verificationEnabled)
                 {
-                    headers.Add(new HttpHeader("X-Talo-Signature", CryptoManager.CreateRequestSignature(request.content)));
+                    headers.Add(new HttpHeader(SignatureHeader, CryptoManager.CreateRequestSignature(request.content)));
                 }
 
                 try
