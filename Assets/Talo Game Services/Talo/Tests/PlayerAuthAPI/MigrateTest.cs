@@ -56,17 +56,6 @@ namespace TaloGameServices.Test
             Assert.AreEqual("caller-key", Talo.ClaimKeys.GetCurrentKey(Talo.CurrentPlayer));
         }
 
-        [Test]
-        public void SendsTheClaimKeyOfTheCurrentPlayer()
-        {
-            Talo.ClaimKeys.SaveKey("player-1", "current-key");
-            RequestMock.ReplyOnce(MigrateUri, "POST", MigrateSuccess());
-
-            Talo.PlayerAuth.MigrateAccount("password", "steam", SteamIdentifier).GetAwaiter().GetResult();
-
-            Assert.AreEqual("current-key", RequestMock.Requests[0].GetHeader(ClaimKeyManager.Header));
-        }
-
         private static string MigrateSuccess()
         {
             return JsonUtility.ToJson(new PlayerAuthMigrateAccountResponse

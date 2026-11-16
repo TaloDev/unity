@@ -246,12 +246,6 @@ namespace TaloGameServices
 
         public async Task MigrateAccount(string currentPassword, string service, string identifier, string claimKey = "")
         {
-            // use the current player's claim key if one isn't supplied
-            if (string.IsNullOrEmpty(claimKey))
-            {
-                claimKey = Talo.ClaimKeys.GetCurrentKey(Talo.CurrentPlayer);
-            }
-
             var uri = new Uri($"{baseUrl}/migrate");
             string content = JsonUtility.ToJson(new PlayerAuthMigrateAccountRequest {
                 currentPassword = currentPassword,
