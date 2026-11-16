@@ -52,6 +52,9 @@ namespace TaloGameServices
         private static CryptoManager _crypto;
         public static CryptoManager Crypto => _crypto;
 
+        private static ClaimKeyManager _claimKeys;
+        public static ClaimKeyManager ClaimKeys => _claimKeys;
+
         private static ContinuityManager _continuity;
         public static ContinuityManager Continuity => _continuity;
 
@@ -167,6 +170,7 @@ namespace TaloGameServices
             }
 
             _crypto = new CryptoManager();
+            _claimKeys = new ClaimKeyManager();
             _continuity = new ContinuityManager();
             _socket = tm.gameObject.AddComponent<TaloSocket>();
 

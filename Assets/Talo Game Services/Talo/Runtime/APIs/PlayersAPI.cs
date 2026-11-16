@@ -7,6 +7,7 @@ namespace TaloGameServices
     public class MergeOptions
     {
         public string postMergeIdentityService = "";
+        public string player2ClaimKey = "";
     }
 
     public class PlayersAPI : DebouncedAPI<PlayersAPI.DebouncedOperation, RejectedProp[], PlayersAPI.PlayerUpdateResult>
@@ -65,7 +66,7 @@ namespace TaloGameServices
             return alias;
         }
 
-        public async Task<PlayerAlias> Identify(string service, string identifier)
+        public async Task<PlayerAlias> Identify(string service, string identifier, string claimKey = "")
         {
             OnIdentificationStarted?.Invoke();
 
@@ -74,40 +75,54 @@ namespace TaloGameServices
                 return await IdentifyOffline(service, identifier);
             }
 
-            var uri = new Uri($"{baseUrl}/identify?service={service}&identifier={identifier}");
+            // use the current player's claim key if one isn't supplied
+            if (string.IsNullOrEmpty(claimKey))
+            {
+                claimKey = Talo.ClaimKeys.GetIdentifyKey(service, identifier);
+            }
+
+            var uri = new Uri($"{baseUrl}/identify");
+            var content = JsonUtility.ToJson(new PlayersIdentifyRequest(service, identifier));
 
             PlayersIdentifyResponse res;
             try
             {
-                var json = await Call(uri, "GET");
+                // the player is not resolved yet, so send no identity headers
+                var json = await Call(uri, "POST", content, claimKey: claimKey, sendIdentity: false);
                 res = JsonUtility.FromJson<PlayersIdentifyResponse>(json);
             }
             catch (Exception ex)
             {
-                await Talo.PlayerAuth.SessionManager.ClearSession();
-                OnIdentificationFailed?.Invoke(IdentifyException.FromException(ex));
+                var failure = IdentifyException.FromException(ex);
+                if (failure.ErrorCode != IdentifyErrorCode.INVALID_CLAIM_KEY)
+                {
+                    await Talo.PlayerAuth.SessionManager.ClearSession();
+                }
+
+                OnIdentificationFailed?.Invoke(failure);
                 throw;
             }
 
+            Talo.ClaimKeys.SaveKey(res.alias.player.id, claimKey, res.alias.service, res.alias.identifier);
             res.alias.WriteOfflineAlias();
             return await HandleIdentifySuccess(res.alias, res.socketToken);
         }
 
-        public async Task<PlayerAlias> IdentifySteam(string ticket, string identityClient = "")
+        public async Task<PlayerAlias> IdentifySteam(string ticket, string identityClient = "", string claimKey = "")
         {
             if (string.IsNullOrEmpty(identityClient))
             {
-                return await Identify("steam", ticket);
+                return await Identify("steam", ticket, claimKey);
             }
             else
             {
-                return await Identify("steam", $"{identityClient}:{ticket}");
+                return await Identify("steam", $"{identityClient}:{ticket}", claimKey);
             }
         }
 
-        public async Task<PlayerAlias> IdentifyGooglePlayGames(string authCode)
+        public async Task<PlayerAlias> IdentifyGooglePlayGames(string authCode, string claimKey = "")
         {
-            return await Identify("google_play_games", authCode);
+            return await Identify("google_play_games", authCode, claimKey);
         }
 
         public async Task<PlayerAlias> IdentifyGameCenter(
@@ -115,7 +130,8 @@ namespace TaloGameServices
             byte[] signature,
             byte[] salt,
             ulong timestamp,
-            string playerId
+            string playerId,
+            string claimKey = ""
         )
         {
             var payload = new PlayersGameCenterIdentifier
@@ -128,9 +144,9 @@ namespace TaloGameServices
                 bundleId = Application.identifier
             };
 
-            var identifier = Uri.EscapeDataString(JsonUtility.ToJson(payload));
+            var identifier = JsonUtility.ToJson(payload);
 
-            return await Identify("game_center", identifier);
+            return await Identify("game_center", identifier, claimKey);
         }
 
         protected override async Task<RejectedProp[]> ExecuteDebouncedOperation(DebouncedOperation operation)
@@ -181,12 +197,21 @@ namespace TaloGameServices
         {
             options ??= new MergeOptions();
 
+            // the store may not have the second player's claim key, so the game can supply it
+            var player2ClaimKey = options.player2ClaimKey;
+            if (string.IsNullOrEmpty(player2ClaimKey))
+            {
+                player2ClaimKey = Talo.ClaimKeys.GetPlayerKey(playerId2);
+            }
+
             var uri = new Uri($"{baseUrl}/merge");
-            string content = JsonUtility.ToJson(new PlayersMergeRequest(playerId1, playerId2));
+            string content = new PlayersMergeRequest(playerId1, playerId2, player2ClaimKey).ToJson();
             var json = await Call(uri, "POST", content);
 
             var res = JsonUtility.FromJson<PlayersUpdateResponse>(json);
             var player = res.player;
+
+            HandleMergedClaimKeys(player, playerId2, player2ClaimKey);
 
             if (!string.IsNullOrEmpty(options.postMergeIdentityService))
             {
@@ -198,6 +223,26 @@ namespace TaloGameServices
             }
 
             return player;
+        }
+
+        private void HandleMergedClaimKeys(Player player, string playerId2, string player2ClaimKey)
+        {
+            // a surviving player with no claim key takes the merged player's key
+            var mergedPlayerHasClaimKey = !string.IsNullOrEmpty(player2ClaimKey);
+            var survivorHasNoClaimKey = string.IsNullOrEmpty(Talo.ClaimKeys.GetPlayerKey(player.id));
+            if (mergedPlayerHasClaimKey && survivorHasNoClaimKey)
+            {
+                Talo.ClaimKeys.SaveKey(player.id, player2ClaimKey);
+            }
+
+            // the merged aliases belong to the surviving player now, so their keys follow
+            var survivorKey = Talo.ClaimKeys.GetPlayerKey(player.id);
+            foreach (var alias in player.aliases ?? Array.Empty<PlayerAlias>())
+            {
+                Talo.ClaimKeys.SaveKey(player.id, survivorKey, alias.service, alias.identifier);
+            }
+
+            Talo.ClaimKeys.ForgetPlayer(playerId2);
         }
 
         public async Task<Player> Find(string playerId)
