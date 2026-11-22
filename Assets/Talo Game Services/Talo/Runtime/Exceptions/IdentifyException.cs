@@ -7,7 +7,8 @@ namespace TaloGameServices
     {
         UNKNOWN_ERROR,
         IDENTIFIER_PROFANITY,
-        IDENTIFIER_TAKEN
+        IDENTIFIER_TAKEN,
+        INVALID_CLAIM_KEY
     }
 
     public class IdentifyException : Exception

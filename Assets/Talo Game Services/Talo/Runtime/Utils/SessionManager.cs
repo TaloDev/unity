@@ -46,6 +46,7 @@ namespace TaloGameServices
 
             _sessionToken = null;
             Talo.CurrentAlias = null;
+            Talo.ClaimKeys.ClearCurrentKey();
 
             if (hadIdentity)
             {
