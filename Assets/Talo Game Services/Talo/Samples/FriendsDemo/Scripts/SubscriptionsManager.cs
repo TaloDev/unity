@@ -52,8 +52,8 @@ namespace TaloGameServices.Sample.FriendsDemo
 
         public async Task<bool> SendFriendRequest(PlayerAlias alias)
         {
-            var subscription = await Talo.PlayerRelationships.SubscribeTo(alias.id, RelationshipType.Bidirectional);
-            return subscription != null;
+            var result = await Talo.PlayerRelationships.SubscribeTo(alias.id, RelationshipType.Bidirectional);
+            return result.Success;
         }
 
         public async Task<bool> AcceptFriendRequest(PlayerAlias alias)

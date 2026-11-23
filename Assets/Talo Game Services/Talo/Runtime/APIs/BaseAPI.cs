@@ -9,7 +9,7 @@ namespace TaloGameServices
     public class BaseAPI
     {
         // automatically updated with a pre-commit hook
-        private const string ClientVersion = "1.2.0";
+        private const string ClientVersion = "1.3.0";
 
         protected string baseUrl;
 
@@ -23,7 +23,7 @@ namespace TaloGameServices
             return new Uri(baseUrl);
         }
 
-        private List<HttpHeader> BuildHeaders(string requestBody = "")
+        internal List<HttpHeader> BuildHeaders(string requestBody = "", string claimKey = "", bool sendIdentity = true)
         {
             var headers = new List<HttpHeader>
             {
@@ -35,15 +35,24 @@ namespace TaloGameServices
                 new HttpHeader("X-Talo-Client", $"unity:{ClientVersion}")
             };
 
-            if (Talo.CurrentAlias != null)
+            if (sendIdentity && Talo.CurrentAlias != null)
             {
                 headers.Add(new HttpHeader("X-Talo-Player", Talo.CurrentPlayer.id));
                 headers.Add(new HttpHeader("X-Talo-Alias", Talo.CurrentAlias.id.ToString()));
+            }
 
-                if (Talo.Settings.verificationEnabled)
-                {
-                    headers.Add(new HttpHeader("X-Talo-Signature", CryptoManager.CreateRequestSignature(requestBody)));
-                }
+            if (Talo.Settings.verificationEnabled)
+            {
+                headers.Add(new HttpHeader("X-Talo-Signature", CryptoManager.CreateRequestSignature(requestBody)));
+            }
+
+            var claimKeyToSend = sendIdentity && string.IsNullOrEmpty(claimKey)
+                ? Talo.ClaimKeys.GetCurrentKey(Talo.CurrentPlayer)
+                : claimKey;
+
+            if (!string.IsNullOrEmpty(claimKeyToSend))
+            {
+                headers.Add(new HttpHeader(ClaimKeyManager.Header, claimKeyToSend));
             }
 
             var sessionToken = Talo.PlayerAuth.SessionManager.GetSessionToken();
@@ -60,17 +69,19 @@ namespace TaloGameServices
             string method,
             string content = "",
             List<HttpHeader> headers = null,
-            bool continuity = false
+            bool continuity = false,
+            string claimKey = "",
+            bool sendIdentity = true
         )
         {
-            if (Talo.TestMode)
-            {
-                return RequestMock.HandleCall(uri, method);
-            }
-
             var continuityTimestamp = DateTimeOffset.Now.ToUnixTimeMilliseconds();
 
-            var allHeaders = continuity ? headers : BuildHeaders(content);
+            var allHeaders = continuity ? headers : BuildHeaders(content, claimKey, sendIdentity);
+
+            if (Talo.TestMode)
+            {
+                return RequestMock.HandleCall(uri, method, content, allHeaders);
+            }
 
             if (Talo.Settings.logRequests && Debug.isDebugBuild)
             {
@@ -121,7 +132,7 @@ namespace TaloGameServices
                 {
                     if (www.responseCode > 500 || www.result != UnityWebRequest.Result.ProtocolError)
                     {
-                        Talo.Continuity.PushRequest(uri, method, content, headers, continuityTimestamp);
+                        Talo.Continuity.PushRequest(uri, method, content, allHeaders, continuityTimestamp);
                     }
 
                     string message = "";
@@ -147,7 +158,7 @@ namespace TaloGameServices
                         if (errorCode == "INVALID_SESSION" && Talo.CurrentAlias != null && !uri.AbsolutePath.EndsWith("/v1/players/auth/refresh"))
                         {
                             await Talo.PlayerAuth.Refresh();
-                            return await Call(uri, method, content, headers, continuity);
+                            return await Call(uri, method, content, headers, continuity, claimKey, sendIdentity);
                         }
 
                         if (uri.AbsolutePath.Contains("/v1/players/auth/"))

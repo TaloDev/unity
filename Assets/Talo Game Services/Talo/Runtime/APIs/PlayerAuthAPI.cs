@@ -244,7 +244,7 @@ namespace TaloGameServices
             await _sessionManager.ClearSession();
         }
 
-        public async Task MigrateAccount(string currentPassword, string service, string identifier)
+        public async Task MigrateAccount(string currentPassword, string service, string identifier, string claimKey = "")
         {
             var uri = new Uri($"{baseUrl}/migrate");
             string content = JsonUtility.ToJson(new PlayerAuthMigrateAccountRequest {
@@ -252,10 +252,12 @@ namespace TaloGameServices
                 service = service,
                 identifier = identifier
             });
-            var json = await Call(uri, "POST", content);
+            var json = await Call(uri, "POST", content, claimKey: claimKey);
 
             var res = JsonUtility.FromJson<PlayerAuthMigrateAccountResponse>(json);
             await _sessionManager.HandleAccountMigrated(res);
+
+            Talo.ClaimKeys.SaveKey(res.alias.player.id, claimKey, res.alias.service, res.alias.identifier);
         }
     }
 }

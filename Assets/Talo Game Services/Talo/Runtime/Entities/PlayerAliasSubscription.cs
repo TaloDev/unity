@@ -9,7 +9,7 @@ namespace TaloGameServices
     }
 
     [Serializable]
-    public class PlayerAliasSubscription
+    public class PlayerAliasSubscription : EntityWithProps
     {
         public int id;
         public PlayerAlias subscriber;
